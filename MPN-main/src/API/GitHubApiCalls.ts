@@ -64,14 +64,12 @@ export default class GitHubApiCalls extends ApiCalls {
     }
 
     async handleAPI() {
-        logger.info(`Making API call to GitHub: ${this.owner}/${this.repo}`)
-        const response = await this.octokit
-            .request('GET /repos/{owner}/{repo}', {
-                owner: this.owner,
-                repo: this.repo,
-            })
-            .then((response: any) => response.data)
-        return response
+        logger.info(`Making API call to GitHub: ${this.owner}/${this.repo}`);
+        const response = await this.octokit.request('GET /repos/{owner}/{repo}', {
+            owner: this.owner,
+            repo: this.repo,
+        });
+        return response.data;
     }
 
     async fetchIssues(): Promise<any[]> {

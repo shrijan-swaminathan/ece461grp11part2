@@ -18,17 +18,17 @@ export default class License extends Metrics {
     async getLicense(): Promise<string> {
         if (this.apiCall instanceof NpmApiCalls) {
             const response = await this.apiCall.handleAPI()
-            const { owner, repo } = await extractInfoFromSSH(
-                response.repository.url
-            )
+            const { owner, repo } = await extractInfoFromSSH(response.repository.url)
             let gitInstance = new GitHubApiCalls(owner, repo)
             const githubResponse = await gitInstance.handleAPI()
 
             // Ensure license is present in GitHub API response
             if (githubResponse && githubResponse.license) {
                 return githubResponse.license.key
-            } else console.log('no license found')
-            return 'nothing'
+            } else {
+                logger.info('No license found in GitHub API response')
+                return 'nothing'
+            }
         } else {
             const githubResponse = await this.apiCall.handleAPI()
 
@@ -37,26 +37,22 @@ export default class License extends Metrics {
                 return githubResponse.license.key
             } else {
                 logger.info('License not found in GitHub API response')
+                return 'nothing'
             }
-            return 'nothing'
         }
     }
+
     async getUrl(): Promise<string> {
         if (this.apiCall instanceof NpmApiCalls) {
             const response = await this.apiCall.handleAPI()
-            const { owner, repo } = await extractInfoFromSSH(
-                response.repository.url
-            )
+            const { owner, repo } = await extractInfoFromSSH(response.repository.url)
             return `https://github.com/${owner}/${repo}`
         } else {
             return this.apiCall.url
         }
     }
 
-    async checkLicenseFile(
-        dir: string,
-        compatibleLicenses: string[]
-    ): Promise<boolean> {
+    async checkLicenseFile(dir: string, compatibleLicenses: string[]): Promise<boolean> {
         logger.info('Checking LICENSE file')
         const licenseFilePath = `${dir}/LICENSE`
         try {
@@ -87,18 +83,18 @@ export default class License extends Metrics {
         const myUrl = await this.getUrl()
         await this.removeDirectoryIfExists(dir)
         logger.info('Cloning the repository')
-        const response = await git
-            .clone({
+        try {
+            await git.clone({
                 fs,
                 http,
                 dir,
                 url: myUrl,
                 depth: 1,
             })
-            .then(() => {
-                logger.info('clone done')
-            })
-        return response
+            logger.info('Clone completed')
+        } catch (err) {
+            logger.error('Error cloning repository:', err)
+        }
     }
 
     async isLicenseCompatible(): Promise<number> {
@@ -125,7 +121,7 @@ export default class License extends Metrics {
     }
 
     async checkLicenseAPI(): Promise<boolean> {
-        logger.info('didnt find anything, attempting to use the license api')
+        logger.info('Attempting to check license via API')
         const license = await this.getLicense()
         if (contains(compatibleLicenses, license) != -1) {
             logger.info(`Compatible license: ${license}`)
@@ -139,10 +135,7 @@ export default class License extends Metrics {
         }
     }
 
-    async checkReadmeFile(
-        dir: string,
-        compatibleLicenses: string[]
-    ): Promise<boolean> {
+    async checkReadmeFile(dir: string, compatibleLicenses: string[]): Promise<boolean> {
         const readmeFilePath = `${dir}/README.md`
         try {
             const readmeFileExists = await fs.pathExists(readmeFilePath)
@@ -166,9 +159,7 @@ export default class License extends Metrics {
 
             for (const license of compatibleLicenses) {
                 if (licenseText.includes(license)) {
-                    logger.info(
-                        `Found compatible license in README.md: ${license}`
-                    )
+                    logger.info(`Found compatible license in README.md: ${license}`)
                     return true
                 }
             }
@@ -180,6 +171,7 @@ export default class License extends Metrics {
             return false
         }
     }
+
     async removeDirectoryIfExists(dir: string) {
         try {
             await fs.rm(dir, { recursive: true })

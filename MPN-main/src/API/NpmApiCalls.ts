@@ -2,6 +2,7 @@
 // import isLicenseCompatible from '../Metrics/license.js';
 import ApiCalls from './apiCalls.js'
 import logger from '../logger.js'
+import axios from 'axios'
 
 interface Contributor {
     name?: string
@@ -11,11 +12,14 @@ interface Contributor {
 
 export default class NpmApiCalls extends ApiCalls {
     async handleAPI() {
-        logger.info(`Making API call to npm: ${this.repo}`)
-        const res = await fetch(`https://registry.npmjs.org/${this.repo}`).then(
-            (response) => response.json()
-        )
-        return res
+        logger.info(`Making API call to NPM: ${this.repo}`);
+        try {
+            const response = await axios.get(`https://registry.npmjs.org/${this.repo}`);
+            return response.data; // Return the package data
+        } catch (error) {
+            logger.error(`Error fetching package info for ${this.repo}:`, error);
+            throw error;
+        }
     }
 
     async fetchContributors(): Promise<Contributor[]> {
