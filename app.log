@@ -628,3 +628,95 @@
 2024-10-18T03:13:47.324Z INFO: Clone completed 
 2024-10-18T03:13:47.342Z INFO: Directory './t/tmp' was removed. 
 2024-10-18T03:13:47.343Z INFO: README.md file not found. 
+2024-10-19T02:37:21.358Z INFO: Making API call to NPM: express 
+2024-10-19T02:37:21.393Z INFO: Starting local debug call 
+2024-10-19T02:37:21.400Z INFO: Bus Factor Calculated: 0.8% 
+2024-10-19T02:37:21.407Z INFO: Starting computation of Correctness metric. 
+2024-10-19T02:37:21.398Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:21.399Z INFO: Making API call to GitHub: Exteri0/MPN 
+2024-10-19T02:37:21.408Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:21.408Z INFO: Making API call to GitHub: Exteri0/MPN 
+2024-10-19T02:37:21.401Z INFO: Bus Factor Calculated: 0.9% 
+2024-10-19T02:37:21.402Z INFO: No contributors found. 
+2024-10-19T02:37:21.403Z INFO: Bus Factor Calculated: 0.9090909090909091% 
+2024-10-19T02:37:21.403Z INFO: Bus Factor Calculated: 0.8% 
+2024-10-19T02:37:21.403Z INFO: Bus Factor Calculated: 0.6% 
+2024-10-19T02:37:21.406Z ERROR: Error while calculating bus factor: API Error [{}]
+2024-10-19T02:37:21.407Z INFO: Bus Factor Calculated: 0.9% 
+2024-10-19T02:37:21.407Z ERROR: Error while calculating bus factor: API Error [{}]
+2024-10-19T02:37:21.409Z INFO: Checking for test presence. 
+2024-10-19T02:37:21.409Z INFO: Calculating open issue ratio. 
+2024-10-19T02:37:21.409Z INFO: Calculating recency score. 
+2024-10-19T02:37:21.410Z INFO: Checking for CI presence. 
+2024-10-19T02:37:21.411Z INFO: Checking for documentation presence. 
+2024-10-19T02:37:21.411Z INFO: Checking for linters presence. 
+2024-10-19T02:37:21.412Z INFO: Correctness score computed: 0.9500000000000001 
+2024-10-19T02:37:21.415Z INFO: Starting computation of Correctness metric. 
+2024-10-19T02:37:21.415Z INFO: Checking for test presence. 
+2024-10-19T02:37:21.415Z INFO: Calculating open issue ratio. 
+2024-10-19T02:37:21.415Z WARN: Open issue ratio calculation is only applicable for GitHub repositories. 
+2024-10-19T02:37:21.415Z INFO: Calculating recency score. 
+2024-10-19T02:37:21.416Z INFO: Checking for CI presence. 
+2024-10-19T02:37:21.416Z WARN: CI presence check is only applicable for GitHub repositories. 
+2024-10-19T02:37:21.416Z INFO: Checking for documentation presence. 
+2024-10-19T02:37:21.416Z INFO: Checking for linters presence. 
+2024-10-19T02:37:21.416Z INFO: Correctness score computed: 0.85 
+2024-10-19T02:37:21.485Z INFO: Making API call to GitHub: lodash/lodash 
+2024-10-19T02:37:21.488Z INFO: Starting local debug call 
+2024-10-19T02:37:21.490Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:21.490Z INFO: Making API call to GitHub: Exteri0/MPN 
+2024-10-19T02:37:21.492Z ERROR: Error reading input file: Cannot read properties of undefined (reading 'Symbol(Symbol.asyncIterator)') 
+2024-10-19T02:37:21.492Z ERROR: No URL provided 
+2024-10-19T02:37:21.769Z INFO: Checking LICENSE file 
+2024-10-19T02:37:21.769Z INFO: LICENSE file not found. 
+2024-10-19T02:37:21.771Z ERROR: Error while removing directory: ENOENT: no such file or directory, lstat './t/tmp' [{"errno":-2,"code":"ENOENT","syscall":"lstat","path":"./t/tmp"}]
+2024-10-19T02:37:21.771Z INFO: Cloning the repository 
+2024-10-19T02:37:21.819Z INFO: Fetching contributors for npm package: express 
+2024-10-19T02:37:21.820Z INFO: Fetched contributors [[{"login":"John Doe","contributions":1}]]
+2024-10-19T02:37:21.820Z INFO: Fetching contributors for npm package: express 
+2024-10-19T02:37:21.820Z INFO: Fetched contributors [[{"login":"Jane Smith","contributions":1}]]
+2024-10-19T02:37:21.821Z INFO: Fetching contributors for npm package: express 
+2024-10-19T02:37:21.821Z WARN: No contributors found in the package metadata. 
+2024-10-19T02:37:21.821Z INFO: Fetching contributors for npm package: express 
+2024-10-19T02:37:21.822Z ERROR: Error fetching contributors: Network Error [{}]
+2024-10-19T02:37:21.914Z INFO: Final ramp-up score: 0.4802719283344072 
+2024-10-19T02:37:21.915Z INFO: RampUpTime score for iteration: [0.4802719283344072]
+2024-10-19T02:37:21.915Z INFO: Successfully finished 
+2024-10-19T02:37:21.952Z INFO: Final ramp-up score: 0.4802719283344072 
+2024-10-19T02:37:21.952Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:21.952Z INFO: Making API call to NPM: express 
+2024-10-19T02:37:22.096Z INFO: Fetching GitHub repository details from: https://github.com/expressjs/express 
+2024-10-19T02:37:22.096Z INFO: NEW URL IS:  ["https://github.com/expressjs/express"]
+2024-10-19T02:37:22.096Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:22.096Z INFO: Making API call to GitHub: expressjs/express 
+2024-10-19T02:37:22.305Z INFO: Final ramp-up score: 0.8134612440283269 
+2024-10-19T02:37:22.305Z INFO: Combined ramp-up score after including GitHub score: 0.8519236268343819 
+2024-10-19T02:37:22.305Z INFO: Final ramp-up score: 0.8519236268343819 
+2024-10-19T02:37:22.305Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:22.305Z INFO: Making API call to NPM: wat4hjs 
+2024-10-19T02:37:22.673Z INFO: Fetching GitHub repository details from: https://github.com/hasansultan92/watch.js 
+2024-10-19T02:37:22.673Z INFO: NEW URL IS:  ["https://github.com/hasansultan92/watch.js"]
+2024-10-19T02:37:22.673Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:22.673Z INFO: Making API call to GitHub: hasansultan92/watch.js 
+2024-10-19T02:37:22.986Z INFO: Final ramp-up score: 0.501348874595329 
+2024-10-19T02:37:22.986Z INFO: Combined ramp-up score after including GitHub score: 0.5442533359470262 
+2024-10-19T02:37:22.986Z INFO: Final ramp-up score: 0.5442533359470262 
+2024-10-19T02:37:22.987Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:22.987Z INFO: Making API call to GitHub: mrdoob/three.js 
+2024-10-19T02:37:23.263Z INFO: Final ramp-up score: 0.7606565373731481 
+2024-10-19T02:37:23.263Z INFO: Starting ramp-up time computation 
+2024-10-19T02:37:23.263Z INFO: Making API call to GitHub: prathameshnetake/libvlc 
+2024-10-19T02:37:23.615Z INFO: Final ramp-up score: 0.347698710821534 
+2024-10-19T02:37:33.218Z INFO: Clone completed 
+2024-10-19T02:37:33.219Z INFO: Checking LICENSE file 
+2024-10-19T02:37:33.219Z INFO: Found compatible license: CC0 
+2024-10-19T02:37:33.222Z INFO: Attempting to check license via API 
+2024-10-19T02:37:33.222Z INFO: Incompatible license: cc 
+2024-10-19T02:37:33.240Z INFO: Directory './t/tmp' was removed. 
+2024-10-19T02:37:33.240Z INFO: Cloning the repository 
+2024-10-19T02:37:45.838Z INFO: Clone completed 
+2024-10-19T02:37:45.858Z INFO: Directory './t/tmp' was removed. 
+2024-10-19T02:37:45.858Z INFO: Cloning the repository 
+2024-10-19T02:37:56.605Z INFO: Clone completed 
+2024-10-19T02:37:56.650Z INFO: Directory './t/tmp' was removed. 
+2024-10-19T02:37:56.650Z INFO: README.md file not found. 
