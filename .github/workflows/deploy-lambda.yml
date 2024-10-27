@@ -20,9 +20,9 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-        
-      - name: Check current working directory
-        run: pwd
+
+      - name: List contents current working directory
+        run: ls -al
 
       - name: Transpile .ts to .js
         run: tsc src/API/index.ts --lib ES2015
