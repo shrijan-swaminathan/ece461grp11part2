@@ -4,11 +4,17 @@ interface APIGatewayEvent {
     queryStringParameters?: Record<string, string>;
     resource?: string;
     body?: string;
-  }
+}
+
+type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
+
+interface TrackSelection {
+    plannedTracks: Track[];
+}
   
-  interface Context {
-    // Define any properties of the context you need, e.g., functionName
-  }
+interface Context {
+  // Define any properties of the context you need, e.g., functionName
+}
   
   export const handler = async (event: APIGatewayEvent, context: Context): Promise<{ statusCode: number; body: string }> => {
       const httpMethod = event.httpMethod || 'GET';
@@ -20,9 +26,18 @@ interface APIGatewayEvent {
       // Check to see if it's a GET request for team's selected tracks
       if (httpMethod === "GET" && resourcePath === "/tracks") {
         try {
+          const tracks: Track[] = [
+            "Performance track",
+            "Access control track",
+            "High assurance track",
+            "ML inside track"
+          ];
+          const response: TrackSelection = {
+            plannedTracks: [tracks[1]]
+          };
           return {
             statusCode: 200,
-            body: JSON.stringify("High Assurance Track")
+            body: JSON.stringify(response)
           };
         } catch (error) {
           return {
@@ -31,6 +46,16 @@ interface APIGatewayEvent {
           };
         }
       }
+
+      // handle to handle this request:
+      // POST /package
+      if (httpMethod === "POST" && resourcePath === "/package") {
+        return{
+          statusCode: 200,
+          body: JSON.stringify("Uploaded a package")
+        }
+      }
+
   
       // Handle other cases if needed
       return {
