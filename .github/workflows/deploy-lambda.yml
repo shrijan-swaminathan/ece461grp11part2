@@ -26,7 +26,7 @@ jobs:
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
-        run: zip -r function.zip api/index.js # Adjust this if you need a specific path or files
+        run: zip -j function.zip api/index.js
 
       - name: Deploy to AWS Lambda
         env:
