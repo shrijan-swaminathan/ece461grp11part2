@@ -20,10 +20,13 @@ jobs:
 
       - name: Install Dependencies
         run: npm install --prefix MPN-main
+      
+      - name: Transpile .ts to .js
+        run: tsc index.ts
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
-        run: zip -r function.zip lambda_function.py  # Adjust this if you need a specific path or files
+        run: zip -r function.zip index.js # Adjust this if you need a specific path or files
 
       - name: Deploy to AWS Lambda
         env:
@@ -32,5 +35,5 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws lambda update-function-code \
-            --function-name testfunc \
+            --function-name RestHandler \
             --zip-file fileb://function.zip
