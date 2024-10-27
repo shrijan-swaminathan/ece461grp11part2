@@ -22,7 +22,8 @@ jobs:
         run: npm install
       
       - name: Transpile .ts to .js
-        run: tsc src/API/index.ts --lib ES2015
+        working-directory: src/API
+        run: tsc index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
