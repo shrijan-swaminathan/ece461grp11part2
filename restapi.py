@@ -7,8 +7,8 @@ def lambda_handler(event, context):
     resource_path = event.get('resource', '')
     body = event.get('body')
 
-    # Added comment here
-    
+    # check to see if it its a GET request for team's selected tracks
+
     if http_method == "GET" and resource_path=="/tracks":
         try:
             return {
