@@ -1,0 +1,22 @@
+{
+  "name": "ece461grp11part2",
+  "version": "1.0.0",
+  "description": "Part 2 of ECE 461 Module Registry Project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shrijan-swaminathan/ece461grp11part2.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/shrijan-swaminathan/ece461grp11part2/issues"
+  },
+  "homepage": "https://github.com/shrijan-swaminathan/ece461grp11part2#readme",
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.145"
+  }
+}
