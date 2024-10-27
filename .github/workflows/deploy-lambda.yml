@@ -2,7 +2,8 @@ name: Deploy Lambda Function
 
 on:
   push:
-    branches: [main]  # Trigger on push to the main branch
+    branches: 
+      - main  # Trigger on push to the main branch
 
 jobs:
   deploy:
@@ -20,17 +21,15 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # - name: Format Check
-      #   run: npx prettier --check .
-      
-      #- name: Zip Lambda Function
-      #  run: zip -r function.zip .  # Adjust this if you need a specific path or files
+      # Uncomment and adjust these lines as needed
+      # - name: Zip Lambda Function
+      #   run: zip -r function.zip .  # Adjust this if you need a specific path or files
 
       - name: Deploy to AWS Lambda
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-       # run: |
-       #   aws lambda update-function-code \
-       #     --function-name YOUR_LAMBDA_FUNCTION_NAME \
-       #     --zip-file fileb://function.zip
+        run: |
+          aws lambda update-function-code \
+            --function-name YOUR_LAMBDA_FUNCTION_NAME \
+            --zip-file fileb://function.zip
