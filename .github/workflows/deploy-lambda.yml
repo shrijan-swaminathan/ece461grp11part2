@@ -22,14 +22,15 @@ jobs:
         run: npm install --prefix MPN-main
 
       # Uncomment and adjust these lines as needed
-      # - name: Zip Lambda Function
-      #   run: zip -r function.zip .  # Adjust this if you need a specific path or files
+      - name: Zip Lambda Function
+        run: zip -r function.zip restapi.py  # Adjust this if you need a specific path or files
 
       - name: Deploy to AWS Lambda
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws lambda update-function-code \
-            --function-name YOUR_LAMBDA_FUNCTION_NAME \
+            --function-name testfunc \
             --zip-file fileb://function.zip
