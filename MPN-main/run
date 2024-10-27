@@ -40,7 +40,6 @@ if [ "$1" == "install" ]; then
 elif [ "$1" == "test" ]; then
   echo "Running tests..."
   npx vitest --coverage
-  fi
 # Check if a file path is provided
 elif [[ -n "$1" ]]; then
   INPUT_PATH="$1"
