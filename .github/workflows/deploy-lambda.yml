@@ -20,9 +20,11 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-      
-      - name: Transpile .ts to .js
+        
+      - name: Check current working directory
         run: pwd
+
+      - name: Transpile .ts to .js
         run: tsc src/API/index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
