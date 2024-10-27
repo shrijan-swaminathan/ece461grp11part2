@@ -22,7 +22,7 @@ jobs:
         run: npm install --prefix MPN-main
       
       - name: Transpile .ts to .js
-        run: tsc index.ts
+        run: tsc index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
