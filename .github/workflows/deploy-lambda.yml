@@ -23,7 +23,7 @@ jobs:
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
-        run: zip -r function.zip restapi.py  # Adjust this if you need a specific path or files
+        run: zip -r function.zip lambda_function.py  # Adjust this if you need a specific path or files
 
       - name: Deploy to AWS Lambda
         env:
