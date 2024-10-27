@@ -52,7 +52,7 @@ elif [[ -n "$1" ]]; then
       echo "TypeScript compilation failed." >&3
       exit 1
     fi
-    node build/cliClass.js "$INPUT_PATH"
+    node build/src/cliClass.js "$INPUT_PATH"
     APP_EXIT_STATUS=$?
     exit $APP_EXIT_STATUS
   else
