@@ -21,11 +21,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: List contents current working directory
-        run: ls -al
+      - name: Change working directory
+        run: cd src/API
 
       - name: Transpile .ts to .js
-        run: tsc src/API/index.ts --lib ES2015
+        run: tsc index.ts --lib ES2015
+      
+      - name: Return to root directory
+        run: cd ../..
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
