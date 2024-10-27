@@ -21,18 +21,12 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Change working directory
-        run: cd src/API
-
       - name: Transpile .ts to .js
-        run: tsc index.ts --lib ES2015
-      
-      - name: Return to root directory
-        run: cd ../..
+        run: tsc src/api/index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
-        run: zip -j function.zip src/API/index.js
+        run: zip -j function.zip src/api/index.js
 
       - name: Deploy to AWS Lambda
         env:
