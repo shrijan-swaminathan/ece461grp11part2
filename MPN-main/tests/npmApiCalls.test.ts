@@ -43,7 +43,7 @@ describe('NpmApiCalls Class', () => {
             version: '1.0.0',
         }
 
-        ;(fetch as unknown as vi.Mock).mockResolvedValue({
+        ;(fetch as unknown as Mock).mockResolvedValue({
             json: async () => mockResponse,
         })
 
@@ -73,7 +73,7 @@ describe('NpmApiCalls Class', () => {
             contributors: [{ name: 'John Doe', email: 'john@example.com' }],
         }
 
-        ;(fetch as unknown as vi.Mock).mockResolvedValue({
+        ;(fetch as unknown as Mock).mockResolvedValue({
             json: async () => mockResponse,
         })
 
@@ -100,7 +100,7 @@ describe('NpmApiCalls Class', () => {
             maintainers: [{ name: 'Jane Smith', email: 'jane@example.com' }],
         }
 
-        ;(fetch as unknown as vi.Mock).mockResolvedValue({
+        ;(fetch as unknown as Mock).mockResolvedValue({
             json: async () => mockResponse,
         })
 
@@ -127,7 +127,7 @@ describe('NpmApiCalls Class', () => {
         // Mock fetch response with no contributors or maintainers
         const mockResponse = {}
 
-        ;(fetch as unknown as vi.Mock).mockResolvedValue({
+        ;(fetch as unknown as Mock).mockResolvedValue({
             json: async () => mockResponse,
         })
 
@@ -150,7 +150,7 @@ describe('NpmApiCalls Class', () => {
         npmApiCalls.repo = packageName
 
         // Mock fetch to throw an error
-        ;(fetch as unknown as vi.Mock).mockRejectedValue(
+        ;(fetch as unknown as Mock).mockRejectedValue(
             new Error('Network Error')
         )
 
