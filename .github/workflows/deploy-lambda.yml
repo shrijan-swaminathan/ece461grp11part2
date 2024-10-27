@@ -19,7 +19,7 @@ jobs:
           node-version: '22.x'  # Specify your Node.js version
 
       - name: Install Dependencies
-        run: npm install
+        run: npm install --prefix MPN-main
 
       # Uncomment and adjust these lines as needed
       # - name: Zip Lambda Function
