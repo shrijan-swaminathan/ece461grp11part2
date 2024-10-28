@@ -50,7 +50,7 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
         run: |
-          rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
+          rsync -avz0 -e "ssh -o StrictHostKeyChecking=no" \
             --include 'src/api/frontend/index.html'\
             --exclude '*' \
           ./ $USER@$HOST:/var/www/html/
