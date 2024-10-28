@@ -22,10 +22,9 @@
             <h2>Upload a Module</h2>
             <form action="/upload" method="post" enctype="multipart/form-data">
                 <label for="moduleName">Module Name:</label>
-                <br>
                 <input type="text" id="moduleName" name="moduleName" required>
-
-                <label for="moduleFile">Module File:</label>
+                <br>
+                <label for="moduleFile">Module File (Must be a .zip file):</label>
                 <input type="file" id="moduleFile" name="moduleFile">
 
                 <button type="submit">Upload</button>
