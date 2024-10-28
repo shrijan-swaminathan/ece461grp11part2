@@ -56,4 +56,4 @@ jobs:
             --include 'index.js'\
             --include 'style.css'\
             --exclude '*' \
-          src/ $USER@$HOST:/var/www/html/
+          src/frontend/ $USER@$HOST:/var/www/html/
