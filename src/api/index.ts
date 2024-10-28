@@ -1,22 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
-// interface APIGatewayEvent {
-//     httpMethod?: string;
-//     pathParameters?: Record<string, string>;
-//     queryStringParameters?: Record<string, string>;
-//     resource?: string;
-//     body?: string;
-// }
-
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
 
 interface TrackSelection {
     plannedTracks: Track[];
 }
-  
-interface Context {
-  // Define any properties of the context you need, e.g., functionName
-}
+
   
   export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const httpMethod = event.httpMethod || 'GET';
