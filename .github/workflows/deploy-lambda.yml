@@ -51,4 +51,4 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
         run: |
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
-            --include 'subdir/index.html
+            --include 'src/api/frontend/index.html
