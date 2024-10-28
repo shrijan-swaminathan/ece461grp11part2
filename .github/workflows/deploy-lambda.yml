@@ -53,4 +53,4 @@ jobs:
           rsync -avzO -e "ssh -o StrictHostKeyChecking=no" \
             --include 'src/frontend/index.html'\
             --exclude '*' \
-          ./ $USER@$HOST:/var/www/html/
+          ./src/frontend/ $USER@$HOST:/var/www/html/
