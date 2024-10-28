@@ -51,4 +51,6 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
         run: |
           rsync -avz -e "ssh -o StrictHostKeyChecking=no" \
-            --include 'src/api/frontend/index.html'
+            --include 'src/api/frontend/index.html'\
+            --exclude '*' \
+          ./ $USER@$HOST:/var/www/html/
