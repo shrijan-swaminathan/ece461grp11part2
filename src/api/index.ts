@@ -1,4 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { S3 } from "aws-sdk";
 
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
 
@@ -6,6 +7,7 @@ interface TrackSelection {
     plannedTracks: Track[];
 }
 
+const s3 = new S3({ region: "us-east-2" });
   
   export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
       const httpMethod = event.httpMethod || 'GET';
@@ -41,6 +43,15 @@ interface TrackSelection {
       // handle to handle this request:
       // POST /package
       if (httpMethod === "POST" && resourcePath === "/package") {
+        try{
+          await s3.createBucket({ Bucket: 'testbucket'}).promise();
+        }
+        catch(error){
+          return{
+            statusCode: 400,
+            body: JSON.stringify("Failed to create bucket")
+          }
+        }
         return{
           statusCode: 200,
           body: JSON.stringify("Uploaded a package")
