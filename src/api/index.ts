@@ -45,7 +45,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     if (httpMethod === "POST" && resourcePath === "/package") {
       try{
         const createBucketCommand = new CreateBucketCommand({
-            Bucket: 'test-bucket-1234',
+            Bucket: 'ece461gp11-root-bucket',
         });
         await s3Client.send(createBucketCommand);
       }
