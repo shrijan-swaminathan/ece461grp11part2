@@ -52,7 +52,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       catch(error){
         return{
           statusCode: 400,
-          body: JSON.stringify("Failed to create bucket")
+          body: JSON.stringify("Failed to create bucket: " + error)
         }
       }
       return{
