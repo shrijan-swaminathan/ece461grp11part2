@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { S3 } from "aws-sdk";
+import { S3Client, CreateBucketCommand } from "@aws-sdk/client-s3";
 
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
 
@@ -7,7 +7,7 @@ interface TrackSelection {
     plannedTracks: Track[];
 }
 
-const s3 = new S3({ region: "us-east-2" });
+const s3Client = new S3Client({ region: "us-east-2" });
   
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const httpMethod = event.httpMethod || 'GET';
@@ -44,8 +44,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // POST /package
     if (httpMethod === "POST" && resourcePath === "/package") {
       try{
-        // await s3.createBucket({ Bucket: 'testbucket'}).promise();
-        console.log("Creating a bucket");
+        const createBucketCommand = new CreateBucketCommand({
+            Bucket: 'test-bucket-1234',
+        });
+        await s3Client.send(createBucketCommand);
       }
       catch(error){
         return{

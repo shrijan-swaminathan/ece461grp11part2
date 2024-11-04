@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/shrijan-swaminathan/ece461grp11part2#readme",
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.685.0",
     "@types/aws-lambda": "^8.10.145",
     "@types/node": "^22.8.7",
     "@vitest/coverage-v8": "^2.1.3",
