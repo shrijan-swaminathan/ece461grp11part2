@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { S3Client, CreateBucketCommand } from "@aws-sdk/client-s3";
+import { S3Client,PutObjectCommand } from "@aws-sdk/client-s3";
 
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
 
@@ -53,24 +53,62 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // handle to handle this request:
     // POST /package
     if (httpMethod === "POST" && resourcePath === "/package") {
-      let packageData: PackageData = JSON.parse(bodycontent);
-      console.log(packageData.Name);
-      // The bucket name is depending on X-auth-token
-      try{
-        // const createBucketCommand = new CreateBucketCommand({
-        //     Bucket: 'ece461gp11-root-bucket',
-        // });
-        // await s3Client.send(createBucketCommand);
-      }
-      catch(error){
-        return{
-          statusCode: 400,
-          body: JSON.stringify("Failed to create bucket: " + error)
+      try {
+        let packageData: PackageData = JSON.parse(bodycontent);
+        const { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
+        const bucketName = curr_bucket;
+    
+        if (!packageName) {
+          throw new Error("Package name is required");
         }
-      }
-      return{
-        statusCode: 200,
-        body: JSON.stringify("Uploaded a package")
+    
+        if (packageURL && packageContent) {
+          throw new Error("Cannot provide both URL and Content");
+        }
+    
+        if (!packageURL && !packageContent) {
+          throw new Error("Must provide either URL or Content");
+        }
+    
+        let zipContent: Buffer = Buffer.from('');
+        if (packageURL) {
+          // TODO: Implement logic to download package from URL
+          // zipContent = await downloadFromUrl(packageURL);
+        } else {
+          zipContent = Buffer.from(packageContent || '', 'base64');
+        }
+    
+        if (debloat) {
+          // TODO: Implement debloat logic
+          // zipContent = await debloatPackage(zipContent);
+        }
+    
+        const version = "1.0.0"; // TODO: Extract or generate version
+        const s3key = `${packageName}/${version}.zip`;
+    
+        const uploadCommand = new PutObjectCommand({
+          Bucket: bucketName,
+          Key: s3key,
+          Body: zipContent,
+          ContentType: 'application/zip'
+        });
+    
+        await s3Client.send(uploadCommand);
+    
+        if (JSProgram) {
+          // TODO: Store or execute JSProgram if needed
+          // await storeJSProgram(bucketName, packageName, version, JSProgram);
+        }
+    
+        return {
+          statusCode: 201,
+          body: JSON.stringify("Package uploaded successfully")
+        };
+      } catch (error: any) {
+        return {
+          statusCode: 400,
+          body: JSON.stringify({ error: error.message })
+        };
       }
     }
 
