@@ -8,13 +8,15 @@ interface TrackSelection {
 }
 
 const s3Client = new S3Client({ region: "us-east-2" });
+let curr_bucket = 'ece461gp11-root-bucket';
   
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const httpMethod = event.httpMethod || 'GET';
+    const headers = event.headers || {};
     const pathParameters = event.pathParameters || {};
     const queryStringParameters = event.queryStringParameters || {};
     const resourcePath = event.resource || '';
-    const body = event.body;
+    let bodycontent = event.body || '';
   
     // Check to see if it's a GET request for team's selected tracks
     if (httpMethod === "GET" && resourcePath === "/tracks") {
@@ -43,11 +45,13 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // handle to handle this request:
     // POST /package
     if (httpMethod === "POST" && resourcePath === "/package") {
+      const bodyContent = JSON.parse(bodycontent);
+      // The bucket name is depending on X-auth-token
       try{
-        const createBucketCommand = new CreateBucketCommand({
-            Bucket: 'ece461gp11-root-bucket',
-        });
-        await s3Client.send(createBucketCommand);
+        // const createBucketCommand = new CreateBucketCommand({
+        //     Bucket: 'ece461gp11-root-bucket',
+        // });
+        // await s3Client.send(createBucketCommand);
       }
       catch(error){
         return{
@@ -57,7 +61,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
       return{
         statusCode: 200,
-        body: JSON.stringify("Uploaded a package")
+        body: JSON.stringify("Uploaded a package", bodyContent)
       }
     }
 
