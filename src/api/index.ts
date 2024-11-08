@@ -15,6 +15,17 @@ interface PackageData {
   JSProgram?: string; 
 }
 
+interface PackageMetadata {
+  Name: string;
+  Version: string;
+  ID: string;
+}
+
+interface Package {
+  metadata: PackageMetadata;
+  data: PackageData;
+}
+
 const s3Client = new S3Client({ region: "us-east-2" });
 let curr_bucket = 'ece461gp11-root-bucket';
   
@@ -84,7 +95,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         }
     
         const version = "1.0.0"; // TODO: Extract or generate version
-        const s3key = `${packageName}/${version}.zip`;
+        const s3key = `${packageName}/${version}/${packageName}.zip`;
     
         const uploadCommand = new PutObjectCommand({
           Bucket: bucketName,
@@ -94,15 +105,34 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         });
     
         await s3Client.send(uploadCommand);
+
+        // Store PackageMetadata json file
+        const metadata: PackageMetadata = {
+          Name: packageName,
+          Version: version,
+          ID: `${packageName}-${version}`
+        };
+        const metadataKey = `${packageName}/${version}/metadata.json`;
+        const metadataContent = JSON.stringify(metadata);
+        const metadataUploadCommand = new PutObjectCommand({
+          Bucket: bucketName,
+          Key: metadataKey,
+          Body: metadataContent,
+          ContentType: 'application/json'
+        });
+        await s3Client.send(metadataUploadCommand);
     
         if (JSProgram) {
           // TODO: Store or execute JSProgram if needed
           // await storeJSProgram(bucketName, packageName, version, JSProgram);
         }
-    
+        const Packageresponse: Package = {
+          metadata: metadata,
+          data: packageData
+        };
         return {
           statusCode: 201,
-          body: JSON.stringify("Package uploaded successfully")
+          body: JSON.stringify(Packageresponse)
         };
       } catch (error: any) {
         return {
