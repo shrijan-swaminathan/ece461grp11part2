@@ -16,7 +16,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const pathParameters = event.pathParameters || {};
     const queryStringParameters = event.queryStringParameters || {};
     const resourcePath = event.resource || '';
-    let bodycontent = event.body || '';
+    const bodycontent = event.body || '';
+    console.log("Body content: " + bodycontent);
   
     // Check to see if it's a GET request for team's selected tracks
     if (httpMethod === "GET" && resourcePath === "/tracks") {
@@ -61,7 +62,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
       return{
         statusCode: 200,
-        body: JSON.stringify("Uploaded a package", bodyContent)
+        body: JSON.stringify("Uploaded a package: ")
       }
     }
 
