@@ -17,7 +17,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const queryStringParameters = event.queryStringParameters || {};
     const resourcePath = event.resource || '';
     const bodycontent = event.body || '';
-    console.log("Body content: " + bodycontent);
   
     // Check to see if it's a GET request for team's selected tracks
     if (httpMethod === "GET" && resourcePath === "/tracks") {
@@ -47,6 +46,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // POST /package
     if (httpMethod === "POST" && resourcePath === "/package") {
       const bodyContent = JSON.parse(bodycontent);
+      console.log("Body content: " + bodyContent);
       // The bucket name is depending on X-auth-token
       try{
         // const createBucketCommand = new CreateBucketCommand({
