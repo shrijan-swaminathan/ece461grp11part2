@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client,PutObjectCommand } from "@aws-sdk/client-s3";
 
+// Schema as given in OpenAPI specification
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
 
 interface TrackSelection {
@@ -84,7 +85,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         let zipContent: Buffer = Buffer.from('');
         if (packageURL) {
           // TODO: Implement logic to download package from URL
-          // zipContent = await downloadFromUrl(packageURL);
+          await downloadFromUrl(packageURL);
+          return {
+            statusCode: 200,
+            body: JSON.stringify("Package downloaded from URL")
+          }
         } else {
           zipContent = Buffer.from(packageContent || '', 'base64');
         }
@@ -103,7 +108,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           Body: zipContent,
           ContentType: 'application/zip'
         });
-    
         await s3Client.send(uploadCommand);
 
         // Store PackageMetadata json file
@@ -126,14 +130,17 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           // TODO: Store or execute JSProgram if needed
           // await storeJSProgram(bucketName, packageName, version, JSProgram);
         }
+
         const Packageresponse: Package = {
           metadata: metadata,
           data: packageData
         };
+
         return {
           statusCode: 201,
           body: JSON.stringify(Packageresponse)
         };
+
       } catch (error: any) {
         return {
           statusCode: 400,
@@ -142,6 +149,15 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       }
     }
 
+    // download from URL
+    async function downloadFromUrl(url: string){
+      // if url is github
+      if (url.includes('github')){
+        const [_, owner, repo, ...rest] = url.split('/').filter(Boolean);
+        console.log("owner: ", owner);
+        console.log("repo: ", repo);
+      }
+    }
 
     // Handle other cases if needed
     return {
