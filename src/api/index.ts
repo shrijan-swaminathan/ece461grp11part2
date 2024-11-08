@@ -70,7 +70,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         const { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
         const bucketName = curr_bucket;
     
-        if (!packageName) {
+        if (!packageName && packageContent) {
           throw new Error("Package name is required");
         }
     
@@ -85,11 +85,9 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         let zipContent: Buffer = Buffer.from('');
         if (packageURL) {
           // TODO: Implement logic to download package from URL
-          await downloadFromUrl(packageURL);
-          return {
-            statusCode: 200,
-            body: JSON.stringify("Package downloaded from URL")
-          }
+          // Public NPM package is ingestible if it passes metrics
+          // see doc for more details
+          // await downloadFromUrl(packageURL);
         } else {
           zipContent = Buffer.from(packageContent || '', 'base64');
         }
@@ -152,11 +150,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // download from URL
     async function downloadFromUrl(url: string){
       // if url is github
-      if (url.includes('github')){
-        const [_, owner, repo, ...rest] = url.split('/').filter(Boolean);
-        console.log("owner: ", owner);
-        console.log("repo: ", repo);
-      }
+      // got to npm registry, fetch github link, fetch zip file
+      // TODO: Implement logic to download package from URL
     }
 
     // Handle other cases if needed
