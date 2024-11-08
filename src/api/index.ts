@@ -46,7 +46,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // POST /package
     if (httpMethod === "POST" && resourcePath === "/package") {
       const bodyContent = JSON.parse(bodycontent);
-      console.log("Body content: " + bodyContent);
+      console.log("Body content: " + bodyContent[0].version);
       // The bucket name is depending on X-auth-token
       try{
         // const createBucketCommand = new CreateBucketCommand({
