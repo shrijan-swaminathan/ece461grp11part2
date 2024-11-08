@@ -110,7 +110,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         if (exists) {
           return {
             statusCode: 409,
-            body: JSON.stringify({ error: "Package already exists" })
+            body: JSON.stringify("Package already exists")
           }
         }
         const uploadCommand = new PutObjectCommand({
@@ -155,7 +155,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       } catch (error: any) {
         return {
           statusCode: 400,
-          body: JSON.stringify({ error: error.message })
+          body: JSON.stringify(error.message)
         };
       }
     }
