@@ -7,6 +7,14 @@ interface TrackSelection {
     plannedTracks: Track[];
 }
 
+interface PackageData {
+  Name: string;
+  Content?: string;
+  URL?: string;
+  debloat?: boolean;
+  JSProgram?: string; 
+}
+
 const s3Client = new S3Client({ region: "us-east-2" });
 let curr_bucket = 'ece461gp11-root-bucket';
   
@@ -45,8 +53,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // handle to handle this request:
     // POST /package
     if (httpMethod === "POST" && resourcePath === "/package") {
-      const bodyContent = JSON.parse(bodycontent);
-      console.log("Body content: " + bodyContent[0].version);
+      let packageData: PackageData = JSON.parse(bodycontent);
+      console.log(packageData.Name);
       // The bucket name is depending on X-auth-token
       try{
         // const createBucketCommand = new CreateBucketCommand({
