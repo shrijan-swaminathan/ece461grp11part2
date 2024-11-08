@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { S3Client,PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client,PutObjectCommand, ListObjectsV2Command} from "@aws-sdk/client-s3";
 
 // Schema as given in OpenAPI specification
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
@@ -99,7 +99,20 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     
         const version = "1.0.0"; // TODO: Extract or generate version
         const s3key = `${packageName}/${version}/${packageName}.zip`;
-    
+        const s3key2 = `${packageName}/`;
+        // check if key already exists
+        const exists = await s3Client.send(new ListObjectsV2Command({
+          Bucket: bucketName,
+          Prefix: s3key2,
+          MaxKeys: 1
+        })).then(response => response.Contents!.length > 0)
+          .catch(() => false);
+        if (exists) {
+          return {
+            statusCode: 409,
+            body: JSON.stringify({ error: "Package already exists" })
+          }
+        }
         const uploadCommand = new PutObjectCommand({
           Bucket: bucketName,
           Key: s3key,
