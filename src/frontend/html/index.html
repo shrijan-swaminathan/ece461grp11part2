@@ -15,42 +15,93 @@
 
     <main>
         <section id="upload">
-            <h2>Upload a Module</h2>
-            <form id="uploadForm" action="/api/upload" method="post" enctype="multipart/form-data">
-                <label for="moduleName">Module Name:</label>
-                <input type="text" id="moduleName" name="moduleName" required>
+            <h2>Upload/Ingest a Module</h2>
+            <form id="uploadForm" action="/api/upload" method="post" enctype="multipart/form-data" class="form-container">
+                <div class="form-group">
+                    <label for="moduleName">Module Name:</label>
+                    <input type="text" id="moduleName" name="moduleName" required placeholder="Enter module name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Upload Method:</label>
+                    <input type="radio" id="uploadFile" name="uploadMethod" value="file" checked onclick="toggleUploadMethod()">
+                    <label for="uploadFile">Upload a .zip File</label>
+                    <input type="radio" id="uploadURL" name="uploadMethod" value="url" onclick="toggleUploadMethod()">
+                    <label for="uploadURL">Provide NPM Package URL</label>
+                </div>
+                <div id="fileInputSection" class="form-group">
+                    <label for="moduleFile">Module File (Must be a .zip file):</label>
+                    <div class="file-input-container">
+                        <input type="file" id="moduleFile" name="moduleFile" accept=".zip">
+                        <button type="button" class="btn btn-remove" onclick="removeFile()">Remove File</button>
+                    </div>
+                </div>
 
-                <label for="moduleFile">Module File (Must be a .zip file):</label>
-                <input type="file" id="moduleFile" name="moduleFile" accept=".zip" required>
+                <!-- URL input for NPM package -->
+                <div id="urlInputSection" class="form-group hidden">
+                    <label for="npmPackageURL">NPM Package URL:</label>
+                    <input type="url" id="npmPackageURL" name="npmPackageURL" placeholder="Enter public NPM package URL">
+                </div>
 
-                <label for="debloat">Enable Debloat:</label>
-                <input type="checkbox" id="debloat" name="debloat">
-
-                <button type="button" onclick="uploadModule()">Upload</button>
+                <div class="form-group">
+                    <label for="debloat">
+                        <input type="checkbox" id="debloat" name="debloat">
+                        Enable Debloat
+                    </label>
+                </div>
+                <button type="button" class="btn btn-primary" onclick="uploadModule()">Upload</button>
             </form>
+
+            <!-- Loading Spinner -->
+            <div id="loadingSpinner"></div>
+
+            <!-- Upload Result -->
             <div id="uploadResult"></div>
         </section>
+        
 
         <section id="search">
             <h2>Search Modules</h2>
-            <form id="searchForm">
-                <label for="searchTerm">Search Term:</label>
-                <input type="text" id="searchTerm" name="searchTerm" required>
-                <button type="button" onclick="searchModules()">Search</button>
+            <form id="searchForm" class="form-container">
+                <div class="form-group">
+                    <label for="searchTerm">Enter Module Name or Keyword:</label>
+                    <input 
+                        type="text" 
+                        id="searchTerm" 
+                        name="searchTerm" 
+                        placeholder="e.g., express, lodash" 
+                        required 
+                        aria-label="Search Term">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="searchModules()">Search</button>
             </form>
-            <div id="results"></div>
+            <div id="results" class="results-container">
+                <h3>Search Results</h3>
+                <p>No results found. Please refine your search.</p> <!-- Placeholder text -->
+            </div>
         </section>
-
+        
         <section id="rate">
             <h2>Rate a Module</h2>
-            <form id="rateForm">
-                <label for="rateModuleName">Module Name:</label>
-                <input type="text" id="rateModuleName" name="rateModuleName" required>
-                <button type="button" onclick="getModuleRating()">Get Rating</button>
+            <form id="rateForm" class="form-container">
+                <div class="form-group">
+                    <label for="rateModuleName">Enter Module Name:</label>
+                    <input 
+                        type="text" 
+                        id="rateModuleName" 
+                        name="rateModuleName" 
+                        placeholder="e.g., react, axios" 
+                        required 
+                        aria-label="Module Name for Rating">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="getModuleRating()">Get Rating</button>
             </form>
-            <div id="ratingResults"></div>
+            <div id="ratingResults" class="results-container">
+                <h3>Module Rating</h3>
+                <p>No rating available yet. Please check back after reviewing.</p> <!-- Placeholder text -->
+            </div>
         </section>
-    </main>
+    </main>        
 
     <footer>
         <p>By: Group 11 - Rishab Pangal, Shrijan Swaminathan, Aarav Patel</p>
