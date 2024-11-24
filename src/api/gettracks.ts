@@ -1,5 +1,5 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { Track, TrackSelection, PackageData, PackageMetadata, Package, PackageCost } from './types';
+import { APIGatewayProxyResult } from 'aws-lambda';
+import { Track, TrackSelection} from './types';
 
 export function gettracks(): APIGatewayProxyResult {
     try {
