@@ -27,9 +27,16 @@ jobs:
       - name: Transpile Frontend .ts to .js
         run: tsc src/frontend/scripts/index.ts
 
-      # Uncomment and adjust these lines as needed
-      - name: Zip Lambda Function
-        run: zip -j function.zip src/api/index.js
+      - name: Compile TypeScript
+        run: |
+          mkdir -p dist
+          tsc src/api/index.ts src/api/types.ts --outDir dist
+      
+      - name: Create deployment package
+        run: |
+          cd dist
+          zip -r ../function.zip .
+          cd ..
 
       - name: Deploy to AWS Lambda
         env:
