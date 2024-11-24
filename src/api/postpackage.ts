@@ -9,7 +9,7 @@ export async function postpackage(bodycontent: any, curr_bucket: string, s3Clien
         const { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
         const bucketName = curr_bucket;
     
-        if (!packageName && packageContent) {
+        if (!packageName) {
           throw new Error("Package name is required");
         }
     
@@ -30,16 +30,14 @@ export async function postpackage(bodycontent: any, curr_bucket: string, s3Clien
         } else {
           zipContent = Buffer.from(packageContent || '', 'base64');
         }
-    
+        
         if (debloat) {
           // TODO: Implement debloat logic
           // zipContent = await debloatPackage(zipContent);
         }
-    
         const version = "1.0.0"; // TODO: Extract or generate version
         const packageID = randomUUID() as string;
-        const s3key = `packages/${packageName}/${packageID}/package.zip`;
-        const s3key2 = `${packageName}/${packageID}`;
+        const s3key2 = `packages/${packageName}`;
   
         // check if key already exists
         const exists = await s3Client.send(new ListObjectsV2Command({
@@ -59,7 +57,8 @@ export async function postpackage(bodycontent: any, curr_bucket: string, s3Clien
             body: JSON.stringify("Package already exists")
           }
         }
-  
+        
+        const s3key = `packages/${packageName}/${packageID}/package.zip`;
         const uploadCommand = new PutObjectCommand({
           Bucket: bucketName,
           Key: s3key,
