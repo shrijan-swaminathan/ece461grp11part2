@@ -21,9 +21,12 @@ async function uploadModule(): Promise<void> {
             debloat: debloatElement.checked,
             Name: moduleNameElement.value,
         };
-        const response: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package', {
-            method: 'POST',
-            body: JSON.stringify(requestBody),
+        // const response: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package', {
+        //     method: 'POST',
+        //     body: JSON.stringify(requestBody),
+        // });
+        const testResponse: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/tracks', {
+            method: 'GET'
         });
         // const result: { message: string } = await response.json();
         // const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');

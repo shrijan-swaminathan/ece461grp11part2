@@ -52,12 +52,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         };
         return {
           statusCode: 200,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+          },
           body: JSON.stringify(response)
         };
       } catch (error) {
         return {
           statusCode: 500,
-          headers: { 'Access-Control-Allow-Origin': '*', 'Acess-Control-Allow-Methods': 'GET, POST, PUT, DELETE' },
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+          },
           body: JSON.stringify("The system encountered an error while retrieving the student's track information.")
         };
       }
