@@ -26,7 +26,10 @@ function removeFile(): void {
 async function uploadModule(): Promise<void> {
     const form: HTMLFormElement | null = document.getElementById('uploadForm') as HTMLFormElement;
     const formData: FormData = new FormData(form);
-
+    const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
+    if (uploadResultElement) {
+        uploadResultElement.innerHTML = '';
+    }
     try {
         const loadingSpinner: HTMLElement | null = document.getElementById('loadingSpinner');
         if (loadingSpinner) {

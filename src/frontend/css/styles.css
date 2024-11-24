@@ -55,7 +55,6 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Section Spacing */
 section {
     margin: 20px 0;
     padding: 20px;
@@ -64,7 +63,6 @@ section {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-/* Forms */
 form {
     display: flex;
     flex-direction: column;
@@ -156,19 +154,15 @@ footer {
         width: 95%;
         padding: 10px;
     }
-
     h1 {
         font-size: 1.8em;
     }
-
     h2 {
         font-size: 1.4em;
     }
-
     form {
         gap: 10px;
     }
-
     input[type="text"], input[type="file"], button {
         font-size: 0.9em;
     }
