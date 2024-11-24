@@ -25,10 +25,10 @@ async function uploadModule(): Promise<void> {
             method: 'POST',
             body: JSON.stringify(requestBody),
         });
-        const result: { message: string } = await response.json();
+        const result= await response.json();
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
-            uploadResultElement.innerHTML = `Upload status: ${result.message}`;
+            uploadResultElement.innerHTML = `Upload status: ${result}`;
         }
     } catch (error: any) {
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
