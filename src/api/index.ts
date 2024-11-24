@@ -159,7 +159,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           statusCode: 201,
           headers: {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
           },
           body: JSON.stringify(Packageresponse)
         };
@@ -169,7 +169,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           statusCode: 400,
           headers: {
             'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
           },
           body: JSON.stringify(error.message)
         };
