@@ -65,11 +65,11 @@ jobs:
             --rsync-path="sudo rsync" \
             --include 'index.js' \
             --exclude '*' \
-            src/frontend/scripts/ $USER@$HOST:/var/www/scripts/
+            src/frontend/scripts/ $USER@$HOST:/var/www/html/scripts/
 
           # Deploy style.css to /var/www/css
           rsync -avzO --verbose -e "ssh -o StrictHostKeyChecking=no" \
             --rsync-path="sudo rsync" \
             --include 'styles.css' \
             --exclude '*' \
-            src/frontend/css/ $USER@$HOST:/var/www/css/
+            src/frontend/css/ $USER@$HOST:/var/www/html/css/
