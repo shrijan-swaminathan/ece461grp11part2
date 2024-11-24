@@ -157,12 +157,20 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
         return {
           statusCode: 201,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+          },
           body: JSON.stringify(Packageresponse)
         };
 
       } catch (error: any) {
         return {
           statusCode: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+          },
           body: JSON.stringify(error.message)
         };
       }

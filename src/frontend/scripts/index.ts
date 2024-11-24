@@ -21,23 +21,15 @@ async function uploadModule(): Promise<void> {
             debloat: debloatElement.checked,
             Name: moduleNameElement.value,
         };
-        // const response: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package', {
-        //     method: 'POST',
-        //     body: JSON.stringify(requestBody),
-        // });
-        const testResponse: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/tracks', {
-            method: 'GET'
+        const response: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
         });
-        // const result: { message: string } = await response.json();
-        // const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
-        // if (uploadResultElement) {
-        //     uploadResultElement.innerHTML = `Upload status: ${result.message}`;
-        // }
-        // if (response.ok) {
-        //     console.log('Upload successful!');
-        // } else {
-        //     console.error('Upload failed with status:', response.status);
-        // }
+        const result: { message: string } = await response.json();
+        const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
+        if (uploadResultElement) {
+            uploadResultElement.innerHTML = `Upload status: ${result.message}`;
+        }
     } catch (error: any) {
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {

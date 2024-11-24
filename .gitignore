@@ -139,3 +139,6 @@ dist
 
 # ziptesting folder
 ziptesting/
+
+# ignore compiled .ts file
+src/frontend/scripts/index.js
