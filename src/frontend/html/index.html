@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group 11 Module Registry</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <script src="../scripts/index.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Welcome to the ACME Module Registry</h1>
+        <h3>This is the site where you can upload, search, and get the ratings of modules.</h3>
+    </header>
+
+    <main>
+        <section id="upload">
+            <h2>Upload a Module</h2>
+            <form id="uploadForm" action="/api/upload" method="post" enctype="multipart/form-data">
+                <label for="moduleName">Module Name:</label>
+                <input type="text" id="moduleName" name="moduleName" required>
+
+                <label for="moduleFile">Module File (Must be a .zip file):</label>
+                <input type="file" id="moduleFile" name="moduleFile" accept=".zip" required>
+
+                <label for="debloat">Enable Debloat:</label>
+                <input type="checkbox" id="debloat" name="debloat">
+
+                <button type="button" onclick="uploadModule()">Upload</button>
+            </form>
+            <div id="uploadResult"></div>
+        </section>
+
+        <section id="search">
+            <h2>Search Modules</h2>
+            <form id="searchForm">
+                <label for="searchTerm">Search Term:</label>
+                <input type="text" id="searchTerm" name="searchTerm" required>
+                <button type="button" onclick="searchModules()">Search</button>
+            </form>
+            <div id="results"></div>
+        </section>
+
+        <section id="rate">
+            <h2>Rate a Module</h2>
+            <form id="rateForm">
+                <label for="rateModuleName">Module Name:</label>
+                <input type="text" id="rateModuleName" name="rateModuleName" required>
+                <button type="button" onclick="getModuleRating()">Get Rating</button>
+            </form>
+            <div id="ratingResults"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>By: Group 11 - Rishab Pangal, Shrijan Swaminathan, Aarav Patel</p>
+    </footer>
+</body>
+</html>

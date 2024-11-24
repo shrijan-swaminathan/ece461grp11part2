@@ -23,6 +23,7 @@ jobs:
 
       - name: Transpile .ts to .js
         run: tsc src/api/index.ts --lib ES2015
+             tsc src/frontend/scripts/index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
@@ -50,10 +51,23 @@ jobs:
           HOST: ${{ secrets.EC2_HOST }}
           USER: ${{ secrets.EC2_USER }}
         run: |
+          # Deploy index.html to /var/www/html
           rsync -avzO --verbose -e "ssh -o StrictHostKeyChecking=no" \
             --rsync-path="sudo rsync" \
-            --include 'index.html'\
-            --include 'index.js'\
-            --include 'style.css'\
+            --include 'index.html' \
             --exclude '*' \
-          src/frontend/ $USER@$HOST:/var/www/html/
+            src/frontend/html/ $USER@$HOST:/var/www/html/
+
+          # Deploy index.js to /var/www/scripts
+          rsync -avzO --verbose -e "ssh -o StrictHostKeyChecking=no" \
+            --rsync-path="sudo rsync" \
+            --include 'index.js' \
+            --exclude '*' \
+            src/frontend/scripts/ $USER@$HOST:/var/www/scripts/
+
+          # Deploy style.css to /var/www/css
+          rsync -avzO --verbose -e "ssh -o StrictHostKeyChecking=no" \
+            --rsync-path="sudo rsync" \
+            --include 'style.css' \
+            --exclude '*' \
+            src/frontend/css/ $USER@$HOST:/var/www/css/
