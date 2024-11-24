@@ -21,16 +21,20 @@ async function uploadModule(): Promise<void> {
             debloat: debloatElement.checked,
             Name: moduleNameElement.value,
         };
-        console.log(base64String);
         const response: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package', {
             method: 'POST',
             body: JSON.stringify(requestBody),
         });
-        const result: { message: string } = await response.json();
-        const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
-        if (uploadResultElement) {
-            uploadResultElement.innerHTML = `Upload status: ${result.message}`;
-        }
+        // const result: { message: string } = await response.json();
+        // const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
+        // if (uploadResultElement) {
+        //     uploadResultElement.innerHTML = `Upload status: ${result.message}`;
+        // }
+        // if (response.ok) {
+        //     console.log('Upload successful!');
+        // } else {
+        //     console.error('Upload failed with status:', response.status);
+        // }
     } catch (error: any) {
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
@@ -47,7 +51,8 @@ function readFileAsBase64(file: File): Promise<string> {
         const reader = new FileReader();
         reader.onload = () => {
             if (typeof reader.result === 'string') {
-                resolve(reader.result);
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
             } else {
                 reject(new Error('Failed to read file as base64 string'));
             }

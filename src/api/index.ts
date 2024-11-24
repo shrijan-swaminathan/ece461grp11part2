@@ -48,7 +48,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
           "ML inside track"
         ];
         const response: TrackSelection = {
-          plannedTracks: [tracks[1]]
+          plannedTracks: [tracks[2]]
         };
         return {
           statusCode: 200,
@@ -57,6 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       } catch (error) {
         return {
           statusCode: 500,
+          headers: { 'Access-Control-Allow-Origin': '*', 'Acess-Control-Allow-Methods': 'GET, POST, PUT, DELETE' },
           body: JSON.stringify("The system encountered an error while retrieving the student's track information.")
         };
       }
