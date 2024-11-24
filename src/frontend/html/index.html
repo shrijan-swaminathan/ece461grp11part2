@@ -16,7 +16,7 @@
     <main>
         <section id="upload">
             <h2>Upload/Ingest a Module</h2>
-            <form id="uploadForm" action="/api/upload" method="post" enctype="multipart/form-data" class="form-container">
+            <form id="uploadForm" class="form-container">
                 <div class="form-group">
                     <label for="moduleName">Module Name:</label>
                     <input type="text" id="moduleName" name="moduleName" required placeholder="Enter module name">
@@ -82,7 +82,7 @@
         </section>
         
         <section id="rate">
-            <h2>Rate a Module</h2>
+            <h2>Fetch Ratings for a Module</h2>
             <form id="rateForm" class="form-container">
                 <div class="form-group">
                     <label for="rateModuleName">Enter Module Name:</label>
@@ -98,7 +98,7 @@
             </form>
             <div id="ratingResults" class="results-container">
                 <h3>Module Rating</h3>
-                <p>No rating available yet. Please check back after reviewing.</p> <!-- Placeholder text -->
+                <p>No rating available yet. Please check back after reviewing.</p>
             </div>
         </section>
     </main>        
