@@ -70,6 +70,6 @@ jobs:
           # Deploy style.css to /var/www/css
           rsync -avzO --verbose -e "ssh -o StrictHostKeyChecking=no" \
             --rsync-path="sudo rsync" \
-            --include 'style.css' \
+            --include 'styles.css' \
             --exclude '*' \
             src/frontend/css/ $USER@$HOST:/var/www/css/
