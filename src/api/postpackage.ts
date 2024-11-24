@@ -37,7 +37,7 @@ export async function postpackage(bodycontent: any, curr_bucket: string, s3Clien
         }
         const version = "1.0.0"; // TODO: Extract or generate version
         const packageID = randomUUID() as string;
-        const s3key2 = `packages/${packageName}`;
+        const s3key2 = `packages/${packageName}/`;
   
         // check if key already exists
         const exists = await s3Client.send(new ListObjectsV2Command({
