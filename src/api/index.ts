@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { S3Client,PutObjectCommand, ListObjectsV2Command} from "@aws-sdk/client-s3";
+import { S3Client,PutObjectCommand, ListObjectsV2Command, GetObjectCommand} from "@aws-sdk/client-s3";
 
 // Schema as given in OpenAPI specification
 type Track = 'Performance track' | 'Access control track' | 'High assurance track' | 'ML inside track';
