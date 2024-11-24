@@ -25,14 +25,19 @@ async function uploadModule(): Promise<void> {
             method: 'POST',
             body: JSON.stringify(requestBody),
         });
-        const result= await response.json();
+        const result = await response.json();
+        if (response.status !== 201) {
+            throw new Error(result);
+        }
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
-            uploadResultElement.innerHTML = `Upload status: ${result}`;
+            uploadResultElement.style.color = 'green';
+            uploadResultElement.innerHTML = `Successfully uploaded module. ${JSON.stringify(result.metadata)}`;
         }
     } catch (error: any) {
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
+            uploadResultElement.style.color = 'red';
             uploadResultElement.innerHTML = error!.message || 'Upload failed. Please try again.';
         }
         console.error('Upload error:', error);
