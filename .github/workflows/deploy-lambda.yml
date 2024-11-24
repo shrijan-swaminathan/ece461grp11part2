@@ -21,8 +21,10 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Transpile .ts to .js
+      - name: Transpile API .ts to .js
         run: tsc src/api/index.ts --lib ES2015
+        
+      - name: Transpile Frontend .ts to .js
         run: tsc src/frontend/scripts/index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
