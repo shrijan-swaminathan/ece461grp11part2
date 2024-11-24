@@ -77,7 +77,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       // POST /packages
   if (httpMethod === 'POST' && resourcePath === '/packages') {
     try {
-      const packages: PackageData[] = JSON.parse(bodyContent);
+      const packages: PackageData[] = JSON.parse(bodycontent);
       const uploadedPackages: PackageMetadata[] = [];
 
       for (const packageData of packages) {
@@ -95,10 +95,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
         // Check if the package already exists
         const exists = await s3Client.send(new ListObjectsV2Command({
-          Bucket: bucketName,
+          Bucket: curr_bucket,
           Prefix: `${Name}/`,
           MaxKeys: 1
-        })).then(res => res.Contents && res.Contents.length > 0).catch(() => false);
+        })).then(response => response.Contents && response.Contents.length > 0).catch(() => false);
 
         if (exists) {
           return {
@@ -109,7 +109,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
         const contentBuffer = Buffer.from(Content || '', 'base64');
         await s3Client.send(new PutObjectCommand({
-          Bucket: bucketName,
+          Bucket: curr_bucket,
           Key: s3Key,
           Body: contentBuffer,
           ContentType: 'application/zip'
@@ -123,7 +123,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
         const metadataKey = `${Name}/${version}/metadata.json`;
         await s3Client.send(new PutObjectCommand({
-          Bucket: bucketName,
+          Bucket: curr_bucket,
           Key: metadataKey,
           Body: JSON.stringify(metadata),
           ContentType: 'application/json'
@@ -157,18 +157,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         };
       }
 
-      // Simulate fetching metadata from S3
+
       const metadataKey = `${id.split('-')[0]}/1.0.0/metadata.json`;
       const metadataObject = await s3Client.send(new GetObjectCommand({
-        Bucket: bucketName,
+        Bucket: curr_bucket,
         Key: metadataKey
       })).catch(() => {
         throw new Error(`Package ID "${id}" not found.`);
       });
 
       // Simulated cost calculation
-      const standaloneCost = 25.0; // Example standalone cost in MB
-      const transitiveDependenciesCost = 50.0; // Example cost for dependencies
+      const standaloneCost = 25.0; 
+      const transitiveDependenciesCost = 50.0; 
       const totalCost = dependency ? standaloneCost + transitiveDependenciesCost : standaloneCost;
 
       const costResponse: PackageCost = {
