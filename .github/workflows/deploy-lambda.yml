@@ -23,7 +23,7 @@ jobs:
 
       - name: Transpile .ts to .js
         run: tsc src/api/index.ts --lib ES2015
-             tsc src/frontend/scripts/index.ts --lib ES2015
+        run: tsc src/frontend/scripts/index.ts --lib ES2015
 
       # Uncomment and adjust these lines as needed
       - name: Zip Lambda Function
