@@ -2,6 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client,PutObjectCommand, ListObjectsV2Command, GetObjectCommand} from "@aws-sdk/client-s3";
 import { randomUUID } from 'crypto';
 import { Track, TrackSelection, PackageData, PackageMetadata, Package, PackageCost } from './types';
+import { gettracks } from './gettracks';
 
 const s3Client = new S3Client({ region: "us-east-2" });
 let curr_bucket = 'ece461gp11-root-bucket';
@@ -16,34 +17,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   
   // Check to see if it's a GET request for team's selected tracks
   if (httpMethod === "GET" && resourcePath === "/tracks") {
-    try {
-      const tracks: Track[] = [
-        "Performance track",
-        "Access control track",
-        "High assurance track",
-        "ML inside track"
-      ];
-      const response: TrackSelection = {
-        plannedTracks: [tracks[2]]
-      };
-      return {
-        statusCode: 200,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
-        },
-        body: JSON.stringify(response)
-      };
-    } catch (error) {
-      return {
-        statusCode: 500,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
-        },
-        body: JSON.stringify("The system encountered an error while retrieving the student's track information.")
-      };
-    }
+    return gettracks();
   }
 
   // POST /packages

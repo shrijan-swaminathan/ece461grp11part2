@@ -21,16 +21,13 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Transpile API .ts to .js
-        run: tsc src/api/index.ts --lib ES2015
-
       - name: Transpile Frontend .ts to .js
         run: tsc src/frontend/scripts/index.ts
 
       - name: Compile TypeScript
         run: |
           mkdir -p dist
-          tsc src/api/index.ts src/api/types.ts --outDir dist
+          tsc src/api/index.ts src/api/types.ts src/api/gettracks.ts --outDir dist
       
       - name: Create deployment package
         run: |
