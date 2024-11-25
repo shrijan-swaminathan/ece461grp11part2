@@ -165,7 +165,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   if (httpMethod === "GET" && resourcePath === "/package/{id}") {
-    const resp = await getPackage(pathParameters.id, curr_bucket, s3Client);
+    const resp = await getPackage(tableName, pathParameters.id, curr_bucket, s3Client, dynamoClient);
     return resp;
   }
 

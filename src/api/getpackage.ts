@@ -1,25 +1,27 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { GetObjectCommand} from "@aws-sdk/client-s3";
 import { PackageIndex } from './types';
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
-export async function getPackage(ID: any, curr_bucket: string, s3Client: any ): Promise<APIGatewayProxyResult> {
+export async function getPackage(
+    tableName: string,
+    ID: any, 
+    curr_bucket: string, 
+    s3Client: any, 
+    dynamoClient: DynamoDBDocumentClient
+): Promise<APIGatewayProxyResult> {
     try{
-        // First look through index/package-index.json to find packageName associated with ID
-        const indexParams = {
-            Bucket: curr_bucket,
-            Key: 'index/package-index.json'
-        };
-        const idxData = await s3Client.send(new GetObjectCommand(indexParams));
-        const indexContent = JSON.parse(await idxData.Body.transformToString());
-        let packageName = '';
-        let packageURL = '';
-        Object.entries(indexContent.packages as PackageIndex['packages']).forEach(([name, data]) => {
-            const versionInfo = data.versions.find(v => v.packageId === ID);
-            if (versionInfo) {
-                packageName = name;
-                packageURL = versionInfo.URL || '';  // Get URL if it exists
+        const command = new GetCommand({
+            TableName: tableName,
+            Key: {
+                'ID': ID
             }
         });
+
+        const packagemetaData = await dynamoClient.send(command);
+        const packageName = packagemetaData.Item?.Name;
+        const packageURL = packagemetaData.Item?.URL;
+
         if (!packageName) {
             return {
                 statusCode: 404,
@@ -30,7 +32,7 @@ export async function getPackage(ID: any, curr_bucket: string, s3Client: any ): 
                 body: JSON.stringify("Package does not exist")
             }
         }
-        // get the package metadata.json and package.zip
+        // get the package.zip
         const packageParams = {
             Bucket: curr_bucket,
             Key: `packages/${packageName}/${ID}/package.zip`
@@ -39,14 +41,11 @@ export async function getPackage(ID: any, curr_bucket: string, s3Client: any ): 
         const packageData = await s3Client.send(new GetObjectCommand(packageParams));
         const content = await packageData.Body.transformToString('base64');
 
-        // Get metadata
-        const metadataParams = {
-            Bucket: curr_bucket,
-            Key: `packages/${packageName}/${ID}/metadata.json`
+        const metadata = {
+            Name: packagemetaData.Item?.Name,
+            Version: packagemetaData.Item?.Version,
+            ID: ID
         };
-
-        const metadataData = await s3Client.send(new GetObjectCommand(metadataParams));
-        const metadata = JSON.parse(await metadataData.Body.transformToString());
 
         return {
             statusCode: 200,
