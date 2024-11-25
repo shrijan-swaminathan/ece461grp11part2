@@ -23,7 +23,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return gettracks();
   }
 
-  // POST /packages - needs to be fixed
+  // POST /packages - needs to be fixed, insetad of pushing multiple packages
+  // it should be able to fetch multiple packages given a Name/semver
   if (httpMethod === 'POST' && resourcePath === '/packages') {
     try {
       const packages: PackageData[] = JSON.parse(bodycontent);
@@ -93,7 +94,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
   }
 
-  // GET /package/{id}/cost - Needs to be fixed
+  // GET /package/{id}/cost - Needs to be expanded on
   if (httpMethod === 'GET' && resourcePath === '/package/{id}/cost') {
     try {
       const id = pathParameters.id;
@@ -158,6 +159,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     // const resp = await updatepackage(bodycontent, curr_bucket, s3Client);
     // return resp;
   }
+
+  if (httpMethod === "GET" && resourcePath === "/package/{id}/rate") {
+    // const resp = await ratepackage(bodycontent, curr_bucket, s3Client);
+    // return resp;
+  }
+
+  if (httpMethod === "POST" && resourcePath === "/package/byRegEx") {
+    // const resp = await get(pathParameters.id, curr_bucket, s3Client);
+    // return resp;
+  }
+
+
 
   // Handle other cases if needed
   return {
