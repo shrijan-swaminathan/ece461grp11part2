@@ -5,9 +5,12 @@ import { gettracks } from './gettracks';
 import { postpackage } from './postpackage';
 import { deleteAllObjects } from './deletereset';
 import { getPackage } from './getpackage';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 const s3Client = new S3Client({ region: "us-east-2" });
+const dynamoClient = new DynamoDBClient({ region: "us-east-2" });
 let curr_bucket = 'ece461gp11-root-bucket';
+let tableName = 'PackageMetaData';
   
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const httpMethod = event.httpMethod || 'GET';
@@ -141,7 +144,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // handle to handle this request:
   // POST /package
   if (httpMethod === "POST" && resourcePath === "/package") {
-    const resp = await postpackage(bodycontent, curr_bucket, s3Client);
+    const resp = await postpackage(tableName, bodycontent, curr_bucket, s3Client, dynamoClient);
     return resp;
   }
 
