@@ -1,9 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client,PutObjectCommand, ListObjectsV2Command, GetObjectCommand} from "@aws-sdk/client-s3";
-import { randomUUID } from 'crypto';
 import { Track, TrackSelection, PackageData, PackageMetadata, Package, PackageCost } from './types';
 import { gettracks } from './gettracks';
 import { postpackage } from './postpackage';
+import { deleteAllObjects } from './deletereset';
 
 const s3Client = new S3Client({ region: "us-east-2" });
 let curr_bucket = 'ece461gp11-root-bucket';
@@ -21,7 +21,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return gettracks();
   }
 
-  // POST /packages
+  // POST /packages - needs to be fixed
   if (httpMethod === 'POST' && resourcePath === '/packages') {
     try {
       const packages: PackageData[] = JSON.parse(bodycontent);
@@ -139,6 +139,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // POST /package
   if (httpMethod === "POST" && resourcePath === "/package") {
     const resp = await postpackage(bodycontent, curr_bucket, s3Client);
+    return resp;
+  }
+
+  if (httpMethod === "DELETE" && resourcePath === "/reset") {
+    const resp  = await deleteAllObjects(curr_bucket, s3Client);
     return resp;
   }
 
