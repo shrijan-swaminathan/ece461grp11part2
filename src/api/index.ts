@@ -93,7 +93,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     }
   }
 
-  // GET /package/{id}/cost
+  // GET /package/{id}/cost - Needs to be fixed
   if (httpMethod === 'GET' && resourcePath === '/package/{id}/cost') {
     try {
       const id = pathParameters.id;
@@ -152,6 +152,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (httpMethod === "GET" && resourcePath === "/package/{id}") {
     const resp = await getPackage(pathParameters.id, curr_bucket, s3Client);
     return resp;
+  }
+
+  if (httpMethod == "POST" && resourcePath === "/package/{id}") {
+    // const resp = await updatepackage(bodycontent, curr_bucket, s3Client);
+    // return resp;
   }
 
   // Handle other cases if needed
