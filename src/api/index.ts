@@ -151,7 +151,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   if (httpMethod === "GET" && resourcePath === "/package/{id}") {
     const resp = await getPackage(pathParameters.id, curr_bucket, s3Client);
-    return resp
+    return resp;
   }
 
   // Handle other cases if needed

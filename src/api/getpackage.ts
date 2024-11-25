@@ -23,6 +23,10 @@ export async function getPackage(ID: any, curr_bucket: string, s3Client: any ): 
         if (!packageName) {
             return {
                 statusCode: 404,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                },
                 body: JSON.stringify("Package does not exist")
             }
         }
