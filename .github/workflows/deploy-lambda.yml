@@ -34,7 +34,9 @@ jobs:
       
       - name: Create deployment package
         run: |
-          zip -r function.zip dist
+          cd dist
+          zip -r ../function.zip .
+          cd ..
 
       - name: Deploy to AWS Lambda
         env:
