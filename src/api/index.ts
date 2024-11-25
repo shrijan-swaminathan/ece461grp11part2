@@ -42,6 +42,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         if (!Name || (!Content && !URL)) {
           return {
             statusCode: 400,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+            },
             body: JSON.stringify("Package data is invalid. Name and either Content or URL are required.")
           };
         }
@@ -59,6 +63,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         if (exists) {
           return {
             statusCode: 409,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+            },
             body: JSON.stringify(`Package "${Name}" already exists.`)
           };
         }
@@ -152,7 +160,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   if (httpMethod === "DELETE" && resourcePath === "/reset") {
-    const resp  = await deleteAllObjects(curr_bucket, s3Client);
+    const resp  = await deleteAllObjects(tableName, curr_bucket, s3Client, dynamoClient);
     return resp;
   }
 

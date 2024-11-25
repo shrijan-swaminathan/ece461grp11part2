@@ -2,7 +2,7 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package } from './types';
-import { GetCommand, PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 // import { findReadme } from './readme';
 
 
