@@ -155,7 +155,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     statusCode: 404,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE'
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
     },
     body: JSON.stringify("Not Found")
   };
