@@ -1,12 +1,12 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client,PutObjectCommand, ListObjectsV2Command, GetObjectCommand} from "@aws-sdk/client-s3";
-import { Track, TrackSelection, PackageData, PackageMetadata, Package, PackageCost } from './types';
+import { PackageData, PackageMetadata, PackageCost } from './types';
 import { gettracks } from './gettracks';
 import { postpackage } from './postpackage';
 import { deleteAllObjects } from './deletereset';
 import { getPackage } from './getpackage';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DynamoDBDocumentClient, GetCommand, GetCommandInput, GetCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient} from "@aws-sdk/lib-dynamodb";
 
 const s3Client = new S3Client({ region: "us-east-2" });
 const client = new DynamoDBClient({ region: "us-east-2" });
