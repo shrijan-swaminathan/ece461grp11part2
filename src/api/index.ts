@@ -4,6 +4,7 @@ import { Track, TrackSelection, PackageData, PackageMetadata, Package, PackageCo
 import { gettracks } from './gettracks';
 import { postpackage } from './postpackage';
 import { deleteAllObjects } from './deletereset';
+import { getPackage } from './getpackage';
 
 const s3Client = new S3Client({ region: "us-east-2" });
 let curr_bucket = 'ece461gp11-root-bucket';
@@ -16,7 +17,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const resourcePath = event.resource || '';
   const bodycontent = event.body || '';
 
-  console.log(httpMethod, resourcePath, pathParameters, queryStringParameters, bodycontent);
   
   // Check to see if it's a GET request for team's selected tracks
   if (httpMethod === "GET" && resourcePath === "/tracks") {
@@ -149,6 +149,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return resp;
   }
 
+  if (httpMethod === "GET" && resourcePath === "/package/{id}") {
+    const resp = await getPackage(pathParameters.id, curr_bucket, s3Client);
+    return resp
+  }
 
   // Handle other cases if needed
   return {
