@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { PutObjectCommand, ListObjectsV2Command, ListObjectsV2Output} from "@aws-sdk/client-s3";
+import { PutObjectCommand, ListObjectsV2Command, ListObjectsV2Output, GetObjectCommand} from "@aws-sdk/client-s3";
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package} from './types';
 
@@ -90,26 +90,39 @@ export async function postpackage(bodycontent: any, curr_bucket: string, s3Clien
         });
         await s3Client.send(metadataUploadCommand);
   
-        // Need to create/update index/package-index.json
-        const indexKey = 'index/package-index.json';
-        const indexEntry = {
-        packages: {
-          [packageName]: {
-            versions: [{
-              version: version,
-              packageId: packageID,
-              timestamp: new Date().toISOString()
-            }]
-          }
+        // First, try to get existing index file
+        let indexContent;
+        try {
+            const existingIndex = await s3Client.send(new GetObjectCommand({
+                Bucket: bucketName,
+                Key: 'index/package-index.json'
+            }));
+            indexContent = JSON.parse(await existingIndex.Body.transformToString());
+        } catch (error) {
+            // If file doesn't exist, create new index structure
+            indexContent = { packages: {} };
         }
-        };
-  
-        // Need to either create new index file or update existing one
+
+        // Update or add new package version
+        if (!indexContent.packages[packageName]) {
+            indexContent.packages[packageName] = {
+                versions: []
+            };
+        }
+
+        // Add new version to the versions array
+        indexContent.packages[packageName].versions.push({
+            version: version,
+            packageId: packageID,
+            timestamp: new Date().toISOString()
+        });
+
+        // Upload updated index file
         const indexUploadCommand = new PutObjectCommand({
-          Bucket: bucketName,
-          Key: indexKey,
-          Body: JSON.stringify(indexEntry),
-          ContentType: 'application/json'
+            Bucket: bucketName,
+            Key: 'index/package-index.json',
+            Body: JSON.stringify(indexContent),
+            ContentType: 'application/json'
         });
         await s3Client.send(indexUploadCommand);
   

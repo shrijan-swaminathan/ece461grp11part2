@@ -69,7 +69,7 @@ async function uploadModule(): Promise<void> {
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
             uploadResultElement.style.color = 'green';
-            uploadResultElement.innerHTML = `Successfully uploaded module. Metadata: ${JSON.stringify(result.metadata)}`;
+            uploadResultElement.innerHTML = `Successfully uploaded module. ID: ${result.metadata.ID as string}`;
         }
     } catch (error: any) {
         // Show error message
