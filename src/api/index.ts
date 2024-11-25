@@ -147,12 +147,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return resp;
   }
 
-  // download from URL
-  async function downloadFromUrl(url: string){
-    // if url is github
-    // got to npm registry, fetch github link, fetch zip file
-    // TODO: Implement logic to download package from URL
-  }
 
   // Handle other cases if needed
   return {

@@ -3,6 +3,13 @@ import { PutObjectCommand, ListObjectsV2Command, ListObjectsV2Output} from "@aws
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package} from './types';
 
+// download from URL
+async function downloadFromUrl(url: string){
+    // if url is github
+    // got to npm registry, fetch github link, fetch zip file
+    // TODO: Implement logic to download package from URL
+}
+
 export async function postpackage(bodycontent: any, curr_bucket: string, s3Client: any): Promise<APIGatewayProxyResult> {
     try {
         let packageData: PackageData = JSON.parse(bodycontent);
@@ -131,4 +138,4 @@ export async function postpackage(bodycontent: any, curr_bucket: string, s3Clien
           body: JSON.stringify(error.message)
         };
       }
-    };
+};
