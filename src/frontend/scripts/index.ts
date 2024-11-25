@@ -69,7 +69,7 @@ async function uploadModule(): Promise<void> {
         const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
             uploadResultElement.style.color = 'green';
-            uploadResultElement.innerHTML = `Successfully uploaded module. ID: ${result.metadata.ID as string}`;
+            uploadResultElement.innerHTML = `Successfully uploaded module. ID: ${result.metadata.ID as string} <br> <a href="https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package/${result.metadata.ID as string}" target="_blank" rel="noopener noreferrer" >View Module</a>`;
         }
     } catch (error: any) {
         // Show error message
