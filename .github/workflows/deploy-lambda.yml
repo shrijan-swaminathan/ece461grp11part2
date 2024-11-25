@@ -19,7 +19,9 @@ jobs:
           node-version: '22.x'  # Specify your Node.js version
 
       - name: Install Dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install --prefix lambda_deploy
 
       - name: Transpile Frontend .ts to .js
         run: tsc src/frontend/scripts/index.ts
@@ -27,13 +29,12 @@ jobs:
       - name: Compile TypeScript
         run: |
           mkdir -p dist
-          tsc src/api/index.ts src/api/types.ts src/api/gettracks.ts src/api/postpackage.ts src/api/deletereset.ts src/api/getpackage.ts --outDir dist
+          tsc src/api/*.ts --outDir dist
+          mv lambda_deploy/node_modules/ dist/
       
       - name: Create deployment package
         run: |
-          cd dist
-          zip -r ../function.zip .
-          cd ..
+          zip -r function.zip dist
 
       - name: Deploy to AWS Lambda
         env:
