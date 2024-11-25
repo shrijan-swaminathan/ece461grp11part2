@@ -1,11 +1,18 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
+import { PutObjectCommand} from "@aws-sdk/client-s3";
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package } from './types';
+import { GetCommand, PutCommand, DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 // import { findReadme } from './readme';
 
 
-export async function postpackage(tableName: string, bodycontent: any, curr_bucket: string, s3Client: any, dynamoClient: any): Promise<APIGatewayProxyResult> {
+export async function postpackage(
+  tableName: string, 
+  bodycontent: any, 
+  curr_bucket: string, 
+  s3Client: any, 
+  dynamoClient: DynamoDBDocumentClient
+): Promise<APIGatewayProxyResult> {
   try {
       let packageData: PackageData = JSON.parse(bodycontent);
       const { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
@@ -37,14 +44,16 @@ export async function postpackage(tableName: string, bodycontent: any, curr_buck
       const version = "1.0.0";
       const packageID = randomUUID() as string;
       
-      // Check if package exists in DynamoDB
-      const existingPackage = await dynamoClient.get({
-          TableName: tableName,
-          Key: {
-              'Name': packageName,
-              'Version': version
-          }
-      }).promise();
+      const command = new GetCommand({
+        TableName: tableName,
+        Key: {
+          Name: packageName,
+          Version: version
+        }
+      });
+  
+      // Send the command to DynamoDB
+      const existingPackage = await dynamoClient.send(command);
       
       if (existingPackage.Item) {
           return {
@@ -75,17 +84,20 @@ export async function postpackage(tableName: string, bodycontent: any, curr_buck
       
       // Store in DynamoDB
       // When fully implemented, this should include reame, URL, and ratings
-      await dynamoClient.put({
-          TableName: 'PackagesTable',
-          Item: {
-              'ID': packageID,
-              'Name': packageName,
-              'Version': version,
-              'Readme': readme || '',
-              'URL': packageURL || '',
-              'Timestamp': new Date().toISOString()
-          }
-      }).promise();
+      const command2 = new PutCommand({
+        TableName: tableName,
+        Item: {
+          ID: packageID,
+          Name: packageName,
+          Version: version,
+          Readme: readme || '',
+          URL: packageURL || '',
+          Timestamp: new Date().toISOString()
+        }
+      });
+  
+      // Send the command to DynamoDB
+      await dynamoClient.send(command2);
       
       const Packageresponse: Package = {
           metadata: metadata,

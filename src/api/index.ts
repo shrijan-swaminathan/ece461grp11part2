@@ -6,9 +6,12 @@ import { postpackage } from './postpackage';
 import { deleteAllObjects } from './deletereset';
 import { getPackage } from './getpackage';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, GetCommand, GetCommandInput, GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 
 const s3Client = new S3Client({ region: "us-east-2" });
-const dynamoClient = new DynamoDBClient({ region: "us-east-2" });
+const client = new DynamoDBClient({ region: "us-east-2" });
+const dynamoClient = DynamoDBDocumentClient.from(client);
+
 let curr_bucket = 'ece461gp11-root-bucket';
 let tableName = 'PackageMetaData';
   
