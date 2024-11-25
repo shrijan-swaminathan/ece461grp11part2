@@ -1,6 +1,6 @@
 import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/client-s3";
 import { APIGatewayProxyResult } from 'aws-lambda';
-import { PutCommand, DynamoDBDocumentClient, ScanCommand, BatchWriteCommand} from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, ScanCommand, BatchWriteCommand} from "@aws-sdk/lib-dynamodb";
 
 export async function deleteAllObjects(
   tableName: string, 
@@ -50,7 +50,7 @@ export async function deleteAllObjects(
       const deleteRequests = anyItems.Items.map(item => ({
         DeleteRequest: {
           Key: {
-            'ID': item.ID  // Using ID as partition key
+            'ID': item.ID
           }
         }
       }));
