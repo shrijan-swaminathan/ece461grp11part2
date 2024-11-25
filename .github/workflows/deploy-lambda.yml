@@ -27,7 +27,7 @@ jobs:
       - name: Compile TypeScript
         run: |
           mkdir -p dist
-          tsc src/api/index.ts src/api/types.ts src/api/gettracks.ts src/api/postpackage.ts src/api/deletereset.ts --outDir dist
+          tsc src/api/index.ts src/api/types.ts src/api/gettracks.ts src/api/postpackage.ts src/api/deletereset.ts src/api/getpackage.ts --outDir dist
       
       - name: Create deployment package
         run: |
