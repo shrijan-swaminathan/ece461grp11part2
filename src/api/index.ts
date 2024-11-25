@@ -15,6 +15,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   const queryStringParameters = event.queryStringParameters || {};
   const resourcePath = event.resource || '';
   const bodycontent = event.body || '';
+
+  console.log(httpMethod, resourcePath, pathParameters, queryStringParameters, bodycontent);
   
   // Check to see if it's a GET request for team's selected tracks
   if (httpMethod === "GET" && resourcePath === "/tracks") {
