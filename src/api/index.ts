@@ -5,6 +5,7 @@ import { gettracks } from './gettracks';
 import { postpackage } from './postpackage';
 import { deleteAllObjects } from './deletereset';
 import { getPackage } from './getpackage';
+import { updatepackage } from './updatepackage';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient} from "@aws-sdk/lib-dynamodb";
 
@@ -170,8 +171,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   if (httpMethod == "POST" && resourcePath === "/package/{id}") {
-    // const resp = await updatepackage(bodycontent, curr_bucket, s3Client);
-    // return resp;
+    const resp = await updatepackage(tableName, pathParameters.id, bodycontent, curr_bucket, s3Client, dynamoClient);
+    return resp;
   }
 
   if (httpMethod === "GET" && resourcePath === "/package/{id}/rate") {

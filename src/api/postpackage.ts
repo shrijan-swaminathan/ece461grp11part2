@@ -17,6 +17,7 @@ export async function postpackage(
     let packageData: PackageData = JSON.parse(bodycontent);
     const { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
     const bucketName = curr_bucket;
+    const formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
 
     if (!packageName) {
         throw new Error("Package name is required");
@@ -52,7 +53,7 @@ export async function postpackage(
           '#version': 'Version'
       },
       ExpressionAttributeValues: {
-          ':name': packageName,
+          ':name': formattedName,
           ':version': version
       }
     });
@@ -71,7 +72,7 @@ export async function postpackage(
     }
     
     // Store in S3
-    const s3key = `packages/${packageName}/${packageID}/package.zip`;
+    const s3key = `packages/${formattedName}/${packageID}/package.zip`;
     await s3Client.send(new PutObjectCommand({
         Bucket: bucketName,
         Key: s3key,
@@ -81,18 +82,18 @@ export async function postpackage(
     
     // Store metadata
     const metadata: PackageMetadata = {
-        Name: packageName,
+        Name: formattedName,
         Version: version,
         ID: packageID
     };
     
     // Store in DynamoDB
-    // When fully implemented, this should include reame, URL, and ratings
+    // When fully implemented, this should include readme and URL
     const command2 = new PutCommand({
       TableName: tableName,
       Item: {
         ID: packageID,
-        Name: packageName,
+        Name: formattedName,
         Version: version,
         Readme: readme || '',
         URL: packageURL || '',

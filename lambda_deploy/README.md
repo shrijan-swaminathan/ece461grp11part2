@@ -1,0 +1,1 @@
+This folder is specifically used for housing all dependencies that are needed for the Lambda function.
