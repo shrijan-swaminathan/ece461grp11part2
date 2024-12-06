@@ -28,19 +28,7 @@ export interface PackageCost {
   totalCost: number;
 }
 
-interface VersionInfo {
-    version: string;
-    packageId: string;
-    timestamp: string;
-    URL?: string;
-}
-
-interface PackageInfo {
-    versions: VersionInfo[];
-}
-
-export interface PackageIndex {
-    packages: {
-        [key: string]: PackageInfo;
-    };
+export interface PackageQuery{
+  Version: string
+  Name: string
 }

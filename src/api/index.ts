@@ -6,6 +6,7 @@ import { postpackage } from './postpackage';
 import { deleteAllObjects } from './deletereset';
 import { getPackage } from './getpackage';
 import { updatepackage } from './updatepackage';
+import { postpackages } from './postpackages';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient} from "@aws-sdk/lib-dynamodb";
 
@@ -33,80 +34,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // POST /packages - needs to be fixed, insetad of pushing multiple packages
   // it should be able to fetch multiple packages given a Name/semver
   if (httpMethod === 'POST' && resourcePath === '/packages') {
-    try {
-      const packages: PackageData[] = JSON.parse(bodycontent);
-      const uploadedPackages: PackageMetadata[] = [];
-
-      for (const packageData of packages) {
-        const { Name, Content, URL, debloat } = packageData;
-
-        if (!Name || (!Content && !URL)) {
-          return {
-            statusCode: 400,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
-            },
-            body: JSON.stringify("Package data is invalid. Name and either Content or URL are required.")
-          };
-        }
-
-        const version = "1.0.0"; // You can implement versioning logic here.
-        const s3Key = `${Name}/${version}/${Name}.zip`;
-
-        // Check if the package already exists
-        const exists = await s3Client.send(new ListObjectsV2Command({
-          Bucket: curr_bucket,
-          Prefix: `${Name}/`,
-          MaxKeys: 1
-        })).then(response => response.Contents && response.Contents.length > 0).catch(() => false);
-
-        if (exists) {
-          return {
-            statusCode: 409,
-            headers: {
-              'Access-Control-Allow-Origin': '*',
-              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
-            },
-            body: JSON.stringify(`Package "${Name}" already exists.`)
-          };
-        }
-
-        const contentBuffer = Buffer.from(Content || '', 'base64');
-        await s3Client.send(new PutObjectCommand({
-          Bucket: curr_bucket,
-          Key: s3Key,
-          Body: contentBuffer,
-          ContentType: 'application/zip'
-        }));
-
-        const metadata: PackageMetadata = {
-          Name,
-          Version: version,
-          ID: `${Name}-${version}`
-        };
-
-        const metadataKey = `${Name}/${version}/metadata.json`;
-        await s3Client.send(new PutObjectCommand({
-          Bucket: curr_bucket,
-          Key: metadataKey,
-          Body: JSON.stringify(metadata),
-          ContentType: 'application/json'
-        }));
-
-        uploadedPackages.push(metadata);
-      }
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify(uploadedPackages)
-      };
-    } catch (error: any) {
-      return {
-        statusCode: 500,
-        body: JSON.stringify(`Error uploading packages: ${error.message}`)
-      };
-    }
+    const resp = await postpackages(tableName, bodycontent, dynamoClient);
+    return resp;
   }
 
   // GET /package/{id}/cost - Needs to be expanded on
