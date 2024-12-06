@@ -1,6 +1,5 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { GetObjectCommand} from "@aws-sdk/client-s3";
-import { PackageIndex } from './types';
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 export async function getPackage(
