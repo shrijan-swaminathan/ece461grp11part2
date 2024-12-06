@@ -74,8 +74,9 @@ export async function postpackage(
                 const pkgName = match[2];
                 const npmversion = match[3] || 'latest';
                 
+                console.log(`Fetching package ${pkgName} version ${npmversion}`);
                 // Fetch package metadata from registry
-                const resp = await fetch(`https://registry.npmjs.org/${pkgName}`);
+                const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
                 if (!resp.ok) {
                     throw new Error("Package not found in NPM registry");
                 }
@@ -88,13 +89,14 @@ export async function postpackage(
                     formattedName = metadata?.name;
                     formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
                 }
-                
                 // Get tarball URL and download
-                const tarball = metadata?.versions[version]?.dist?.tarball;
+                const tarball = metadata?.dist?.tarball;
+
+                console.log("Downloading tarball from", tarball);
+                
                 if (!tarball) {
                     throw new Error("Package tarball not found");
                 }
-                console.log(tarball, formattedName, version);
                 const tarballResp = await fetch(tarball);
                 if (!tarballResp.ok) {
                     throw new Error("Failed to download package");
