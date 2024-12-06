@@ -81,7 +81,7 @@ export async function postpackage(
             const tarball = metadata?.dist?.tarball;
             const tarballResp = await fetch(tarball);
             const content = Buffer.from(await tarballResp.arrayBuffer());
-            zipContent = Buffer.from(content.toString('base64'), 'base64');
+            zipContent = Buffer.from(content);
             packageData['Content'] = content.toString('base64');
         }
         else{
