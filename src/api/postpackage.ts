@@ -3,6 +3,9 @@ import { PutObjectCommand} from "@aws-sdk/client-s3";
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package } from './types';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { Octokit } from 'octokit'
+import { extractownerrepo } from './helperfunctions/extractownerrepo';
 // import { findReadme } from './readme';
 
 
@@ -11,11 +14,12 @@ export async function postpackage(
   bodycontent: any, 
   curr_bucket: string, 
   s3Client: any, 
-  dynamoClient: DynamoDBDocumentClient
+  dynamoClient: DynamoDBDocumentClient,
+  ssmClient: SSMClient
 ): Promise<APIGatewayProxyResult> {
   try {
     let packageData: PackageData = JSON.parse(bodycontent);
-    const { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
+    let { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
     const bucketName = curr_bucket;
     const formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
 
@@ -32,17 +36,84 @@ export async function postpackage(
     }
 
     let zipContent: Buffer = Buffer.from('');
+    let version = ""
     if (packageURL) {
         // TODO: Implement URL download logic
+
+        // First, take URL, plug into metrics evaluation, and check to see if all metrics > 0.5
+        // const metrics = await evaluateMetrics(packageURL);
+        // if (metrics.some(metric => metric < 0.5)) {
+        //     return {
+        //         statusCode: 424,
+        //         headers: {
+        //             'Access-Control-Allow-Origin': '*',
+        //             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+        //         },
+        //         body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
+        //  };
+        // Download zip file from URL
+        // if url is GitHub, use the GitHub API to download the zip file
+        // if url is NPM, use the NPM API to download the tarball file
+        if (packageURL.includes('npmjs.com')) {
+            // extract package name from URL
+            // cut trailing "/" if exists
+            packageURL = packageURL.replace(/\/$/, '');
+            const match = packageURL.match(/package\/([\w\-.~]+)(\/([\d\.]+))?$/);
+            if (!match) {
+                throw new Error("Invalid NPM URL");
+            }
+            const packageName = match[1];
+            const npmversion = match[3] || 'latest';
+            const resp = await fetch(`https://registry.npmjs.org/${packageName}/${npmversion}`);
+            // get github URL from NPM package metadata
+            const metadata = await resp.json();
+            version = npmversion !== 'latest' ? npmversion : metadata?.version;
+            const tarball = metadata?.dist?.tarball;
+            const tarballResp = await fetch(tarball);
+            const content = Buffer.from(await tarballResp.arrayBuffer());
+            zipContent = Buffer.from(content.toString('base64'), 'base64');
+        }
+        else{
+            let githubURL: string = packageURL;
+            if (githubURL && githubURL.startsWith("git+https://")) {
+                githubURL = githubURL.replace(/^git\+/, "").replace(/\.git$/, "");
+            }
+            const parameterName = "github-token";
+            const command = new GetParameterCommand({
+                Name: parameterName,
+                WithDecryption: true,
+            });
+            const response = await ssmClient.send(command);
+            const githubToken = response.Parameter?.Value || '';
+            const octokit = new Octokit({ auth: githubToken });
+            const { owner, repo, branch } = extractownerrepo(githubURL);
+            const { data } = await octokit.repos.downloadZipballArchive({
+                owner,
+                repo,
+                ref: branch || undefined
+            });
+            const base64Data = Buffer.from(await data.arrayBuffer());
+            zipContent = Buffer.from(base64Data.toString('base64'), 'base64');
+            // now fetch version from package.json
+            const { data: packageJson } = await octokit.repos.getContent({
+                owner,
+                repo,
+                path: 'package.json',
+                ref: branch || undefined
+            });
+            const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
+            const packageJsonData = JSON.parse(packageJsonContent);
+            version = packageJsonData.version;
+        }
+
     } else {
         zipContent = Buffer.from(packageContent || '', 'base64');
+        version = "1.0.0";
     }
     
     // Extract README from zip content
     let readme = '';
     // const readme = await findReadme(zipContent);
-    
-    const version = "1.0.0";
     const packageID = randomUUID() as string;
     
     const command = new ScanCommand({
