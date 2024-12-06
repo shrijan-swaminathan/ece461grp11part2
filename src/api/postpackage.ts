@@ -18,6 +18,9 @@ export async function postpackage(
   ssmClient: SSMClient
 ): Promise<APIGatewayProxyResult> {
   try {
+    if (!bodycontent) {
+        throw new Error("Package data is required");
+    }
     let packageData: PackageData = JSON.parse(bodycontent);
     let { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
     const bucketName = curr_bucket;

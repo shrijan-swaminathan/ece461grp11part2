@@ -55,7 +55,7 @@ export async function deleteAllObjects(
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
         },
-        body: JSON.stringify("Registry is rest.")
+        body: JSON.stringify("Registry is reset.")
       }
     }
     else{
