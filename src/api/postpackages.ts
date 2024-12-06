@@ -1,4 +1,4 @@
-import { APIGatewayProxyResult, APIGatewayProxyEventHeaders } from 'aws-lambda';
+import { APIGatewayProxyResult, APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { PackageQuery, PackageMetadata } from './types';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import * as semver from "semver";
@@ -14,15 +14,16 @@ import * as semver from "semver";
 **/
 export async function postpackages(
     tableName: string, 
-    headers: APIGatewayProxyEventHeaders,
+    queryStringParameters: APIGatewayProxyEventQueryStringParameters,
     bodycontent: any, 
     dynamoClient: DynamoDBDocumentClient
 ): Promise<APIGatewayProxyResult> {
     try {
         const queries: PackageQuery[] = JSON.parse(bodycontent);
         const itemsperpage = 10;
-        // get offset value from headers
-        const offset = headers['offset'] && !isNaN(parseInt(headers['offset'])) ? headers['offset'] : undefined;
+        // get offset value from queryStringParameters
+        const offset = queryStringParameters?.offset && !isNaN(parseInt(queryStringParameters.offset)) ? 
+            queryStringParameters.offset : undefined;
         const startIndex = offset ? parseInt(offset) - 1 : 0;
         let searchResults: PackageMetadata[] = [];
         // Handle wildcard query
