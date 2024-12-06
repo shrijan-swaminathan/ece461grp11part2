@@ -61,28 +61,47 @@ export async function postpackage(
             // if url is GitHub, use the GitHub API to download the zip file
             // if url is NPM, use the NPM API to download the tarball file
             if (packageURL.includes('npmjs.com')) {
-                // extract package name from URL
-                // cut trailing "/" if exists
+                // Remove trailing slash
                 packageURL = packageURL.replace(/\/$/, '');
-                const match = packageURL.match(/package\/([\w\-.~]+)(\/([\d\.]+))?$/);
+                
+                // Update regex to handle full NPM URLs
+                const match = packageURL.match(/(?:\/package\/)([@\w-]+(?:\/[^\/]+)?)(?:\/v?(\d+\.\d+\.\d+))?$/);
                 if (!match) {
                     throw new Error("Invalid NPM URL");
                 }
+            
                 const pkgName = match[1];
-                const npmversion = match[3] || 'latest';
-                const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
-                // get github URL from NPM package metadata
+                const npmversion = match[2] || 'latest';
+                
+                // Fetch package metadata from registry
+                const resp = await fetch(`https://registry.npmjs.org/${pkgName}`);
+                if (!resp.ok) {
+                    throw new Error("Package not found in NPM registry");
+                }
+                
                 const metadata = await resp.json();
                 version = npmversion !== 'latest' ? npmversion : metadata?.version;
-                if (!packageName){
+                
+                // Set formatted name if not provided
+                if (!packageName) {
                     formattedName = metadata?.name;
                     formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
                 }
-                const tarball = metadata?.dist?.tarball;
+                
+                // Get tarball URL and download
+                const tarball = metadata?.versions[version]?.dist?.tarball;
+                if (!tarball) {
+                    throw new Error("Package tarball not found");
+                }
+                
                 const tarballResp = await fetch(tarball);
-                const content = Buffer.from(await tarballResp.arrayBuffer());
+                if (!tarballResp.ok) {
+                    throw new Error("Failed to download package");
+                }
+                
+                const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
-                packageData['Content'] = content.toString('base64');
+                packageData['Content'] = Buffer.from(content).toString('base64');
             }
             else{
                 // let githubURL: string = packageURL;
@@ -155,7 +174,6 @@ export async function postpackage(
 
         const existingPackage = await dynamoClient.send(command);
 
-        console.log("Checked for existing package");
         if (existingPackage.Items && existingPackage.Items.length > 0) {
             return {
                 statusCode: 409,
@@ -187,7 +205,6 @@ export async function postpackage(
                 ContentType: 'application/tgz'
             }));
         }
-        console.log("Stored in S3")
         
         // Store metadata
         const metadata: PackageMetadata = {
