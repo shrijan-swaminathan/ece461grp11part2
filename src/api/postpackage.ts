@@ -150,7 +150,7 @@ export async function postpackage(
             ExpressionAttributeValues: {
                 ':name': formattedName,
                 ':version': version
-            }
+            } as Record<string, string>
         });
 
         const existingPackage = await dynamoClient.send(command);
