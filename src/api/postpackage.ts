@@ -168,13 +168,25 @@ export async function postpackage(
     }
     
     // Store in S3
-    const s3key = `packages/${formattedName}/${packageID}/package.zip`;
-    await s3Client.send(new PutObjectCommand({
-        Bucket: bucketName,
-        Key: s3key,
-        Body: zipContent,
-        ContentType: 'application/zip'
-    }));
+    if (!packageURL) {
+        const s3key = `packages/${formattedName}/${packageID}/package.zip`;
+        await s3Client.send(new PutObjectCommand({
+            Bucket: bucketName,
+            Key: s3key,
+            Body: zipContent,
+            ContentType: 'application/zip'
+        }));
+    }
+
+    else{
+        const s3key = `packages/${formattedName}/${packageID}/package.tgz`;
+        await s3Client.send(new PutObjectCommand({
+            Bucket: bucketName,
+            Key: s3key,
+            Body: zipContent,
+            ContentType: 'application/tgz'
+        }));
+    }
     
     // Store metadata
     const metadata: PackageMetadata = {
