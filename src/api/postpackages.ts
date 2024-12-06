@@ -6,7 +6,7 @@ import * as semver from "semver";
 /**
  * POST /packages - Fetches packages from the database based on the queries provided in the body
  * @param tableName - The name of the DynamoDB table
- * @param headers - The headers of the request
+ * @param queryStringParameters - The query string parameters (containing the offset)
  * @param bodycontent - The body of the request
  * @param dynamoClient - The DynamoDB client
  * @returns The APIGatewayProxyResult
@@ -69,7 +69,13 @@ export async function postpackages(
 
         // Process each query in the array
         for (const query of queries) {
-            const { Version: versionRange, Name: name } = query;
+            let { Version: versionRange, Name: name } = query;
+            // check if version name is a bounded range
+            if (versionRange.includes('-')) {
+                const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
+                // remake string such that its "v1 - v2"
+                versionRange = `>=${minVersion} <=${maxVersion}`
+            }
             
             if (!name) {
                 throw new Error('Name is required');
