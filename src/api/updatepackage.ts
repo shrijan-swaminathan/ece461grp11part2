@@ -13,6 +13,9 @@ export async function updatepackage(
     dynamoClient: DynamoDBDocumentClient): Promise<APIGatewayProxyResult>
 {
     try{
+        if (!bodycontent) {
+            throw new Error("Package data is required");
+        }
         const command = new GetCommand({
             TableName: tableName,
             Key: {

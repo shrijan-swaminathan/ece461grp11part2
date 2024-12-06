@@ -19,6 +19,9 @@ export async function postpackages(
     dynamoClient: DynamoDBDocumentClient
 ): Promise<APIGatewayProxyResult> {
     try {
+        if (!bodycontent) {
+            throw new Error("Package data is required");
+        }
         const queries: PackageQuery[] = JSON.parse(bodycontent);
         const itemsperpage = 10;
         // get offset value from queryStringParameters

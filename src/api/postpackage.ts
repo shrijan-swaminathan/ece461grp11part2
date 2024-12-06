@@ -24,9 +24,12 @@ export async function postpackage(
     let packageData: PackageData = JSON.parse(bodycontent);
     let { Name: packageName, Content: packageContent, URL: packageURL, debloat, JSProgram } = packageData;
     const bucketName = curr_bucket;
-    const formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
+    let formattedName = "";
+    if (packageName){
+        formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
+    }
 
-    if (!packageName) {
+    if (!packageName && !packageURL) {
         throw new Error("Package name is required");
     }
 
@@ -65,12 +68,16 @@ export async function postpackage(
             if (!match) {
                 throw new Error("Invalid NPM URL");
             }
-            const packageName = match[1];
+            const pkgName = match[1];
             const npmversion = match[3] || 'latest';
-            const resp = await fetch(`https://registry.npmjs.org/${packageName}/${npmversion}`);
+            const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
             // get github URL from NPM package metadata
             const metadata = await resp.json();
             version = npmversion !== 'latest' ? npmversion : metadata?.version;
+            if (!packageName){
+                formattedName = metadata?.name;
+                formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
+            }
             const tarball = metadata?.dist?.tarball;
             const tarballResp = await fetch(tarball);
             const content = Buffer.from(await tarballResp.arrayBuffer());
