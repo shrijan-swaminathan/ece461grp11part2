@@ -34,7 +34,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // POST /packages - needs to be fixed, insetad of pushing multiple packages
   // it should be able to fetch multiple packages given a Name/semver
   if (httpMethod === 'POST' && resourcePath === '/packages') {
-    const resp = await postpackages(tableName, bodycontent, dynamoClient);
+    const resp = await postpackages(tableName, headers, bodycontent, dynamoClient);
     return resp;
   }
 

@@ -2,6 +2,18 @@ import { S3Client, ListObjectsV2Command, DeleteObjectsCommand } from "@aws-sdk/c
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBDocumentClient, ScanCommand, BatchWriteCommand} from "@aws-sdk/lib-dynamodb";
 
+/**
+ * Deletes all objects in the bucket and resets the registry.
+ * @param tableName - The name of the table in DynamoDB.
+ * @param curr_bucket - The name of the bucket in S3.
+ * @param s3Client - The S3 client.
+ * @param dynamoClient - The DynamoDB client.
+ * 
+ * @returns The APIGatewayProxyResult.
+ * 
+ * @throws Error if there is an error while resetting the registry.
+ * 
+ */
 export async function deleteAllObjects(
   tableName: string, 
   curr_bucket: string, 
