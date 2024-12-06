@@ -6,8 +6,6 @@ import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dy
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Octokit } from "@octokit/core";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
-import * as tar from 'tar';
-import AdmZip from 'adm-zip';
 // import { findReadme } from './readme';
 
 
@@ -152,7 +150,6 @@ export async function postpackage(
                 const packageJsonData = JSON.parse(packageJsonContent);
                 version = packageJsonData.version;
             }
-
         } 
         else {
             zipContent = Buffer.from(packageContent || '', 'base64');
@@ -175,7 +172,7 @@ export async function postpackage(
                 ':version': version
             } as Record<string, string>
         });
-        
+
         const existingPackage = await dynamoClient.send(command);
 
         if (existingPackage.Items && existingPackage.Items.length > 0) {
