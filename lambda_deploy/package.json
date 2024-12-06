@@ -10,8 +10,13 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/node": "^22.10.1",
     "@types/semver": "^7.5.8",
     "octokit": "^4.0.2",
     "semver": "^7.6.3"
+  },
+  "dependencies": {
+    "@octokit/core": "^6.1.2",
+    "@octokit/webhooks": "^13.4.1"
   }
 }
