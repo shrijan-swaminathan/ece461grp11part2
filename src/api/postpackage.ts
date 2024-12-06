@@ -140,7 +140,8 @@ export async function postpackage(
         let readme = '';
         // const readme = await findReadme(zipContent);
         const packageID = randomUUID() as string;
-        
+        console.log("Package ID: ", packageID);
+        console.log("Formatted Name: ", formattedName);
         const command = new ScanCommand({
         TableName: tableName,
         FilterExpression: '#name = :name AND #version = :version',
@@ -155,7 +156,6 @@ export async function postpackage(
         });
 
         const existingPackage = await dynamoClient.send(command);
-        console.log("Added metadata to DynamoDB")
         if (existingPackage.Items && existingPackage.Items.length > 0) {
             return {
                 statusCode: 409,
