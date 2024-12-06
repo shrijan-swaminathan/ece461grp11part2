@@ -87,15 +87,15 @@ export async function postpackage(
             const githubToken = response.Parameter?.Value || '';
             const octokit = new Octokit({ auth: githubToken });
             const { owner, repo, branch } = extractownerrepo(githubURL);
-            const { data } = await octokit.repos.downloadZipballArchive({
+            const { data } = await octokit.rest.repos.downloadZipballArchive({
                 owner,
                 repo,
                 ref: branch || undefined
-            });
+            });            
             const base64Data = Buffer.from(await data.arrayBuffer());
             zipContent = Buffer.from(base64Data.toString('base64'), 'base64');
             // now fetch version from package.json
-            const { data: packageJson } = await octokit.repos.getContent({
+            const { data: packageJson } = await octokit.rest.repos.getContent({
                 owner,
                 repo,
                 path: 'package.json',
