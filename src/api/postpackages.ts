@@ -61,7 +61,7 @@ export async function postpackages(
                 headers: {
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                    'offset': (startIndex + itemsperpage).toString()
+                    'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage).toString() : ''
                 },
                 body: JSON.stringify(paginatedResults)
             };
@@ -137,7 +137,7 @@ export async function postpackages(
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'offset': (startIndex + itemsperpage).toString()
+                'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage).toString() : ''
             },
             body: JSON.stringify(paginatedResults)
         };
