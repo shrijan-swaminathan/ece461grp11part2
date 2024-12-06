@@ -82,7 +82,7 @@ export async function postpackage(
             const tarballResp = await fetch(tarball);
             const content = Buffer.from(await tarballResp.arrayBuffer());
             zipContent = Buffer.from(content.toString('base64'), 'base64');
-            console.log(zipContent);
+            packageData['Content'] = content.toString('base64');
         }
         else{
             // let githubURL: string = packageURL;
