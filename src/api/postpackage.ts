@@ -70,6 +70,7 @@ export async function postpackage(
             }
             const pkgName = match[1];
             const npmversion = match[3] || 'latest';
+            console.log(pkgName, npmversion);
             const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
             // get github URL from NPM package metadata
             const metadata = await resp.json();
@@ -79,10 +80,12 @@ export async function postpackage(
                 formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
             }
             const tarball = metadata?.dist?.tarball;
+            console.log(tarball);
             const tarballResp = await fetch(tarball);
             const content = Buffer.from(await tarballResp.arrayBuffer());
             zipContent = Buffer.from(content);
             packageData['Content'] = content.toString('base64');
+            console.log("Finished downloading tarball");
         }
         else{
             // let githubURL: string = packageURL;
