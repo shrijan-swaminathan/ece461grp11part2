@@ -79,6 +79,7 @@ export async function postpackage(
                 formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
             }
             const tarball = metadata?.dist?.tarball;
+            console.log(tarball);
             const tarballResp = await fetch(tarball);
             const content = Buffer.from(await tarballResp.arrayBuffer());
             zipContent = Buffer.from(content.toString('base64'), 'base64');
