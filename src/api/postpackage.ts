@@ -140,22 +140,22 @@ export async function postpackage(
         let readme = '';
         // const readme = await findReadme(zipContent);
         const packageID = randomUUID() as string;
-        console.log("Package ID: ", packageID);
-        console.log("Formatted Name: ", formattedName);
         const command = new ScanCommand({
-        TableName: tableName,
-        FilterExpression: '#name = :name AND #version = :version',
-        ExpressionAttributeNames: {
-            '#name': 'Name',
-            '#version': 'Version'
-        },
-        ExpressionAttributeValues: {
-            ':name': formattedName,
-            ':version': version
-        }
+            TableName: tableName,
+            FilterExpression: '#name = :name AND #version = :version',
+            ExpressionAttributeNames: {
+                '#name': 'Name',
+                '#version': 'Version'
+            },
+            ExpressionAttributeValues: {
+                ':name': formattedName,
+                ':version': version
+            }
         });
 
         const existingPackage = await dynamoClient.send(command);
+
+        console.log("Checked for existing package");
         if (existingPackage.Items && existingPackage.Items.length > 0) {
             return {
                 statusCode: 409,
@@ -187,6 +187,7 @@ export async function postpackage(
                 ContentType: 'application/tgz'
             }));
         }
+        console.log("Stored in S3")
         
         // Store metadata
         const metadata: PackageMetadata = {
