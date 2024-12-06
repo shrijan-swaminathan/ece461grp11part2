@@ -1,5 +1,5 @@
 import { APIGatewayProxyResult, APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
-import { PackageQuery, PackageMetadata } from './types';
+import { PackageQuery, PackageMetadata } from './types.js';
 import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import * as semver from "semver";
 

@@ -1,11 +1,11 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
 import { randomUUID } from 'crypto';
-import { PackageData, PackageMetadata, Package } from './types';
+import { PackageData, PackageMetadata, Package } from './types.js';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
-import { Octokit } from 'octokit'
-import { extractownerrepo } from './helperfunctions/extractownerrepo';
+import { Octokit } from "@octokit/core";
+import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
 // import { findReadme } from './readme';
 
 
@@ -86,21 +86,35 @@ export async function postpackage(
             const response = await ssmClient.send(command);
             const githubToken = response.Parameter?.Value || '';
             const octokit = new Octokit({ auth: githubToken });
-            const { owner, repo, branch } = extractownerrepo(githubURL);
-            const { data } = await octokit.rest.repos.downloadZipballArchive({
-                owner,
-                repo,
-                ref: branch || undefined
-            });            
-            const base64Data = Buffer.from(await data.arrayBuffer());
-            zipContent = Buffer.from(base64Data.toString('base64'), 'base64');
+            let { owner, repo, branch } = extractownerrepo(githubURL);
+            if (!branch){
+                const {data: defaultBranch} = await octokit.request(
+                    'GET /repos/{owner}/{repo}',
+                    {
+                        owner: owner,
+                        repo: repo
+                    }
+                );
+                branch = defaultBranch.default_branch;
+            }
+            const {data: zipballdata} = await octokit.request(
+                'GET /repos/{owner}/{repo}/zipball/{ref}',
+                {
+                    owner: owner,
+                    repo: repo,
+                    ref: branch
+                }
+            ) as {data: Buffer};
+            zipContent = Buffer.from(zipballdata.toString('base64'), 'base64');
             // now fetch version from package.json
-            const { data: packageJson } = await octokit.rest.repos.getContent({
-                owner,
-                repo,
-                path: 'package.json',
-                ref: branch || undefined
-            });
+            const { data: packageJson } = await octokit.request(
+                'GET /repos/{owner}/{repo}/contents/package.json',
+                {
+                    owner: owner,
+                    repo: repo,
+                    ref: branch
+                }
+            );
             const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
             const packageJsonData = JSON.parse(packageJsonContent);
             version = packageJsonData.version;
