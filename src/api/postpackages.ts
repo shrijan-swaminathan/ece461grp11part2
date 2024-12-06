@@ -1,6 +1,6 @@
 import { APIGatewayProxyResult, APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { PackageQuery, PackageMetadata } from './types';
-import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import * as semver from "semver";
 
 /**
@@ -73,7 +73,7 @@ export async function postpackages(
             // check if version name is a bounded range
             if (versionRange && versionRange.includes('-')) {
                 const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
-                // remake string such that its "v1 - v2"
+                // remake string such that it handles bounded ranges (e.g. both "1.0.0-2.0.0" and "1.0.0 - 2.0.0" are valid)
                 versionRange = `>=${minVersion} <=${maxVersion}`
             }
             
