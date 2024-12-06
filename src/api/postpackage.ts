@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package } from './types.js';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
-// import { Octokit } from "@octokit/core";
+import { Octokit } from "@octokit/core";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
 // import { findReadme } from './readme';
 
