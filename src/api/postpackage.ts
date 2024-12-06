@@ -42,7 +42,8 @@ export async function postpackage(
         }
 
         let zipContent: Buffer = Buffer.from('');
-        let version = ""
+        let version: string = ""
+
         if (packageURL) {
             // TODO: Implement URL download logic
 
@@ -102,6 +103,7 @@ export async function postpackage(
                 const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
                 packageData['Content'] = Buffer.from(content).toString('base64');
+                console.log(packageData['Content'], formattedName, version)
             }
             else{
                 // let githubURL: string = packageURL;
@@ -150,7 +152,8 @@ export async function postpackage(
                 // version = packageJsonData.version;
             }
 
-        } else {
+        } 
+        else {
             zipContent = Buffer.from(packageContent || '', 'base64');
             version = "1.0.0";
         }
@@ -172,6 +175,7 @@ export async function postpackage(
             } as Record<string, string>
         });
 
+        console.log(command);
         const existingPackage = await dynamoClient.send(command);
 
         if (existingPackage.Items && existingPackage.Items.length > 0) {
@@ -253,5 +257,6 @@ export async function postpackage(
             },
             body: JSON.stringify(error.message)
         };
-  }
+    }
+    
 }
