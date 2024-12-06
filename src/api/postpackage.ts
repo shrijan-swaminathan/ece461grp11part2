@@ -66,13 +66,13 @@ export async function postpackage(
                 packageURL = packageURL.replace(/\/$/, '');
                 
                 // Update regex to handle full NPM URLs
-                const match = packageURL.match(/(?:\/package\/)([@\w-]+(?:\/[^\/]+)?)(?:\/v?(\d+\.\d+\.\d+))?$/);
+                const match = packageURL.match(/^(https?:\/\/(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
                 if (!match) {
                     throw new Error("Invalid NPM URL");
                 }
             
-                const pkgName = match[1];
-                const npmversion = match[2] || 'latest';
+                const pkgName = match[2];
+                const npmversion = match[3] || 'latest';
                 
                 // Fetch package metadata from registry
                 const resp = await fetch(`https://registry.npmjs.org/${pkgName}`);
@@ -94,7 +94,7 @@ export async function postpackage(
                 if (!tarball) {
                     throw new Error("Package tarball not found");
                 }
-                
+                console.log(tarball, formattedName, version);
                 const tarballResp = await fetch(tarball);
                 if (!tarballResp.ok) {
                     throw new Error("Failed to download package");
@@ -103,7 +103,6 @@ export async function postpackage(
                 const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
                 packageData['Content'] = Buffer.from(content).toString('base64');
-                console.log(packageData['Content'], formattedName, version)
             }
             else{
                 // let githubURL: string = packageURL;
