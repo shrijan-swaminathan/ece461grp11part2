@@ -6,6 +6,8 @@ import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dy
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Octokit } from "@octokit/core";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
+import * as tar from 'tar';
+import AdmZip from 'adm-zip';
 // import { findReadme } from './readme';
 
 
@@ -59,8 +61,6 @@ export async function postpackage(
             //         body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
             //  };
             // Download zip file from URL
-            // if url is GitHub, use the GitHub API to download the zip file
-            // if url is NPM, use the NPM API to download the tarball file
             if (packageURL.includes('npmjs.com')) {
                 // Remove trailing slash
                 packageURL = packageURL.replace(/\/$/, '');
@@ -93,7 +93,7 @@ export async function postpackage(
                 const tarball = metadata?.dist?.tarball;
 
                 console.log("Downloading tarball from", tarball);
-                
+
                 if (!tarball) {
                     throw new Error("Package tarball not found");
                 }
@@ -107,50 +107,50 @@ export async function postpackage(
                 packageData['Content'] = Buffer.from(content).toString('base64');
             }
             else{
-                // let githubURL: string = packageURL;
-                // if (githubURL && githubURL.startsWith("git+https://")) {
-                //     githubURL = githubURL.replace(/^git\+/, "").replace(/\.git$/, "");
-                // }
-                // const parameterName = "github-token";
-                // const command = new GetParameterCommand({
-                //     Name: parameterName,
-                //     WithDecryption: true,
-                // });
-                // const response = await ssmClient.send(command);
-                // const githubToken = response.Parameter?.Value || '';
-                // const octokit = new Octokit({ auth: githubToken });
-                // let { owner, repo, branch } = extractownerrepo(githubURL);
-                // if (!branch){
-                //     const {data: defaultBranch} = await octokit.request(
-                //         'GET /repos/{owner}/{repo}',
-                //         {
-                //             owner: owner,
-                //             repo: repo
-                //         }
-                //     );
-                //     branch = defaultBranch.default_branch;
-                // }
-                // const {data: zipballdata} = await octokit.request(
-                //     'GET /repos/{owner}/{repo}/zipball/{ref}',
-                //     {
-                //         owner: owner,
-                //         repo: repo,
-                //         ref: branch
-                //     }
-                // ) as {data: Buffer};
-                // zipContent = Buffer.from(zipballdata.toString('base64'), 'base64');
-                // // now fetch version from package.json
-                // const { data: packageJson } = await octokit.request(
-                //     'GET /repos/{owner}/{repo}/contents/package.json',
-                //     {
-                //         owner: owner,
-                //         repo: repo,
-                //         ref: branch
-                //     }
-                // );
-                // const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
-                // const packageJsonData = JSON.parse(packageJsonContent);
-                // version = packageJsonData.version;
+                let githubURL: string = packageURL;
+                if (githubURL && githubURL.startsWith("git+https://")) {
+                    githubURL = githubURL.replace(/^git\+/, "").replace(/\.git$/, "");
+                }
+                const parameterName = "github-token";
+                const command = new GetParameterCommand({
+                    Name: parameterName,
+                    WithDecryption: true,
+                });
+                const response = await ssmClient.send(command);
+                const githubToken = response.Parameter?.Value || '';
+                const octokit = new Octokit({ auth: githubToken });
+                let { owner, repo, branch } = extractownerrepo(githubURL);
+                if (!branch){
+                    const {data: defaultBranch} = await octokit.request(
+                        'GET /repos/{owner}/{repo}',
+                        {
+                            owner: owner,
+                            repo: repo
+                        }
+                    );
+                    branch = defaultBranch.default_branch;
+                }
+                const {data: zipballdata} = await octokit.request(
+                    'GET /repos/{owner}/{repo}/zipball/{ref}',
+                    {
+                        owner: owner,
+                        repo: repo,
+                        ref: branch
+                    }
+                ) as {data: Buffer};
+                zipContent = Buffer.from(zipballdata.toString('base64'), 'base64');
+                // now fetch version from package.json
+                const { data: packageJson } = await octokit.request(
+                    'GET /repos/{owner}/{repo}/contents/package.json',
+                    {
+                        owner: owner,
+                        repo: repo,
+                        ref: branch
+                    }
+                );
+                const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
+                const packageJsonData = JSON.parse(packageJsonContent);
+                version = packageJsonData.version;
             }
 
         } 
@@ -175,8 +175,7 @@ export async function postpackage(
                 ':version': version
             } as Record<string, string>
         });
-
-        console.log(command);
+        
         const existingPackage = await dynamoClient.send(command);
 
         if (existingPackage.Items && existingPackage.Items.length > 0) {
