@@ -71,7 +71,7 @@ export async function postpackages(
         for (const query of queries) {
             let { Version: versionRange, Name: name } = query;
             // check if version name is a bounded range
-            if (versionRange.includes('-')) {
+            if (versionRange && versionRange.includes('-')) {
                 const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
                 // remake string such that its "v1 - v2"
                 versionRange = `>=${minVersion} <=${maxVersion}`
