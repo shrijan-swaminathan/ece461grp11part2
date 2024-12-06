@@ -31,7 +31,6 @@ jobs:
           mkdir -p dist
           tsc src/api/*.ts --outDir dist
           mv lambda_deploy/node_modules/ dist/
-          mv src/api/helperfunctions/ dist/
       
       - name: Create deployment package
         run: |
