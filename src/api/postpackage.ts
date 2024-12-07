@@ -5,6 +5,7 @@ import { PackageData, PackageMetadata, Package } from './types.js';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
+import { isValidName } from './helperfunctions/isvalidname.js';
 import { Octokit } from '@octokit/core';
 // import { findReadme } from './readme';
 
@@ -26,6 +27,9 @@ export async function postpackage(
         const bucketName = curr_bucket;
         let formattedName = "";
         if (packageName){
+            if (!isValidName(packageName)) {
+                throw new Error("Invalid package name");
+            }
             formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
         }
 

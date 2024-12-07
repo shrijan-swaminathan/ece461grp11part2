@@ -1,6 +1,7 @@
 import { APIGatewayProxyResult, APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { PackageQuery, PackageMetadata } from './types.js';
 import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { isValidName } from './helperfunctions/isvalidname.js';
 import * as semver from "semver";
 
 /**
@@ -86,11 +87,15 @@ export async function postpackages(
             }
 
             if (versionRange && semver.valid(versionRange) === null && semver.validRange(versionRange) === null){
-                throw new Error('Version is invalid');
+                continue;
             }
             
             if (!name) {
-                throw new Error('Name is required');
+                continue;
+            }
+
+            if (!isValidName(name)) {
+                continue;
             }
 
             const command = new ScanCommand({

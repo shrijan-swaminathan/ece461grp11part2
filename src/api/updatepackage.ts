@@ -5,6 +5,7 @@ import { randomUUID } from 'crypto';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Octokit } from "@octokit/core";
+import { isValidName } from "./helperfunctions/isvalidname.js";
 import { extractownerrepo } from "./helperfunctions/extractownerrepo.js";
 
 /**
@@ -81,6 +82,9 @@ export async function updatepackage(
         const {Name: Name, Version: newVersion, ID: metaID} = metadata;
         let {Name: PackageName, Content: newContent, URL: newURL, debloat: newdebloat, JSProgram: JSProgram} = data;
         let formattedName = "";
+        if (!isValidName(PackageName) || !isValidName(Name)){
+            throw new Error("Invalid package name");
+        }
         if (PackageName){
             formattedName = PackageName.charAt(0).toUpperCase() + PackageName.slice(1).toLowerCase();
         }
