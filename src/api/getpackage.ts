@@ -21,6 +21,7 @@ export async function getPackage(
     dynamoClient: DynamoDBDocumentClient
 ): Promise<APIGatewayProxyResult> {
     try{
+        console.log("Fetching package with ID: ", ID);
         const command = new GetCommand({
             TableName: tableName,
             Key: {
