@@ -43,8 +43,8 @@ export async function postpackages(
             const allPackages = await dynamoClient.send(command);
             searchResults = allPackages.Items?.map(pkg => {
                 return {
-                    Name: pkg.Name,
                     Version: pkg.Version,
+                    Name: pkg.Name,
                     ID: pkg.ID,
                 };
             }) || [];
@@ -89,6 +89,7 @@ export async function postpackages(
                 }
             }
             if (versionRange && !semver.validRange(versionRange)) {
+                throw new Error('Invalid version range');
                 continue;
             }
             
