@@ -64,8 +64,8 @@ export async function updatepackage(
         }
 
 
-        const {inputmetadata, data} = JSON.parse(bodycontent);
-        const {Name, newVersion, metaID} = inputmetadata;
+        const {metadata, data} = JSON.parse(bodycontent);
+        const {Name, newVersion, metaID} = metadata;
         let {PackageName, newContent, newURL, newdebloat, JSProgram} = data;
 
         const formattedName = PackageName.charAt(0).toUpperCase() + PackageName.slice(1).toLowerCase();
