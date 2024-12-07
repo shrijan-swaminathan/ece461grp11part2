@@ -27,6 +27,9 @@ export async function updatepackage(
         const packageName = packagemetaData.Item?.Name;
         const packageURL = packagemetaData.Item?.URL;
 
+        console.log("Package Name from metadata: ", packageName);
+        console.log("Package URL from metadata: ", packageURL);
+
         if (!packageName) {
             return {
                 statusCode: 404,
