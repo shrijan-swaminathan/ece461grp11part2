@@ -116,7 +116,6 @@ export async function postpackage(
                 });
                 const response = await ssmClient.send(command);
                 const githubToken = response.Parameter?.Value || '';
-                console.log(githubToken);
                 const octokit = new Octokit({ auth: githubToken });
                 let { owner, repo, branch } = extractownerrepo(githubURL);
                 if (!branch){
