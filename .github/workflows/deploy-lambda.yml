@@ -31,6 +31,8 @@ jobs:
           tsc --project tsconfig.api.json
           mv lambda_deploy/node_modules/ dist/
           mv lambda_deploy/package.json dist/
+      - name: Compile TypeScript for metrics
+        run: |
           tsc --project tsconfig.metrics.json
           mv lambda_deploy_metrics/node_modules/ dist_metrics/
           mv lambda_deploy_metrics/package.json dist_metrics/
