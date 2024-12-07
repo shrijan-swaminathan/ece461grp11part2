@@ -81,7 +81,7 @@ export async function postpackages(
                 versionRange = `>=${minVersion} <=${maxVersion}`
             }
 
-            if (semver.validRange(versionRange) === null){
+            if (semver.valid(versionRange) === null && semver.validRange(versionRange) === null){
                 throw new Error('Version is invalid');
             }
             
