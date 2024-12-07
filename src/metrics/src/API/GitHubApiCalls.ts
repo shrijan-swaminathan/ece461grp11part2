@@ -2,7 +2,7 @@
 import ApiCalls from './apiCalls.js'
 // import isLicenseCompatible from '../Metrics/license.js'
 import 'dotenv/config'
-import { Octokit } from 'octokit'
+import { Octokit } from '@octokit/core'
 import logger from '../logger.js'
 
 export default class GitHubApiCalls extends ApiCalls {

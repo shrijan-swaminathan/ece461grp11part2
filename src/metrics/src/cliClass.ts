@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import * as fsPromises from 'fs/promises'
 import * as readline from 'readline'
 import ApiCalls from './API/api.js'
 import logger from './logger.js'
@@ -7,7 +8,7 @@ import BusFactor from './Metrics/busFactor.js'
 import License from './Metrics/license.js'
 import { RampUpTime } from './Metrics/RampUp.js'
 import { Responsiveness } from './Metrics/responsiveness.js'
-import { measureExecutionTime } from './utils.js'
+import { measureExecutionTime, normalizeGitHubUrl } from './utils.js'
 
 interface MetricResult {
     URL: string
@@ -61,6 +62,7 @@ export default class CLI {
                     logger.warn('Empty line encountered in the input file.')
                 }
             }
+            logger.info(`URLs read from file: ${this.inputURL}`);
         } catch (error) {
             logger.error(
                 `Error reading input file: ${(error as Error).message}`
@@ -89,15 +91,15 @@ export default class CLI {
     const listOfApis = await apiCallsInstance.getAPIlist()
 
     const results: MetricResult[] = []
-
+    // console.log(listOfApis)
     for (const api of listOfApis) {
         try {
+            // console.log("current API:", api);
             // Instantiate metric calculators
             const correctnessCalculator = new Correctness(api)
             const busFactorCalculator = new BusFactor(api)
             const rampUpCalculator = new RampUpTime(api)
             const responsivenessCalculator = new Responsiveness(api)
-            //const licenseCalculator = new License(api);
             const licenseCalculator = new License(api)
             // Measure execution time of each metric calculation
             const [
@@ -107,21 +109,13 @@ export default class CLI {
                 resResponsiveness,
                 resLicense,
             ] = await Promise.all([
-                measureExecutionTime(() =>
-                    correctnessCalculator.computeCorrectness()
-                ),
-                measureExecutionTime(() =>
-                    busFactorCalculator.calcBusFactor(api.owner, api.repo)
-                ),
-                measureExecutionTime(() =>
-                    rampUpCalculator.computeRampUpTime()
-                ),
-                measureExecutionTime(() =>
-                    responsivenessCalculator.ComputeResponsiveness()
-                ),
+                measureExecutionTime(() => correctnessCalculator.computeCorrectness()),
+                measureExecutionTime(() => busFactorCalculator.calcBusFactor(api.owner, api.repo)),
+                measureExecutionTime(() => rampUpCalculator.computeRampUpTime()),
+                measureExecutionTime(() => responsivenessCalculator.ComputeResponsiveness()),
                 measureExecutionTime(() => licenseCalculator.checkLicenseAPI()),
             ])
-
+            console.log("TESTING2");
             // Get scores and times
             const CorrectnessScore = resCorrectness.result || 0
             const BusFactorScore = resBusFactor.result || 0
@@ -145,7 +139,6 @@ export default class CLI {
                             RampUpScore +
                             ResponsivenessScore) / 4)
             }
-
             const NetScore_Latency = parseFloat(
                 (
                     CorrectnessTime +
@@ -155,7 +148,7 @@ export default class CLI {
                     LicenseTime
                 ).toFixed(3)
             )
-
+            console.log("TESTING3");
             // Collect results
             const result: MetricResult = {
                 URL: api.url,
@@ -176,8 +169,8 @@ export default class CLI {
                 License: parseFloat(LicenseScore == false ? "0" : "1"),
                 License_Latency: parseFloat(LicenseTime.toFixed(3)),
             }
-
             results.push(result)
+            console.log(result);
         } catch (error) {
             logger.error(`Error processing API ${api.url}:`, error)
         }
@@ -185,10 +178,9 @@ export default class CLI {
 
     // Sort results by NetScore in descending order
     results.sort((a, b) => b.NetScore - a.NetScore)
-
+    console.log('Results:', results)
     // Output results
-    for (const result of results) {
-        console.log(JSON.stringify(result))
-    }
-    //process.exit(0)
+    await fsPromises.writeFile('results.json', JSON.stringify(results))
+    console.log('Results written to results.json')
+    process.exit(0)
 })()

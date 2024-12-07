@@ -1,7 +1,6 @@
 // src/API/api.ts
 import GitHubApiCalls from './GitHubApiCalls.js';
-import NpmApiCalls from './NpmApiCalls.js';
-import { extractInfo } from '../utils.js';
+import { extractInfo, normalizeGitHubUrl, getGitHubURLfromNPM } from '../utils.js';
 import logger from '../logger.js';
 
 export default class ApiCalls {
@@ -13,7 +12,7 @@ export default class ApiCalls {
         this.callReturnCode = 0;
     }
 
-    async callAPI(): Promise<number | void | GitHubApiCalls | NpmApiCalls> {
+    async callAPI(): Promise<number | void | GitHubApiCalls> {
         if (!this.checkErrors()) {
             logger.error('No URL provided');
             return;
@@ -31,42 +30,41 @@ export default class ApiCalls {
                 if ((await githubApi.callAPI()) == 200) {
                     return githubApi;
                 }
-            } else if (type === 'npm') {
-                const npmApi = new NpmApiCalls(url, owner, repo);
-                if ((await npmApi.callAPI()) == 200) {
-                    return npmApi;
-                }
             }
+            
+            
         }
 
         this.callReturnCode = 200;
         return this.callReturnCode;
     }
 
-    async getAPIlist(): Promise<(GitHubApiCalls | NpmApiCalls)[]> {
-        let apiList: (GitHubApiCalls | NpmApiCalls)[] = [];
+    async getAPIlist(): Promise<(GitHubApiCalls)[]> {
+        let apiList: (GitHubApiCalls)[] = [];
         if (!this.checkErrors()) {
             logger.error('No URL provided');
             return apiList;
         }
         for (let url of this.inputURL) {
             const { type, owner, repo } = await extractInfo(url);
-            if (type === 'unknown') {
+            if (type === 'unknown' || (type !== 'github' && type !== 'npm')) {
                 logger.warn(`Unknown URL: ${url}`);
                 this.callReturnCode = 404;
                 return apiList;
             }
-
-            if (type === 'github') {
-                const githubApi = new GitHubApiCalls(url, owner, repo);
-                if ((await githubApi.callAPI()) == 200) {
-                    apiList.push(githubApi);
-                }
-            } else if (type === 'npm') {
-                const npmApi = new NpmApiCalls(url, owner, repo);
-                if ((await npmApi.callAPI()) == 200) {
-                    apiList.push(npmApi);
-                }
+            if (type === 'npm') {
+                // Grab github url from npm
+                console.log('npm URL: ', url);
+                // Call github api and get github link
+                url = await getGitHubURLfromNPM(url);
+                console.log('github URL: ', url);
+            }
+            url = await normalizeGitHubUrl(url);
+            console.log('normalized github URL: ', url);
+            //type is github after this point but we check it anyway
+            const githubApi = new GitHubApiCalls(url);
+            if ((await githubApi.callAPI()) == 200) {
+                apiList.push(githubApi);
             }
         }
 

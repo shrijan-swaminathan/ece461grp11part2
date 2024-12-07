@@ -1,15 +1,13 @@
 import GitHubApiCalls from '../API/GitHubApiCalls.js';
-import NpmApiCalls from '../API/NpmApiCalls.js';
 import ApiCalls from '../API/api.js';
 import { Metrics } from './Metrics.js';
 import logger from '../logger.js';
-import { measureExecutionTime } from '../utils.js'
 
 
 export class RampUpTime extends Metrics{
     private metricCode: number;
     
-    constructor(apiCall: GitHubApiCalls | NpmApiCalls) {
+    constructor(apiCall: GitHubApiCalls) {
         super(apiCall);
         this.metricCode = 2;
     }
@@ -60,47 +58,7 @@ export class RampUpTime extends Metrics{
 
             logger.debug(`Calculated GitHub ramp-up score: ${rampUpScore}`);
 
-        } else if (this.apiCall instanceof NpmApiCalls) { // We use optional chaining because we are trying to find length of arrays which could throw an error
-            logger.verbose('Processing NPM API response');
-                
-            const normalizedVersions = await this.normalizeLog(Object.keys(response.versions).length, 500);
-            const normalizedMaintainers = await this.normalizeLog((response.maintainers?.length ?? 0), 10);
-            const normalizedDependencies = 1 - (await this.normalizeLog((response.dependencies?.length ?? 0), 20));
-            
-            const githubRepositoryScore = (typeof response.repository === 'object' && response.repository?.url?.includes("github")) ? 1 : 0;
-            
-            const weightVersions = 0.2;
-            const weightMaintainers = 0.3;
-            const weightDependencies = 0.25;
-            const weightGithubRepository = 0.25;
-            
-            rampUpScore = (normalizedVersions * weightVersions) + (normalizedMaintainers * weightMaintainers) +
-                            (normalizedDependencies * weightDependencies) + (githubRepositoryScore * weightGithubRepository);
-
-            logger.debug(`Calculated NPM ramp-up score: ${rampUpScore}`);
-
-            // TAKE CARE OF THIS WHEN MERGING
-            if (githubRepositoryScore){
-                const githubUrl = response.repository.url.replace(/^git\+/, '').replace(/\.git$/, '')
-                logger.info(`Fetching GitHub repository details from: ${githubUrl}`);
-
-                logger.info("NEW URL IS: ", githubUrl)
-
-                const apiInstance = new ApiCalls([githubUrl])
-                const APIObj = await apiInstance.callAPI()
-
-                let githubScore = -1
-
-                if (APIObj instanceof GitHubApiCalls){
-                    let githubRampUpCalculator = new RampUpTime(APIObj)
-                    githubScore = await githubRampUpCalculator.computeRampUpTime()
-                }
-
-                rampUpScore = (rampUpScore*0.3+githubScore*0.7)
-                logger.info(`Combined ramp-up score after including GitHub score: ${rampUpScore}`); 
-            } 
-
-        }
+        } 
         logger.info(`Final ramp-up score: ${rampUpScore}`);
         return rampUpScore;
     }
@@ -114,25 +72,3 @@ export class RampUpTime extends Metrics{
     }
 
 }
-
-// // Just used for debugging
-// (async () => {
-    
-//     logger.info('Starting local debug call');
-
-//         const apiInstance = new ApiCalls(["https://github.com/Exteri0/MPN"]);
-    
-//         try {
-//             const gitHubApiObj = await apiInstance.callAPI();
-//             if (gitHubApiObj instanceof NpmApiCalls || gitHubApiObj instanceof GitHubApiCalls) {
-//                 let correctnessCalculator = new RampUpTime(gitHubApiObj);
-//                 let score = await correctnessCalculator.computeRampUpTime();
-//                 logger.info(`RampUpTime score for iteration:`, score);
-//             }
-//         } catch (error) {
-//             logger.error(`Error on iteration:`, error);
-//         }
-    
-    
-//     logger.info('Successfully finished');
-// })();

@@ -1,5 +1,41 @@
 import logger from './logger.js'
-
+export async function normalizeGitHubUrl(url: string): Promise<string> {
+    if (url.startsWith('git+ssh://git@github.com/')) {
+        return url.replace('git+ssh://git@github.com/', 'https://github.com/').replace('.git', '');
+    }
+    if (url.startsWith('ssh://git@github.com/')) {
+        return url.replace('ssh://git@github.com/', 'https://github.com/').replace('.git', '');
+    }
+    if (url.startsWith('git+https://')) {
+        return url.replace('git+', '').replace('.git', '');
+    }
+    if (url.startsWith('https://github.com/')) {
+        return url.replace('.git', '');
+    }
+    // If no valid format is detected, return the original URL
+    return url;
+}
+export async function getGitHubURLfromNPM(url: string): Promise<string> {
+    let packageURL = url;
+    packageURL = packageURL.replace(/\/$/, '');
+    const match = packageURL.match(/^(https?:\/\/(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
+    if (!match) {
+        throw new Error("Invalid NPM URL");
+    }
+    const pkgName = match[2];
+    const npmversion = match[3] || 'latest';
+    
+    console.log(`Fetching package ${pkgName} version ${npmversion}`);
+    // Fetch package metadata from registry
+    const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
+    if (!resp.ok) {
+        throw new Error("Package not found in NPM registry");
+    }
+    
+    const metadata = await resp.json();
+    const githubURL = metadata.repository.url;
+    return githubURL;
+}
 export async function extractInfo(
     url: string
 ): Promise<{ type: string; owner: string; repo: string }> {
