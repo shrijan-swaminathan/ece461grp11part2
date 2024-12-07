@@ -4,6 +4,7 @@
   "description": "Part 2 of ECE 461 Module Registry Project",
   "main": "index.js",
   "dependencies": {
+    "@aws-sdk/client-lambda": "^3.699.0",
     "@octokit/core": "^6.1.2",
     "@octokit/rest": "^21.0.2",
     "@octokit/webhooks": "^13.4.1",

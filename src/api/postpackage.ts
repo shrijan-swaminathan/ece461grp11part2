@@ -1,5 +1,6 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package } from './types.js';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
@@ -9,6 +10,27 @@ import { isValidName } from './helperfunctions/isvalidname.js';
 import { Octokit } from '@octokit/core';
 // import { findReadme } from './readme';
 
+// add function to invoke lambda function to fetch metrics
+async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Promise<any> {
+    const command = new InvokeCommand({
+      FunctionName: 'arn:aws:lambda:us-east-2:872515249498:function:metricsFunction',
+      InvocationType: 'RequestResponse',
+      Payload: Buffer.from(JSON.stringify({ URL: url }), 'utf-8'),
+    });
+  
+    try {
+      const response = await lambdaClient.send(command);
+      
+      if (response.Payload) {
+        const result = JSON.parse(Buffer.from(response.Payload).toString());
+        console.log('Target Lambda function output:', result);
+        return result.body;
+      }
+    } catch (error) {
+      console.error('Error invoking target Lambda function:', error);
+      throw error;
+    }
+}  
 
 export async function postpackage(
   tableName: string, 
@@ -16,7 +38,8 @@ export async function postpackage(
   curr_bucket: string, 
   s3Client: any, 
   dynamoClient: DynamoDBDocumentClient,
-  ssmClient: SSMClient
+  ssmClient: SSMClient,
+  lambdaClient: LambdaClient
 ): Promise<APIGatewayProxyResult> {
     try {
         if (!bodycontent) {
@@ -107,6 +130,9 @@ export async function postpackage(
                 const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
                 packageData['Content'] = Buffer.from(content).toString('base64');
+
+                const ratings = await invokeTargetLambda(packageURL, lambdaClient);
+                console.log(ratings);
             }
             else{
                 let githubURL: string = packageURL;

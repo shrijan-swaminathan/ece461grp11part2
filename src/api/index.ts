@@ -1,6 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client,PutObjectCommand, ListObjectsV2Command, GetObjectCommand} from "@aws-sdk/client-s3";
 import { SSMClient } from "@aws-sdk/client-ssm";
+import { LambdaClient } from "@aws-sdk/client-lambda";
 import { PackageData, PackageMetadata, PackageCost } from './types.js';
 import { gettracks } from './gettracks.js';
 import { postpackage } from './postpackage.js';
@@ -17,6 +18,7 @@ const s3Client = new S3Client({ region: "us-east-2" });
 const client = new DynamoDBClient({ region: "us-east-2" });
 const dynamoClient = DynamoDBDocumentClient.from(client);
 const ssmClient = new SSMClient({ region: "us-east-2" });
+const lambdaClient = new LambdaClient({ region: 'us-east-2' });
 
 let curr_bucket = 'ece461gp11-root-bucket';
 let tableName = 'PackageMetaData';
@@ -45,7 +47,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   // handle to handle this request:
   // POST /package
   if (httpMethod === "POST" && resourcePath === "/package") {
-    const resp = await postpackage(tableName, bodycontent, curr_bucket, s3Client, dynamoClient, ssmClient);
+    const resp = await postpackage(tableName, bodycontent, curr_bucket, s3Client, dynamoClient, ssmClient, lambdaClient);
     return resp;
   }
 
