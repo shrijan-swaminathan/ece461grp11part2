@@ -70,39 +70,6 @@ process_url_file() {
     node $UTILS_DIR/cliClass.js "$INPUT_PATH"
     APP_EXIT_STATUS=$?
     exit $APP_EXIT_STATUS
-    # URLS=$(cat "$INPUT_PATH")
-
-    # # Run metrics for each URL
-    # for URL in $URLS; do
-    #   echo "Processing URL: $URL" >&3
-    #   echo "Processing URL: $URL" >> "$LOG_FILE"
-
-    #   # Example: Run each metric function with Node.js (compiled JS files)
-    #   echo "Running RampUp metric..." >&3
-    #   echo "Running RampUp metric..." >> "$LOG_FILE"
-    #   node "$METRICS_DIR/RampUp.js" "$URL" >> "$LOG_FILE" 2>&1
-
-    #   echo "Running BusFactor metric..." >&3
-    #   echo "Running BusFactor metric..." >> "$LOG_FILE"
-    #   node "$METRICS_DIR/busFactor.js" "$URL" >> "$LOG_FILE" 2>&1
-
-    #   echo "Running Correctness metric..." >&3
-    #   echo "Running Correctness metric..." >> "$LOG_FILE"
-    #   node "$METRICS_DIR/correctness.js" "$URL" >> "$LOG_FILE" 2>&1
-
-    #   echo "Running License metric..." >&3
-    #   echo "Running License metric..." >> "$LOG_FILE"
-    #   node "$METRICS_DIR/license.js" "$URL" >> "$LOG_FILE" 2>&1
-
-    #   echo "Running Responsiveness metric..." >&3
-    #   echo "Running Responsiveness metric..." >> "$LOG_FILE"
-    #   node "$METRICS_DIR/responsiveness.js" "$URL" >> "$LOG_FILE" 2>&1
-
-    # done
-
-    # echo "All metrics processed successfully!" >&3
-    # echo "All metrics processed successfully!" >> "$LOG_FILE"
-    # exit 0
   else
     echo "File not found at the provided path: $INPUT_PATH" >&3
     echo "File not found at the provided path: $INPUT_PATH" >> "$LOG_FILE"

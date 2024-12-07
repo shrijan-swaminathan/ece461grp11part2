@@ -49,6 +49,7 @@ class BusFactor extends Metrics {
             const busFactorPercentage = 1 - (keyContributors / contributors.length);
             this.metricCode = busFactorPercentage;
             logger.info(`Bus Factor Calculated: ${this.metricCode}%`);
+            return this.metricCode;
         } catch (error) {
             logger.error('Error while calculating bus factor:', error);
         }
