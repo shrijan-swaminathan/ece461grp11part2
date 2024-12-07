@@ -85,7 +85,7 @@ export async function postpackages(
                 
                 if (semver.valid(minVersion) && semver.valid(maxVersion)) {
                     // Use semver range syntax that is guaranteed to be valid
-                    versionRange = `>=${minVersion} <=${maxVersion}`;
+                    versionRange = `>=${minVersion} <${maxVersion}`;
                 }
             }
             if (versionRange && !(semver.valid(versionRange) || semver.validRange(versionRange))) {
