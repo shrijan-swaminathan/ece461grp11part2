@@ -74,14 +74,15 @@ export async function postpackages(
         // Process each query in the array
         for (const query of queries) {
             let { Version: versionRange, Name: name } = query;
-            if (semver.validRange(versionRange) === null){
-                throw new Error('Version is invalid');
-            }
             // check if version name is a bounded range
             if (versionRange && versionRange.includes('-')) {
                 const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
                 // remake string such that it handles bounded ranges (e.g. both "1.0.0-2.0.0" and "1.0.0 - 2.0.0" are valid)
                 versionRange = `>=${minVersion} <=${maxVersion}`
+            }
+
+            if (semver.validRange(versionRange) === null){
+                throw new Error('Version is invalid');
             }
             
             if (!name) {
