@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Octokit } from "@octokit/core";
-import { extractownerrepo } from "./helperfunctions/extractownerrepo";
+import { extractownerrepo } from "./helperfunctions/extractownerrepo.js";
 
 export async function updatepackage(
     tableName: string, 
