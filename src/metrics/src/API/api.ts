@@ -26,7 +26,7 @@ export default class ApiCalls {
             this.callReturnCode = 404;
             return this.callReturnCode;
         }
-        
+        // initializing github token for api call
         console.log(`Github url(?): ${url}`);
         const githubApi = new GitHubApiCalls(url, owner, repo);
         await githubApi.initialize();
