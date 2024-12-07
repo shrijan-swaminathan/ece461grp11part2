@@ -5,6 +5,7 @@ import { PackageData, PackageMetadata, Package } from './types.js';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
+import { Octokit } from '@octokit/core';
 // import { findReadme } from './readme';
 
 
@@ -104,7 +105,6 @@ export async function postpackage(
                 packageData['Content'] = Buffer.from(content).toString('base64');
             }
             else{
-                const { Octokit } = await import('@octokit/core');
                 let githubURL: string = packageURL;
                 if (githubURL && githubURL.startsWith("git+https://")) {
                     githubURL = githubURL.replace(/^git\+/, "").replace(/\.git$/, "");

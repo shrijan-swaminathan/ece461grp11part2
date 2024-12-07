@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
       "outDir": "./dist",        // Output directory for compiled JavaScript files
-      "module": "ESNext",        // Module system, set to ESNext for modern syntax
+      "module": "CommonJS",        // Module system, set to ESNext for modern syntax
       "target": "ESNext",        // Target the latest version of ECMAScript
       "moduleResolution": "Node", // Use Node.js-style module resolution
       "strict": true,            // Enable strict type-checking options
