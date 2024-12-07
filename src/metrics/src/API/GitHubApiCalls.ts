@@ -28,7 +28,7 @@ export default class GitHubApiCalls extends ApiCalls {
         super(url, owner, repo)
     }
 
-    async initialize() {
+    async initialize(): Promise<void> {
         const githubToken = await getGithubToken();
         console.log("GithubToken: ", githubToken);
         this.octokit = new Octokit({

@@ -29,7 +29,7 @@ export default class ApiCalls {
         
         console.log(`Github url(?): ${url}`);
         const githubApi = new GitHubApiCalls(url, owner, repo);
-        githubApi.initialize();
+        await githubApi.initialize();
         if ((await githubApi.callAPI()) == 200) {
             return githubApi;
         }
@@ -61,7 +61,7 @@ export default class ApiCalls {
         console.log('normalized github URL: ', url);
         //type is github after this point but we check it anyway
         const githubApi = new GitHubApiCalls(url);
-        githubApi.initialize();
+        await githubApi.initialize();
         let status_code = await githubApi.callAPI();
         console.log('githubApi: ',status_code);
         if (status_code == 200) {
