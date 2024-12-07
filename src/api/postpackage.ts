@@ -15,7 +15,7 @@ async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Prom
     const command = new InvokeCommand({
       FunctionName: 'arn:aws:lambda:us-east-2:872515249498:function:metricsFunction',
       InvocationType: 'RequestResponse',
-      Payload: Buffer.from(JSON.stringify({ URL: url }), 'utf-8'),
+      Payload: Buffer.from(JSON.stringify({ URL: url }), 'utf-8')
     });
   
     try {
@@ -30,7 +30,7 @@ async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Prom
       console.error('Error invoking target Lambda function:', error);
       throw error;
     }
-}  
+}
 
 export async function postpackage(
   tableName: string, 

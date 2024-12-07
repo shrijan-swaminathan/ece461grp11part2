@@ -4,20 +4,40 @@ import ApiCalls from './apiCalls.js'
 import 'dotenv/config'
 import { Octokit } from '@octokit/core'
 import logger from '../logger.js'
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+
+
+const ssmClient = new SSMClient({ region: "us-east-2" });
+
+async function getGithubToken() {
+    const parameterName = "github-token";
+    const command = new GetParameterCommand({
+        Name: parameterName,
+        WithDecryption: true,
+    });
+    const response = await ssmClient.send(command);
+    const githubToken = response.Parameter?.Value || '';
+    console.log('githubToken: ', githubToken);
+    return githubToken;
+}
 
 export default class GitHubApiCalls extends ApiCalls {
-    octokit: Octokit
+    octokit: Octokit | null = null;
 
     constructor(url: string, owner?: string, repo?: string) {
         super(url, owner, repo)
+    }
+
+    async initialize() {
+        const githubToken = await getGithubToken();
         this.octokit = new Octokit({
-            auth: process.env.GITHUB_TOKEN,
-        })
+            auth: githubToken,
+        });
     }
 
     async fetchContributors(owner: string, repo: string): Promise<any[]> {
         try {
-            const response = await this.octokit.request(
+            const response = await this.octokit?.request(
                 'GET /repos/{owner}/{repo}/contributors',
                 {
                     owner: owner,
@@ -27,7 +47,7 @@ export default class GitHubApiCalls extends ApiCalls {
             )
 
             // Return an array of contributors and their contributions
-            return response.data.map((contributor: any) => ({
+            return response!.data.map((contributor: any) => ({
                 login: contributor.login,
                 contributions: contributor.contributions,
             }))
@@ -42,16 +62,16 @@ export default class GitHubApiCalls extends ApiCalls {
 
     async fetchReadme(): Promise<string | null> {
         try {
-            const response = await this.octokit.request(
+            const response = await this.octokit?.request(
                 'GET /repos/{owner}/{repo}/readme',
                 {
                     owner: this.owner,
                     repo: this.repo,
                 }
             )
-            if (response.data && response.data.content) {
+            if (response!.data && response!.data.content) {
                 const readmeContent = Buffer.from(
-                    response.data.content,
+                    response!.data.content,
                     'base64'
                 ).toString('binary')
                 return readmeContent
@@ -65,16 +85,15 @@ export default class GitHubApiCalls extends ApiCalls {
 
     async handleAPI() {
         logger.info(`Making API call to GitHub: ${this.owner}/${this.repo}`);
-        const response = await this.octokit.request('GET /repos/{owner}/{repo}', {
+        const response = await this.octokit?.request('GET /repos/{owner}/{repo}', {
             owner: this.owner,
             repo: this.repo,
         });
-        return response.data;
+        return response!.data;
     }
 
     async fetchIssues(): Promise<any[]> {
-        const response = await this.octokit
-            .request('GET /repos/{owner}/{repo}/issues', {
+        const response = await this.octokit?.request('GET /repos/{owner}/{repo}/issues', {
                 owner: this.owner,
                 repo: this.repo,
                 per_page: 50,
@@ -85,8 +104,7 @@ export default class GitHubApiCalls extends ApiCalls {
     }
 
     async fetchIssueComments(issue_no: number) {
-        const response = await this.octokit
-            .request('GET /repos/{owner}/{repo}/issues/{issue_no}/comments', {
+        const response = await this.octokit?.request('GET /repos/{owner}/{repo}/issues/{issue_no}/comments', {
                 owner: this.owner,
                 repo: this.repo,
                 issue_no: issue_no,
