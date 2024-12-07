@@ -105,10 +105,6 @@ button {
     transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #2c8531;
-}
-
 .btn-primary {
     background-color: #3498db;
 }
@@ -205,3 +201,79 @@ footer {
     font-size: 16px;
     margin-top: 20px;
 }
+
+.search-input-container {
+    position: relative;
+    width: 100%; /* Ensure the container takes up the full width */
+}
+
+#searchTerm {
+    width: 100%; /* Ensure the input box fills the container */
+    padding-right: 40px; /* Add padding for the clear button */
+    padding-left: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Style for the URL input box */
+.url-input {
+    width: 97%;
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 16px;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+/* Optional: Add hover effect */
+.url-input:hover {
+    border-color: black;
+}
+
+/* Ensure the container has a flexbox layout */
+.url-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Style the input to take up more space */
+.url-input-container .url-input {
+    flex: 1; /* Makes the input box grow to fill available space */
+    padding: 8px; /* Adjust padding for better visual alignment */
+}
+
+.clear-btn {
+    background: none; /* Removes default styles */
+    border: none; /* Removes default borders */
+    padding: 0; /* Optional: Adjust padding if needed */
+    font-size: 16px; /* Adjust size for the icon */
+    cursor: pointer; /* Show a pointer cursor */
+    display: flex; /* Enables flexbox alignment */
+    align-items: center; /* Centers vertically */
+    justify-content: center; /* Centers horizontally */
+    height: 30px; /* Match this with input height for alignment */
+    width: 30px; /* Ensures a square button */
+    color: #555; /* Adjust the color of the "×" */
+}
+
+.clear-btn:hover {
+    color: #000; /* Darker color on hover (optional) */
+}
+
+#costResults {
+    margin-top: 20px;
+    background-color: #ffffff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+
+
+

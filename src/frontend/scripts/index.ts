@@ -24,36 +24,52 @@ function removeFile(): void {
 
 
 async function uploadModule(): Promise<void> {
-    const form: HTMLFormElement | null = document.getElementById('uploadForm') as HTMLFormElement;
-    const formData: FormData = new FormData(form);
+    const uploadMethod: string = (document.querySelector('input[name="uploadMethod"]:checked') as HTMLInputElement).value;
+    const formData: FormData = new FormData();
     const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
     if (uploadResultElement) {
         uploadResultElement.innerHTML = '';
     }
+
     try {
         const loadingSpinner: HTMLElement | null = document.getElementById('loadingSpinner');
         if (loadingSpinner) {
             loadingSpinner.style.display = 'block';
         }
 
-        // Get module name from form
         const moduleNameElement: HTMLInputElement | null = document.getElementById('moduleName') as HTMLInputElement;
         const debloatElement: HTMLInputElement | null = document.getElementById('debloat') as HTMLInputElement;
-        const fileInput: HTMLInputElement | null = document.getElementById('moduleFile') as HTMLInputElement;
-        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
-            throw new Error('No file selected');
+
+        let requestBody: any;
+
+        if (uploadMethod === 'file') {
+            const fileInput: HTMLInputElement | null = document.getElementById('moduleFile') as HTMLInputElement;
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                throw new Error('No file selected');
+            }
+
+            // Convert file to base64
+            const file = fileInput.files[0];
+            const base64String = await readFileAsBase64(file);
+            formData.append('moduleFile', base64String);
+
+            requestBody = {
+                Content: base64String,
+                debloat: debloatElement.checked,
+                Name: moduleNameElement.value,
+            };
+        } else if (uploadMethod === 'url') {
+            const urlInputElement: HTMLInputElement | null = document.getElementById('npmPackageURL') as HTMLInputElement;
+            if (!urlInputElement || !urlInputElement.value) {
+                throw new Error('No URL provided');
+            }
+
+            requestBody = {
+                URL: urlInputElement.value,
+                debloat: debloatElement.checked,
+                Name: moduleNameElement.value,
+            };
         }
-
-        // Convert to base64 string
-        const file = fileInput.files[0];
-        const base64String = await readFileAsBase64(file);
-        formData.append('moduleFile', base64String);
-
-        const requestBody = {
-            Content: base64String,
-            debloat: debloatElement.checked,
-            Name: moduleNameElement.value,
-        };
 
         const response: Response = await fetch('https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package', {
             method: 'POST',
@@ -66,14 +82,12 @@ async function uploadModule(): Promise<void> {
         }
 
         // Successfully uploaded, show success message
-        const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
             uploadResultElement.style.color = 'green';
-            uploadResultElement.innerHTML = `Successfully uploaded module. ID: ${result.metadata.ID as string} <br> <a href="https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package/${result.metadata.ID as string}" target="_blank" rel="noopener noreferrer" >View Module</a>`;
+            uploadResultElement.innerHTML = `Successfully uploaded module. ID: ${result.metadata.ID as string}`;
         }
     } catch (error: any) {
         // Show error message
-        const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
         if (uploadResultElement) {
             uploadResultElement.style.color = 'red';
             uploadResultElement.innerHTML = error!.message || 'Upload failed. Please try again.';
@@ -86,6 +100,12 @@ async function uploadModule(): Promise<void> {
             loadingSpinner.style.display = 'none';
         }
     }
+}
+
+
+function clearURLInput() {
+    const searchTermElement: HTMLInputElement | null = document.getElementById('npmPackageUrl') as HTMLInputElement;
+    searchTermElement.value = '';
 }
 
 function readFileAsBase64(file: File): Promise<string> {

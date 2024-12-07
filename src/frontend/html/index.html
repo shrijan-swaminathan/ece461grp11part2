@@ -30,7 +30,7 @@
                     <label for="uploadURL">Provide NPM Package URL/GitHub URL</label>
                 </div>
                 <div id="fileInputSection" class="form-group">
-                    <label for="moduleFile">Module File (Must be a .zip file):</label>
+                    <label for="moduleFile">Module File (Must be a .zip or a .tgz file):</label>
                     <div class="file-input-container">
                         <input type="file" id="moduleFile" name="moduleFile" accept=".zip">
                         <button type="button" class="btn btn-remove" onclick="removeFile()">Remove File</button>
@@ -40,8 +40,20 @@
                 <!-- URL input for NPM package -->
                 <div id="urlInputSection" class="form-group hidden">
                     <label for="npmPackageURL">NPM Package URL/GitHub URL:</label>
-                    <input type="url" id="npmPackageURL" name="npmPackageURL" placeholder="Enter public NPM package URL">
-                </div>
+                    <div class="url-input-container">
+                        <input 
+                            type="url" 
+                            id="npmPackageURL" 
+                            name="npmPackageURL" 
+                            class="url-input" 
+                            placeholder="Enter public NPM package or GitHub URL">
+                        <button 
+                            type="button" 
+                            class="clear-btn" 
+                            aria-label="Clear URL input" 
+                            onclick="clearURLInput()">&#x2715;</button>
+                    </div>
+                </div>                
 
                 <div class="form-group">
                     <label for="debloat">
@@ -76,8 +88,6 @@
                 <button type="button" class="btn btn-primary" onclick="searchModules()">Search</button>
             </form>
             <div id="results" class="results-container">
-                <h3>Search Results</h3>
-                <p>No results found. Please refine your search.</p> <!-- Placeholder text -->
             </div>
         </section>
         
@@ -94,11 +104,36 @@
                         required 
                         aria-label="Module Name for Rating">
                 </div>
+                <div class="form-group">
+                    <label for="rateModuleVersion">Enter Module Version:</label>
+                    <input 
+                        type="text" 
+                        id="rateModuleVersion" 
+                        name="rateModuleVersion" 
+                        placeholder="e.g., 16.13.1" 
+                        required 
+                        aria-label="Module Version for Rating">
+                </div>
                 <button type="button" class="btn btn-primary" onclick="getModuleRating()">Get Rating</button>
             </form>
             <div id="ratingResults" class="results-container">
-                <h3>Module Rating</h3>
-                <p>No rating available yet. Please check back after reviewing.</p>
+            </div>
+        </section>  
+        
+        <section id="cost">
+            <h2>Package Cost Analysis</h2>
+            <form id="costForm" class="form-container">
+                <div class="form-group">
+                    <label for="costModuleName">Module Name:</label>
+                    <input type="text" id="costModuleName" name="costModuleName" required placeholder="Enter module name">
+                </div>
+                <div class="form-group">
+                    <label for="costModuleVersion">Module Version:</label>
+                    <input type="text" id="costModuleVersion" name="costModuleVersion" required placeholder="e.g., 1.0.0">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="getModuleCost()">Get Cost Analysis</button>
+            </form>
+            <div id="costResults" class="results-container">
             </div>
         </section>
     </main>        
