@@ -1,31 +1,24 @@
 // src/API/apiCalls.ts
 import { extractInfo } from '../utils.js';
 import logger from '../logger.js';
-
-export default abstract class ApiCalls {
-    url: string;
-    callReturnCode: number;
-    owner: string;
-    repo: string;
-
-    constructor(url: string, owner?: string, repo?: string) {
+export default class ApiCalls {
+    url;
+    callReturnCode;
+    owner;
+    repo;
+    constructor(url, owner, repo) {
         this.url = url;
         this.owner = owner ?? '';
         this.repo = repo ?? '';
         this.callReturnCode = 0;
     }
-
-    abstract handleAPI(): Promise<any>;
-
-    setOwner(owner: string): void {
+    setOwner(owner) {
         this.owner = owner;
     }
-
-    setRepo(repo: string): void {
+    setRepo(repo) {
         this.repo = repo;
     }
-
-    async checkErrors(): Promise<boolean> {
+    async checkErrors() {
         if (this.url === '') {
             logger.error('No URL provided');
             this.callReturnCode = 404;
@@ -40,8 +33,7 @@ export default abstract class ApiCalls {
         this.callReturnCode = 200;
         return true;
     }
-
-    async callAPI(): Promise<number | void> {
+    async callAPI() {
         if (!(await this.checkErrors())) {
             logger.error('Error occurred during API call');
             return;

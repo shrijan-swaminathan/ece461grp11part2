@@ -2,17 +2,14 @@
 import GitHubApiCalls from './GitHubApiCalls.js';
 import { extractInfo, normalizeGitHubUrl, getGitHubURLfromNPM } from '../utils.js';
 import logger from '../logger.js';
-
 export default class ApiCalls {
-    inputURL: string;
-    callReturnCode: number;
-
-    constructor(url?: string) {
+    inputURL;
+    callReturnCode;
+    constructor(url) {
         this.inputURL = url ?? '';
         this.callReturnCode = 0;
     }
-
-    async callAPI(): Promise<number | void | GitHubApiCalls> {
+    async callAPI() {
         if (!this.checkErrors()) {
             logger.error('No URL provided');
             return;
@@ -24,7 +21,6 @@ export default class ApiCalls {
             this.callReturnCode = 404;
             return this.callReturnCode;
         }
-
         if (type === 'github') {
             const githubApi = new GitHubApiCalls(url, owner, repo);
             if ((await githubApi.callAPI()) == 200) {
@@ -34,9 +30,8 @@ export default class ApiCalls {
         this.callReturnCode = 200;
         return this.callReturnCode;
     }
-
-    async getAPIlist(): Promise<(GitHubApiCalls)[]> {
-        let apiList: (GitHubApiCalls)[] = [];
+    async getAPIlist() {
+        let apiList = [];
         if (!this.checkErrors()) {
             logger.error('No URL provided');
             return apiList;
@@ -65,23 +60,20 @@ export default class ApiCalls {
         this.callReturnCode = 200;
         return apiList;
     }
-
-    getURL(): string {
+    getURL() {
         return this.inputURL;
     }
-
-    checkErrors(): boolean {
+    checkErrors() {
         return this.getURL().length !== 0;
     }
-
-    setURL(url: string): void {
+    setURL(url) {
         this.inputURL = url;
     }
-
-    generateOutput(): string {
+    generateOutput() {
         if (this.checkErrors()) {
             return 'Error occurred during API call';
-        } else {
+        }
+        else {
             return 'API call was successful';
         }
     }
