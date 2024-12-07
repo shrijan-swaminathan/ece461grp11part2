@@ -87,14 +87,17 @@ export async function postpackages(
             }
 
             if (versionRange && semver.valid(versionRange) === null && semver.validRange(versionRange) === null){
+                console.log('Invalid version range');
                 continue;
             }
             
             if (!name) {
+                console.log('No name');
                 continue;
             }
 
             if (!isValidName(name)) {
+                console.log("Invalid name");
                 continue;
             }
 
