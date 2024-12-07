@@ -1,6 +1,12 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { Track, TrackSelection} from './types.js';
 
+/**
+ * GET /tracks - Fetches the tracks available for the student
+ * @returns The APIGatewayProxyResult containing the student's track information
+ * @throws Error if there's an error fetching the data
+ */
+
 export function gettracks(): APIGatewayProxyResult {
     try {
         const tracks: Track[] = [

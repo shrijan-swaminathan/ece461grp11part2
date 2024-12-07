@@ -1,6 +1,16 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { PackageCost } from './types.js';
 
+/**
+ * Fetches the cost of a package from S3, including its dependencies
+ * @param id - The ID of the package
+ * @param s3Client - The S3 client
+ * @param bucketName - The name of the S3 bucket
+ * @returns The metadata of the package
+ * @throws Error if the package is not found
+ */
+
+
 const fetchMetadataFromS3 = async (
   id: string,
   s3Client: S3Client,

@@ -7,6 +7,19 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Octokit } from "@octokit/core";
 import { extractownerrepo } from "./helperfunctions/extractownerrepo.js";
 
+/**
+ * POST /package/{id} - Updates a package by creating a new version with either new content or URL
+ * @param tableName - The name of the DynamoDB table
+ * @param ID - The ID of the existing package to update
+ * @param bodycontent - JSON containing metadata and package data
+ * @param curr_bucket - The name of the S3 bucket
+ * @param s3Client - The S3 client
+ * @param dynamoClient - The DynamoDB client
+ * @param ssmClient - The SSM client for accessing GitHub token
+ * @returns APIGatewayProxyResult with success/error message
+ * @throws Error if invalid version, mismatched IDs, invalid content/URL combination
+ */
+
 export async function updatepackage(
     tableName: string, 
     ID: string, 
@@ -67,8 +80,22 @@ export async function updatepackage(
         const {metadata, data} = JSON.parse(bodycontent);
         const {Name, newVersion, metaID} = metadata;
         let {PackageName, newContent, newURL, newdebloat, JSProgram} = data;
-
-        const formattedName = PackageName.charAt(0).toUpperCase() + PackageName.slice(1).toLowerCase();
+        let formattedName = "";
+        if (PackageName){
+            formattedName = PackageName.charAt(0).toUpperCase() + PackageName.slice(1).toLowerCase();
+        }
+        else if (Name){
+            formattedName = Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase();
+        }
+        else if (packageName){
+            formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
+        }
+        else{
+            throw new Error("Package name is required");
+        }
+        if (!newVersion || !metaID){
+            throw new Error("Version and ID are required");
+        }
         if (metaID !== ID){
             throw new Error("ID does not match");
         }
@@ -81,7 +108,7 @@ export async function updatepackage(
         if (!semver.valid(newVersion)){
             throw new Error("Invalid version. Must be in semver format");
         }
-        if (formattedName != packageName){
+        if (formattedName && formattedName != packageName){
             throw new Error("Package name does not match");
         }
 

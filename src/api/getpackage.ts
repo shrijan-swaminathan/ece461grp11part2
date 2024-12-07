@@ -2,6 +2,17 @@ import { APIGatewayProxyResult } from 'aws-lambda';
 import { GetObjectCommand} from "@aws-sdk/client-s3";
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
+/**
+ * GET /package/{id} - Fetches a package from the database and S3 bucket based on the ID
+ * @param tableName - The name of the DynamoDB table
+ * @param ID - The ID of the package to fetch
+ * @param curr_bucket - The name of the S3 bucket
+ * @param s3Client - The S3 client
+ * @param dynamoClient - The DynamoDB client
+ * @returns The APIGatewayProxyResult containing the package metadata and content
+ * @throws Error if the package doesn't exist or if there's an error fetching the data
+ */
+
 export async function getPackage(
     tableName: string,
     ID: any, 
