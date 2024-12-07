@@ -24,12 +24,12 @@ interface MetricResult {
     License: number
     License_Latency: number
 }
+interface LambdaPayload {
+    URL: string
+}
 
-export const handler = async (event: any): Promise<any> => {
-    console.log('Received event:', JSON.stringify(event));
-    const body = event.body ? JSON.parse(event.body) : {};
-    const inputUrl = body.url;
-
+export const handler = async (event: LambdaPayload) => {
+    const inputUrl = event.URL;
     if (!inputUrl || typeof inputUrl !== 'string') {
         return {
             statusCode: 400,
@@ -129,9 +129,6 @@ export const handler = async (event: any): Promise<any> => {
     // Output results
     return {
         statusCode: 200,
-        body: JSON.stringify({
-            message: `Metrics processed the data and calculated successfully!`,
-            result: results[0],
-        }),
+        body: results[0]
     };
 }
