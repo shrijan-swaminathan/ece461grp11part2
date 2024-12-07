@@ -81,23 +81,30 @@ export async function postpackages(
             let { Version: versionRange, Name: name } = query;
             // check if version name is a bounded range
             if (versionRange && versionRange.includes('-')) {
-                const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
-                // remake string such that it handles bounded ranges (e.g. both "1.0.0-2.0.0" and "1.0.0 - 2.0.0" are valid)
-                versionRange = `>=${minVersion} <=${maxVersion}`
+                // Check if it's a pre-release version range
+                if (versionRange.split('-').length === 2) {
+                    const [baseVersion, preReleaseVersion] = versionRange.split('-').map(v => v.trim());
+                    
+                    // If the range looks like a pre-release range, keep it as-is
+                    if (preReleaseVersion && semver.valid(baseVersion + '-' + preReleaseVersion)) {
+                        versionRange = `${baseVersion}-${preReleaseVersion}`;
+                    } else {
+                        // For standard version ranges, convert to semver range
+                        const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
+                        versionRange = `>=${minVersion} <=${maxVersion}`;
+                    }
+                }
             }
 
             if (versionRange && semver.valid(semver.coerce(versionRange)) === null && semver.validRange(versionRange) === null){
-                console.log('Invalid version range: ' + versionRange);
                 continue;
             }
             
             if (!name) {
-                console.log('No name');
                 continue;
             }
 
             if (!isValidName(name)) {
-                console.log("Invalid name");
                 continue;
             }
 
