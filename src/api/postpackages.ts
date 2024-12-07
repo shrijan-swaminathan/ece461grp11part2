@@ -86,7 +86,7 @@ export async function postpackages(
                 versionRange = `>=${minVersion} <=${maxVersion}`
             }
 
-            if (versionRange && semver.valid(versionRange) === null && semver.validRange(versionRange) === null){
+            if (versionRange && semver.valid(semver.coerce(versionRange)) === null && semver.validRange(versionRange) === null){
                 console.log('Invalid version range: ' + versionRange);
                 continue;
             }
@@ -119,7 +119,7 @@ export async function postpackages(
                 if (versionRange) {
                     const filteredPackages = matchingPackages.Items.filter(pkg => {
                         if (!versionRange) return true;
-                        return semver.satisfies(pkg.Version, versionRange);
+                        return semver.satisfies(pkg.Version, versionRange) || semver.eq(pkg.Version, versionRange);
                     })
                     .map(pkg => {
                         return {
