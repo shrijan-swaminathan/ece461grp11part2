@@ -28,7 +28,6 @@ jobs:
 
       - name: Compile TypeScript
         run: |
-          mkdir -p dist
           tsc --project tsconfig.api.json
           mv lambda_deploy/node_modules/ dist/
       
