@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group 11 Module Registry</title>
-    <link id="stylesheet" rel="stylesheet" href="css/styles.css">
-    <script id="script" src="scripts/index.js"></script>
     <script>
-        // Adding cache-busting timestamp dynamically
+        // Generate timestamp to prevent caching
         const timestamp = new Date().getTime();
-        document.getElementById('stylesheet').href = `css/styles.css?t=${timestamp}`;
-        document.getElementById('script').src = `scripts/index.js?t=${timestamp}`;
+
+        // Dynamically create and append the JavaScript file
+        const scriptElement = document.createElement('script');
+        scriptElement.src = `scripts/index.js?t=${timestamp}`;
+        document.head.appendChild(scriptElement);
+
+        // Dynamically create and append the CSS file
+        const linkElement = document.createElement('link');
+        linkElement.rel = 'stylesheet';
+        linkElement.href = `styles/styles.css?t=${timestamp}`;
+        document.head.appendChild(linkElement);
+
     </script>
 </head>
 <body>
