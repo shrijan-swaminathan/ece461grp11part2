@@ -150,9 +150,13 @@ export async function postpackage(
                 );
                 const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
                 const packageJsonData = JSON.parse(packageJsonContent);
-                version = packageJsonData.version;
+                version = packageJsonData?.version;
                 if (!packageName){
-                    formattedName = packageJsonData.name;
+                    formattedName = packageJsonData?.name;
+                    if (!formattedName){
+                        // use repo name as package name
+                        formattedName = repo;
+                    }
                     formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
                 }
             }
