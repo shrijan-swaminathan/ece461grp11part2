@@ -83,13 +83,11 @@ export async function postpackages(
             if (versionRange && versionRange.includes('-')) {
                 const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
                 
-                // Ensure it's a proper version range
                 if (semver.valid(minVersion) && semver.valid(maxVersion)) {
-                    // Use semver range syntax
-                    versionRange = `>=${minVersion} <${semver.inc(maxVersion, 'patch')}`;
+                    // Use semver range syntax that is guaranteed to be valid
+                    versionRange = `>=${minVersion} <=${maxVersion}`;
                 }
             }
-
             if (versionRange && semver.valid(semver.coerce(versionRange)) === null && semver.validRange(versionRange) === null){
                 continue;
             }
