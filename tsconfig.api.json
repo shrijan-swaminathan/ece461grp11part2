@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist",        // Output directory for compiled JavaScript files
+      "module": "ESNext",        // Module system, set to ESNext for modern syntax
+      "target": "ESNext",        // Target the latest version of ECMAScript
+      "moduleResolution": "Node", // Use Node.js-style module resolution
+      "strict": true,            // Enable strict type-checking options
+      "esModuleInterop": true,   // Allow default imports from modules with no default export
+      "skipLibCheck": true,      // Skip type checking of declaration files
+      "forceConsistentCasingInFileNames": true // Ensure consistent file name casing
+    },
+    "include": [
+      "src/api/**/*.ts"          // Include all TypeScript files in the src/api folder
+    ],
+    "exclude": [
+      "node_modules"             // Exclude node_modules from compilation
+    ]
+  }
+  
