@@ -1,13 +1,58 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { PackageCost } from './types.js';
+
+const fetchMetadataFromS3 = async (
+  id: string,
+  s3Client: S3Client,
+  bucketName: string
+): Promise<any> => {
+  const metadataKey = `${id}/metadata.json`;
+
+  try {
+    const metadataObject = await s3Client.send(
+      new GetObjectCommand({
+        Bucket: bucketName,
+        Key: metadataKey,
+      })
+    );
+
+    const metadataBody = await metadataObject.Body?.transformToString();
+    return JSON.parse(metadataBody || "{}");
+  } catch (error) {
+    throw new Error(`Package ID "${id}" not found.`);
+  }
+};
+
+const calculateCostRecursive = async (
+  id: string,
+  s3Client: S3Client,
+  bucketName: string
+): Promise<number> => {
+  const metadata = await fetchMetadataFromS3(id, s3Client, bucketName);
+
+  const standaloneCost = metadata.size || 25.0; 
+  const dependencies = metadata.dependencies || [];
+
+  if (dependencies.length === 0) {
+    return standaloneCost;
+  }
+
+  // Recursive case: Sum costs of all dependencies
+  const dependenciesCost = await Promise.all(
+    dependencies.map((dep: { id: string }) =>
+      calculateCostRecursive(dep.id, s3Client, bucketName)
+    )
+  );
+
+  return standaloneCost + dependenciesCost.reduce((sum, cost) => sum + cost, 0);
+};
 
 export const getPackageCost = async (
   id: string,
   dependency: boolean,
   s3Client: S3Client,
   bucketName: string
-): Promise<APIGatewayProxyResult> => {
+): Promise<any> => {
   try {
     if (!id) {
       return {
@@ -15,35 +60,10 @@ export const getPackageCost = async (
         body: JSON.stringify("Package ID is required."),
       };
     }
-    const metadataKey = `${id}/metadata.json`;
 
-    const metadataObject = await s3Client
-      .send(
-        new GetObjectCommand({
-          Bucket: bucketName,
-          Key: metadataKey,
-        })
-      )
-      .catch(() => {
-        throw new Error(`Package ID "${id}" not found.`);
-      });
+    const standaloneCost = await calculateCostRecursive(id, s3Client, bucketName);
+    const totalCost = dependency ? standaloneCost : standaloneCost;
 
-
-    const metadataBody = await metadataObject.Body?.transformToString();
-    const metadata = JSON.parse(metadataBody || "{}");
-
-    const standaloneCost = metadata.size || 25.0; 
-    const transitiveDependenciesCost = metadata.dependencies
-      ? metadata.dependencies.reduce(
-          (total: number, dep: any) => total + (dep.size || 10.0),
-          0
-        )
-      : 0;
-    const totalCost = dependency
-      ? standaloneCost + transitiveDependenciesCost
-      : standaloneCost;
-
-    // Create cost response
     const costResponse: PackageCost = {
       standaloneCost,
       totalCost,

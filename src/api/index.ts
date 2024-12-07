@@ -11,6 +11,7 @@ import { postpackages } from './postpackages.js';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient} from "@aws-sdk/lib-dynamodb";
 import { postPackageByRegEx } from './postPackageByRegEx.js';
+import { getPackageCost } from './getPackageCost.js';
 
 const s3Client = new S3Client({ region: "us-east-2" });
 const client = new DynamoDBClient({ region: "us-east-2" });
@@ -40,50 +41,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     const resp = await postpackages(tableName, queryStringParameters, bodycontent, dynamoClient);
     return resp;
   }
-
-  // GET /package/{id}/cost - Needs to be expanded on
-  if (httpMethod === 'GET' && resourcePath === '/package/{id}/cost') {
-    try {
-      const id = pathParameters.id;
-      const dependency = queryStringParameters.dependency === 'true';
-
-      if (!id) {
-        return {
-          statusCode: 400,
-          body: JSON.stringify("Package ID is required.")
-        };
-      }
-
-
-      const metadataKey = `${id.split('-')[0]}/1.0.0/metadata.json`;
-      const metadataObject = await s3Client.send(new GetObjectCommand({
-        Bucket: curr_bucket,
-        Key: metadataKey
-      })).catch(() => {
-        throw new Error(`Package ID "${id}" not found.`);
-      });
-
-      // Simulated cost calculation
-      const standaloneCost = 25.0; 
-      const transitiveDependenciesCost = 50.0; 
-      const totalCost = dependency ? standaloneCost + transitiveDependenciesCost : standaloneCost;
-
-      const costResponse: PackageCost = {
-        standaloneCost,
-        totalCost
-      };
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ [id]: costResponse })
-      };
-    } catch (error: any) {
-      return {
-        statusCode: 404,
-        body: JSON.stringify(error!.message)
-      };
-    }
-  }
   
   // handle to handle this request:
   // POST /package
@@ -107,9 +64,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return resp;
   }
 
-  if (httpMethod === "GET" && resourcePath === "/package/{id}/rate") {
-    // const resp = await ratepackage(bodycontent, curr_bucket, s3Client);
-    // return resp;
+  if (httpMethod === 'GET' && resourcePath === '/package/{id}/cost') {
+    const id = pathParameters.id || '';
+    const dependency = queryStringParameters?.dependency === 'true';
+    const response = await getPackageCost(id, dependency, s3Client, curr_bucket);
+    return response;
   }
 
   if (httpMethod === "POST" && resourcePath === "/package/byRegEx") {
@@ -117,9 +76,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return resp;
   }
   
-
-
-
   // Handle other cases if needed
   return {
     statusCode: 404,

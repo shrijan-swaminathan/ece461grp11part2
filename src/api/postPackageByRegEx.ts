@@ -1,6 +1,6 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { PackageMetadata, PackageItem } from './types';
+import { PackageMetadata, PackageItem } from './types.js';
 
 export const postPackageByRegEx = async (
   dynamoClient: DynamoDBDocumentClient,
@@ -54,7 +54,7 @@ export const postPackageByRegEx = async (
       Name: pkg.Name || "",
       ID: pkg.ID || "",
     }));
-    
+
     return {
       statusCode: 200,
       body: JSON.stringify(response),
