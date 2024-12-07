@@ -30,6 +30,7 @@ export async function getPackage(
         });
 
         const packagemetaData = await dynamoClient.send(command);
+        console.log("Found package with ID: ", ID);
         const packageName = packagemetaData.Item?.Name;
         const packageURL = packagemetaData.Item?.URL;
 
