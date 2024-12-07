@@ -142,6 +142,12 @@ export async function postpackages(
                 body: JSON.stringify(searchResults)
             };
         }
+        // Remove duplicates
+        searchResults = searchResults.filter((pkg, index, self) =>
+            index === self.findIndex(p => (
+                p.Name === pkg.Name && p.Version === pkg.Version
+            ))
+        );
 
         // sort searchResults by name and then by version
         searchResults.sort((a, b) => {
