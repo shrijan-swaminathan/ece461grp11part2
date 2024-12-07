@@ -136,8 +136,9 @@ export async function postpackage(
                         repo: repo,
                         ref: branch
                     }
-                ) as {data: Buffer};
-                zipContent = Buffer.from(zipballdata.toString('base64'), 'base64');
+                ) as {data: ArrayBuffer};
+                zipContent = Buffer.from(zipballdata);
+                packageData['Content'] = zipContent.toString('base64');
                 // now fetch version from package.json
                 const { data: packageJson } = await octokit.request(
                     'GET /repos/{owner}/{repo}/contents/package.json',
