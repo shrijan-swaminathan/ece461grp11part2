@@ -12,6 +12,7 @@ import * as semver from "semver";
  * @returns The APIGatewayProxyResult
  * @throws Error if missing fields in PackageQuery, or it is formatted incorrectly, or is invalid
 **/
+
 export async function postpackages(
     tableName: string, 
     queryStringParameters: APIGatewayProxyEventQueryStringParameters,
@@ -73,6 +74,9 @@ export async function postpackages(
         // Process each query in the array
         for (const query of queries) {
             let { Version: versionRange, Name: name } = query;
+            if (semver.validRange(versionRange) === null){
+                throw new Error('Version is invalid');
+            }
             // check if version name is a bounded range
             if (versionRange && versionRange.includes('-')) {
                 const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
@@ -99,19 +103,30 @@ export async function postpackages(
             
             if (matchingPackages.Items && matchingPackages.Items.length > 0) {
                 // Filter by version if specified
-                const filteredPackages = matchingPackages.Items.filter(pkg => {
-                    if (!versionRange) return true;
-                    return semver.satisfies(pkg.Version, versionRange);
-                })
-                .map(pkg => {
-                    return {
-                        Name: pkg.Name,
-                        Version: pkg.Version,
-                        ID: pkg.ID,
-                    };
-                });
-                
-                searchResults.push(...filteredPackages as PackageMetadata[]);
+                if (versionRange) {
+                    const filteredPackages = matchingPackages.Items.filter(pkg => {
+                        if (!versionRange) return true;
+                        return semver.satisfies(pkg.Version, versionRange);
+                    })
+                    .map(pkg => {
+                        return {
+                            Version: pkg.Version,
+                            Name: pkg.Name,
+                            ID: pkg.ID,
+                        };
+                    });
+                    
+                    searchResults.push(...filteredPackages as PackageMetadata[]);
+                }
+                else {
+                    searchResults.push(...matchingPackages.Items.map(pkg => {
+                        return {
+                            Version: pkg.Version,
+                            Name: pkg.Name,
+                            ID: pkg.ID,
+                        };
+                    }));
+                }
             }
         }
 
@@ -120,7 +135,8 @@ export async function postpackages(
                 statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'offset': ''
                 },
                 body: JSON.stringify(searchResults)
             };
@@ -133,6 +149,9 @@ export async function postpackages(
             return semver.compare(a.Version, b.Version);
         });
         // get paginated results
+        if (startIndex >= searchResults.length || startIndex < 0) {
+            throw new Error('Invalid offset value');
+        }
         const paginatedResults = searchResults.slice(startIndex, startIndex + itemsperpage);
 
         return {
