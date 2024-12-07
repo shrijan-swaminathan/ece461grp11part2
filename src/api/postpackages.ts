@@ -117,7 +117,7 @@ export async function postpackages(
                 // Filter by version if specified
                 if (versionRange) {
                     const filteredPackages = matchingPackages.Items.filter(pkg => {
-                        return semver.satisfies(pkg.Version, versionRange);
+                        return semver.satisfies(pkg.Version, versionRange, { includePrerelease: true });
                     })
                     .map(pkg => {
                         return {
