@@ -32,3 +32,10 @@ export interface PackageQuery{
   Version: string
   Name: string
 }
+
+export interface PackageItem {
+  Name?: string;
+  README?: string;
+  Version?: string;
+  ID?: string;
+}

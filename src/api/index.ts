@@ -10,6 +10,7 @@ import { updatepackage } from './updatepackage.js';
 import { postpackages } from './postpackages.js';
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient} from "@aws-sdk/lib-dynamodb";
+import { postPackageByRegEx } from './postPackageByRegEx.js';
 
 const s3Client = new S3Client({ region: "us-east-2" });
 const client = new DynamoDBClient({ region: "us-east-2" });
@@ -112,9 +113,10 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   if (httpMethod === "POST" && resourcePath === "/package/byRegEx") {
-    // const resp = await get(pathParameters.id, curr_bucket, s3Client);
-    // return resp;
+    const resp = await postPackageByRegEx(dynamoClient, tableName, bodycontent);
+    return resp;
   }
+  
 
 
 
