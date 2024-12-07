@@ -30,6 +30,7 @@ export default class GitHubApiCalls extends ApiCalls {
 
     async initialize() {
         const githubToken = await getGithubToken();
+        console.log("GithubToken: ", githubToken);
         this.octokit = new Octokit({
             auth: githubToken,
         });
