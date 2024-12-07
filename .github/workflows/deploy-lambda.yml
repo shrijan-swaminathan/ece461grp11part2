@@ -22,6 +22,7 @@ jobs:
         run: |
           npm install
           npm install --prefix lambda_deploy
+          npm install --prefix lambda_deploy_metrics
 
       - name: Transpile Frontend .ts to .js
         run: tsc src/frontend/scripts/index.ts
