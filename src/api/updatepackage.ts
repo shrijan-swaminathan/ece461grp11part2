@@ -108,7 +108,7 @@ export async function updatepackage(
         if (!semver.valid(newVersion)){
             throw new Error("Invalid version. Must be in semver format");
         }
-        if (formattedName && formattedName != packageName){
+        if (formattedName != packageName){
             throw new Error("Package name does not match");
         }
 
