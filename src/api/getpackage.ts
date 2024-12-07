@@ -21,7 +21,6 @@ export async function getPackage(
     dynamoClient: DynamoDBDocumentClient
 ): Promise<APIGatewayProxyResult> {
     try{
-        console.log("Fetching package with ID: ", ID);
         const command = new GetCommand({
             TableName: tableName,
             Key: {
@@ -30,10 +29,10 @@ export async function getPackage(
         });
 
         const packagemetaData = await dynamoClient.send(command);
-        console.log("Found package with ID: ", ID);
         const packageName = packagemetaData.Item?.Name;
         const packageURL = packagemetaData.Item?.URL;
 
+        console.log("Fetching package with Name: ", packageName);
         if (!packageName) {
             return {
                 statusCode: 404,
@@ -45,12 +44,22 @@ export async function getPackage(
             }
         }
         // get the package.zip
-        const packageParams = {
-            Bucket: curr_bucket,
-            Key: `packages/${packageName}/${ID}/package.zip`
-        };
+        let packageData = null;
+        if (!packageURL || packageURL.includes("github.com")) {
+            let packageParams = {
+                Bucket: curr_bucket,
+                Key: `packages/${packageName}/${ID}/package.zip`
+            };
+            packageData = await s3Client.send(new GetObjectCommand(packageParams));
+        }
+        else{
+            let packageParams = {
+                Bucket: curr_bucket,
+                Key: `packages/${packageName}/${ID}/package.tgz`
+            };
+            packageData = await s3Client.send(new GetObjectCommand(packageParams));
+        }
 
-        const packageData = await s3Client.send(new GetObjectCommand(packageParams));
         const content = await packageData.Body.transformToString('base64');
 
         const metadata = {
