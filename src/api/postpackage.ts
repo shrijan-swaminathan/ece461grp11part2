@@ -116,6 +116,7 @@ export async function postpackage(
                 });
                 const response = await ssmClient.send(command);
                 const githubToken = response.Parameter?.Value || '';
+                console.log(githubToken);
                 const octokit = new Octokit({ auth: githubToken });
                 let { owner, repo, branch } = extractownerrepo(githubURL);
                 if (!branch){
@@ -149,6 +150,10 @@ export async function postpackage(
                 const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
                 const packageJsonData = JSON.parse(packageJsonContent);
                 version = packageJsonData.version;
+                if (!packageName){
+                    formattedName = packageJsonData.name;
+                    formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
+                }
             }
         } 
         else {
