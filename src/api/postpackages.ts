@@ -31,7 +31,7 @@ export async function postpackages(
         const startIndex = offset ? parseInt(offset) - 1 : 0;
         let searchResults: PackageMetadata[] = [];
         // Handle wildcard query
-        if (queries[0].Name === '*') {
+        if (queries.some(query => query.Name === '*')) {
             const command = new ScanCommand({
                 TableName: tableName
             });
