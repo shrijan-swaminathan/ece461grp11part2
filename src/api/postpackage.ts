@@ -193,7 +193,7 @@ export async function postpackage(
         }
         
         // Store in S3
-        if (!packageURL) {
+        if (!packageURL || packageURL.includes('github.com')) {
             const s3key = `packages/${formattedName}/${packageID}/package.zip`;
             await s3Client.send(new PutObjectCommand({
                 Bucket: bucketName,
