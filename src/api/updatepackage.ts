@@ -225,14 +225,14 @@ export async function updatepackage(
 
         
     }
-    catch (error) {
+    catch (error: any) {
         return {
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
-            body: JSON.stringify(error)
+            body: JSON.stringify(error.message)
         }
     }
 }
