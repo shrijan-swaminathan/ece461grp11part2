@@ -88,7 +88,7 @@ export async function postpackages(
                     versionRange = `>=${minVersion} <${maxVersion}`;
                 }
             }
-            if (versionRange && !(semver.valid(versionRange) || semver.validRange(versionRange))) {
+            if (versionRange && !semver.validRange(versionRange)) {
                 continue;
             }
             
