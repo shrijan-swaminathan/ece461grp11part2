@@ -121,6 +121,7 @@ export const handler = async (event: LambdaPayload) => {
             License: parseFloat(LicenseScore == false ? "0" : "1"),
             License_Latency: parseFloat(LicenseTime.toFixed(3)),
         }
+        console.log("Result: ", result);
         results.push(result);
     } catch (error) {
         logger.error(`Error processing API ${api.url}:`, error)
