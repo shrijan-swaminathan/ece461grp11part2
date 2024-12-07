@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group 11 Module Registry</title>
-    <link rel="stylesheet" href="css/styles.css?t=" + new Date().getTime()>
-    <script src="scripts/index.js?t=" + new Date().getTime()></script>
+    <link id="stylesheet" rel="stylesheet" href="css/styles.css">
+    <script id="script" src="scripts/index.js"></script>
+    <script>
+        // Adding cache-busting timestamp dynamically
+        const timestamp = new Date().getTime();
+        document.getElementById('stylesheet').href = `css/styles.css?t=${timestamp}`;
+        document.getElementById('script').src = `scripts/index.js?t=${timestamp}`;
+    </script>
 </head>
 <body>
     <header>
