@@ -15,22 +15,23 @@ export default class ApiCalls {
     async callAPI(): Promise<number | void | GitHubApiCalls> {
         if (!this.checkErrors()) {
             logger.error('No URL provided');
+            console.log('No URL provided');
             return;
         }
         const url = this.inputURL;
         const { type, owner, repo } = await extractInfo(url);
         if (type === 'unknown') {
             logger.warn(`Unknown URL: ${url}`);
+            console.log(`Unknown URL: ${url}`);
             this.callReturnCode = 404;
             return this.callReturnCode;
         }
-
-        if (type === 'github') {
-            const githubApi = new GitHubApiCalls(url, owner, repo);
-            githubApi.initialize();
-            if ((await githubApi.callAPI()) == 200) {
-                return githubApi;
-            }
+        
+        console.log(`Github url(?): ${url}`);
+        const githubApi = new GitHubApiCalls(url, owner, repo);
+        githubApi.initialize();
+        if ((await githubApi.callAPI()) == 200) {
+            return githubApi;
         }
         this.callReturnCode = 200;
         return this.callReturnCode;
@@ -61,7 +62,9 @@ export default class ApiCalls {
         //type is github after this point but we check it anyway
         const githubApi = new GitHubApiCalls(url);
         githubApi.initialize();
-        if ((await githubApi.callAPI()) == 200) {
+        let status_code = await githubApi.callAPI();
+        console.log('githubApi: ',status_code);
+        if (status_code == 200) {
             apiList.push(githubApi);
         }
         this.callReturnCode = 200;

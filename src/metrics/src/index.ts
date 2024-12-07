@@ -40,10 +40,12 @@ export const handler = async (event: LambdaPayload) => {
     console.log(`Processing URL: ${inputUrl}`);
     const cliObject = new CLI(inputUrl);
     const url = cliObject.getURL();
+    console.log("URL: ", url);
     
     const apiCallsInstance = new ApiCalls(url)
     const apiList = await apiCallsInstance.getAPIlist();
     let api = apiList[0];
+    console.log("API: ", api);
     const results: MetricResult[] = []
     try {
         // Instantiate metric calculators

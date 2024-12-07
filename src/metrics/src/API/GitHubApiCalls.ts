@@ -9,7 +9,7 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 
 const ssmClient = new SSMClient({ region: "us-east-2" });
 
-async function getGithubToken() {
+export async function getGithubToken() {
     const parameterName = "github-token";
     const command = new GetParameterCommand({
         Name: parameterName,
