@@ -24,6 +24,9 @@ export async function postpackages(
             throw new Error("Package data is required");
         }
         const queries: PackageQuery[] = JSON.parse(bodycontent);
+        if (!Array.isArray(queries)) {
+            throw new Error("Queries must be an array");
+        }
         const itemsperpage = 10;
         // get offset value from queryStringParameters
         const offset = queryStringParameters?.offset && !isNaN(parseInt(queryStringParameters.offset)) ? 
