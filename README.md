@@ -45,7 +45,3 @@ A web-based Node.js package registry system with modern UI and comprehensive pac
     - GET /package/{id}/rate: Get package ratings
     - POST /package/byRegEx: Search packages using regex
     - POST /package/{id}: Update package
-
-
-## License
-[Add License Information]
