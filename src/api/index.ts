@@ -63,7 +63,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   if (httpMethod == "POST" && resourcePath === "/package/{id}") {
-    const resp = await updatepackage(tableName, pathParameters.id||'', bodycontent, curr_bucket, s3Client, dynamoClient, ssmClient);
+    const resp = await updatepackage(tableName, pathParameters.id||'', bodycontent, curr_bucket, s3Client, dynamoClient, ssmClient, lambdaClient);
     return resp;
   }
 

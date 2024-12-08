@@ -7,6 +7,29 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { Octokit } from "@octokit/core";
 import { isValidName } from "./helperfunctions/isvalidname.js";
 import { extractownerrepo } from "./helperfunctions/extractownerrepo.js";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
+import AdmZip from 'adm-zip';   
+
+async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Promise<any> {
+    const command = new InvokeCommand({
+      FunctionName: 'arn:aws:lambda:us-east-2:872515249498:function:metricsFunction',
+      InvocationType: 'RequestResponse',
+      Payload: Buffer.from(JSON.stringify({ URL: url }), 'utf-8')
+    });
+  
+    try {
+      const response = await lambdaClient.send(command);
+      
+      if (response.Payload) {
+        const result = JSON.parse(Buffer.from(response.Payload).toString());
+        console.log('Target Lambda function output:', result);
+        return result.body;
+      }
+    } catch (error) {
+      console.error('Error invoking target Lambda function:', error);
+      throw error;
+    }
+}
 
 /**
  * POST /package/{id} - Updates a package by creating a new version with either new content or URL
@@ -28,7 +51,8 @@ export async function updatepackage(
     curr_bucket: string, 
     s3Client: any, 
     dynamoClient: DynamoDBDocumentClient,
-    ssmClient: SSMClient): Promise<APIGatewayProxyResult>
+    ssmClient: SSMClient,
+    lambdaClient: LambdaClient): Promise<APIGatewayProxyResult>
 {
     try{
         if (!bodycontent) {
@@ -143,7 +167,38 @@ export async function updatepackage(
 
         // Upload the new package
         let zipContent: Buffer = Buffer.from('');
+        let ratings: any = {};
         if (newURL) {
+            ratings = await invokeTargetLambda(newURL, lambdaClient);
+            const { 
+                BusFactor: busfactor,
+                BusFactorLatency: busfactor_latency,
+                Correctness: correctness,
+                CorrectnessLatency: correctness_latency,
+                RampUp: rampup,
+                RampUpLatency: rampup_latency,
+                ResponsiveMaintainer: responsiveMaintainer,
+                ResponsiveMaintainerLatency: responsiveMaintainer_latency,
+                LicenseScore: license,
+                LicenseScoreLatency: license_latency,
+                GoodPinningPractice: dependencyPinning,
+                GoodPinningPracticeLatency: dependencyPinning_latency,
+                PullRequest: reviewedCode,
+                PullRequestLatency: reviewedCode_latency,
+                NetScore: netscore,
+                NetScoreLatency: netscore_latency
+            } = ratings;
+            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5 || reviewedCode < 0.5 || dependencyPinning < 0.5) {
+                return {
+                    statusCode: 400,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                    },
+                    body: JSON.stringify("Package is not updated due to the disqualified rating.")
+                };
+            }
             if (newURL.includes('npmjs.com')) {
                 // Remove trailing slash
                 newURL = newURL.replace(/\/$/, '');
@@ -218,6 +273,49 @@ export async function updatepackage(
             }
         } else {
             zipContent = Buffer.from(newContent || '', 'base64');
+            const zip = new AdmZip(zipContent);
+            const entries = zip.getEntries();
+            const packageJsonEntry = entries.find(entry =>  entry.entryName.endsWith('package.json') && !entry.entryName.includes('node_modules'));
+            console.log("Zip: ", zip);
+            console.log("Package json entry:", packageJsonEntry);
+            if (!packageJsonEntry) {
+                console.log("package.json NOT FOUND");
+                throw new Error('package.json not found in the ZIP file.');
+            }
+            const packageJsonData = JSON.parse(packageJsonEntry.getData().toString('utf-8'));
+            let contentURL = null;
+            if (packageJsonData.repository && packageJsonData.repository.url) {
+                let contentURL = packageJsonData.repository.url;
+            }
+            console.log(contentURL);
+            const pkgName = packageJsonData.name;
+            const pkgVersion = packageJsonData.version || 'latest';
+            if(!contentURL){
+                console.log('repository url is empty');
+                // go to npm url after finding name
+                if (!pkgName)
+                {
+                    //since contentUrl is also null
+                    console.log('Name is invalid');
+                }
+                else
+                {
+                    console.log(`Npm name is ${pkgName} and ${pkgVersion}`);
+                    //check if npm url is valid
+                    const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${pkgVersion}`);
+                    if (!resp.ok) {
+                        console.log(`package NOT found on npm: ${resp}`);
+                    }
+                    else
+                    {
+                        console.log("content is valid");
+                        contentURL = `https://npmjs.com/package/${pkgName}/v/${pkgVersion}`
+                    }
+                }
+            }
+            if (contentURL){
+                ratings = await invokeTargetLambda(contentURL, lambdaClient);
+            }
         }
         // Extract README from zip content
         let readme = '';
