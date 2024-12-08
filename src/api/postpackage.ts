@@ -217,6 +217,7 @@ export async function postpackage(
             const zipBuffer = Buffer.from(packageContent || '', 'base64');
             const zip = new AdmZip(zipBuffer);
             const packageJsonEntry = zip.getEntry('package.json');
+            console.log("Package json entry:", packageJsonEntry);
             if (!packageJsonEntry) {
                 console.log("package.json NOT FOUND");
                 throw new Error('package.json not found in the ZIP file.');
