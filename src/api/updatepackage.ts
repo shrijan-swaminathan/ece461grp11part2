@@ -141,6 +141,10 @@ export async function updatepackage(
             throw new Error("Package name does not match");
         }
 
+        if ((Name && PackageName) && (Name.toLowerCase() !== PackageName.toLowerCase())){
+            throw new Error("Package name does not match");
+        }
+
         // check if the new version already exists
         if (existingVersions.includes(newVersion)){
             throw new Error("Invalid version. Version already exists");
@@ -338,6 +342,7 @@ export async function updatepackage(
               Version: newVersion,
               Readme: readme || '',
               URL: newURL || '',
+              Ratings: ratings || {},
               Timestamp: new Date().toISOString()
             }
         });
