@@ -8,7 +8,6 @@ export const postPackageByRegEx = async (
   bodyContent: string
 ): Promise<APIGatewayProxyResult> => {
   try {
-    // Validate body content
     if (!bodyContent) {
       return {
         statusCode: 400,
@@ -19,7 +18,6 @@ export const postPackageByRegEx = async (
     const parsedBody = JSON.parse(bodyContent);
     const { RegEx } = parsedBody;
 
-    // Validate RegEx field
     if (!RegEx) {
       return {
         statusCode: 400,
@@ -27,7 +25,7 @@ export const postPackageByRegEx = async (
       };
     }
 
-    const regexPattern = new RegExp(RegEx, "i"); // Create case-insensitive regex pattern
+    const regexPattern = new RegExp(RegEx, "i"); 
 
     // Query DynamoDB to fetch all items
     const scanCommand = new ScanCommand({
@@ -36,16 +34,16 @@ export const postPackageByRegEx = async (
 
     const scanResult = await dynamoClient.send(scanCommand);
 
-    // Filter items based on Name and README fields
+    // Filter items
     const filteredPackages: PackageItem[] = (scanResult.Items as PackageItem[]).filter((item) => {
-      const name = item.Name || ""; // Ensure Name exists
-      const readme = item.README || ""; // Ensure README exists
-      const nameMatch = regexPattern.test(name); // Match regex in Name
-      const readmeMatch = regexPattern.test(readme); // Match regex in README
+      const name = item.Name || ""; 
+      const readme = item.README || ""; 
+      const nameMatch = regexPattern.test(name); 
+      const readmeMatch = regexPattern.test(readme);
       return nameMatch || readmeMatch;
     });
 
-    // Handle no matching packages
+
     if (!filteredPackages || filteredPackages.length === 0) {
       return {
         statusCode: 404,
@@ -53,7 +51,6 @@ export const postPackageByRegEx = async (
       };
     }
 
-    // Map filtered results into response format
     const response: PackageMetadata[] = filteredPackages.map((pkg) => ({
       Version: pkg.Version || "",
       Name: pkg.Name || "",
