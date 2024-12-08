@@ -246,7 +246,7 @@ export async function postpackage(
                     //check if npm url is valid
                     const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${pkgVersion}`);
                     if (!resp.ok) {
-                        console.log("package NOT found on npm");
+                        console.log(`package NOT found on npm: ${resp}`);
                     }
                     else
                     {
