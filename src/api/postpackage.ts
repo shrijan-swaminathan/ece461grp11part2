@@ -255,14 +255,8 @@ export async function postpackage(
                     }
                 }
             }
-            if(version === 'latest'){
-                version = '1.0.0'
-            }else{
-                version = pkgVersion;
-            }
-            if (contentURL){
-                ratings = await invokeTargetLambda(contentURL, lambdaClient);
-            }
+            version = '1.0.0'
+            ratings = await invokeTargetLambda(contentURL, lambdaClient);
         }
         
         // Extract README from zip content
