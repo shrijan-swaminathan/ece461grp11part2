@@ -8,7 +8,7 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
 import { isValidName } from './helperfunctions/isvalidname.js';
 import { Octokit } from '@octokit/core';
-// import {AdmZip} from 'adm-zip';
+import {AdmZip} from 'adm-zip';
 // import { findReadme } from './readme';
 
 // add function to invoke lambda function to fetch metrics
@@ -213,9 +213,23 @@ export async function postpackage(
             }
         } 
         else {
-            zipContent = Buffer.from(packageContent || '', 'base64');
             // extract package.json from zipContent
+            const zipBuffer = Buffer.from(packageContent || '', 'base64');
+            const zip = new AdmZip(zipBuffer);
+            const packageJsonEntry = zip.getEntry('package.json');
+            if (!packageJsonEntry) {
+                console.log("package.json NOT FOUND");
+                throw new Error('package.json not found in the ZIP file.');
+            }
+            const packageJsonData = JSON.parse(packageJsonEntry.getData().toString('utf-8'));
+            const contentURL = packageJsonData.repository.url;
+            console.log(contentURL);
+            if(!contentURL){
+                console.log('repository url is empty');
+                throw new Error('package.json url not found');
+            }
             version = "1.0.0";
+            ratings = await invokeTargetLambda(contentURL, lambdaClient);
         }
         
         // Extract README from zip content
