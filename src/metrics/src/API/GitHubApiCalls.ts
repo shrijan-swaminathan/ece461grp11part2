@@ -63,7 +63,7 @@ export default class GitHubApiCalls extends ApiCalls {
             }
             // count pinned dependencies using regex
             const pinnedDeps = Object.values(dependencies as Record<string, string>).filter((version: string) => {
-                const regex = /^\d+\.\d+\.\d+$/;
+                const regex = /^\d+\.\d+\.\d+$|^\d+\.\d+\.x$/;
                 return regex.test(version);
             }).length;
         
