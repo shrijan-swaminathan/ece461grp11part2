@@ -326,13 +326,24 @@ export async function updatepackage(
 
         const newID = randomUUID() as string;
 
-        const s3key = `packages/${formattedName}/${newID}/package.zip`;
-        await s3Client.send(new PutObjectCommand({
-            Bucket: curr_bucket,
-            Key: s3key,
-            Body: zipContent,
-            ContentType: 'application/zip'
-        }));
+        if (!newURL || newURL.includes('github.com')) {
+            const s3key = `packages/${formattedName}/${newID}/package.zip`;
+            await s3Client.send(new PutObjectCommand({
+                Bucket: curr_bucket,
+                Key: s3key,
+                Body: zipContent,
+                ContentType: 'application/zip'
+            }));
+        }
+        else{
+            const s3key = `packages/${formattedName}/${newID}/package.tgz`;
+            await s3Client.send(new PutObjectCommand({
+                Bucket: curr_bucket,
+                Key: s3key,
+                Body: zipContent,
+                ContentType: 'application/tgz'
+            }));
+        }
 
         const command3 = new PutCommand({
             TableName: tableName,
