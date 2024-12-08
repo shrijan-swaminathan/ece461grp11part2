@@ -16,7 +16,7 @@ export const postPackageByRegEx = async (
     }
 
     const parsedBody = JSON.parse(bodyContent);
-    const { RegEx } = parsedBody;
+    const { RegEx, MatchType = "partial" } = parsedBody;
 
     if (!RegEx) {
       return {
@@ -24,24 +24,34 @@ export const postPackageByRegEx = async (
         body: JSON.stringify("RegEx field is missing or invalid."),
       };
     }
-
-    const normalizeString = (str: string) => str.trim().toLowerCase().replace(/\s+/g, " ");
-    const normalizedRegex = normalizeString(RegEx);
-    const regexPattern = new RegExp(normalizedRegex, "i");
+    const regexPattern = new RegExp(RegEx, "i");
 
     const scanCommand = new ScanCommand({ TableName: tableName });
     const scanResult = await dynamoClient.send(scanCommand);
 
+    const normalizeString = (str: string) => str.trim().toLowerCase();
+
+    // Filter items
     const filteredPackages: PackageItem[] = (scanResult.Items as PackageItem[]).filter((item) => {
       const name = normalizeString(item.Name || "");
       const readme = normalizeString(item.README || "");
-      const nameMatch = regexPattern.test(name);
-      const readmeMatch = regexPattern.test(readme);
 
-      console.log("Testing Name:", name, "against RegEx:", normalizedRegex, "=>", nameMatch);
-      console.log("Testing README:", readme, "against RegEx:", normalizedRegex, "=>", readmeMatch);
+      let exactMatch = false;
+      let partialMatchName = false;
+      let partialMatchReadme = false;
 
-      return nameMatch || readmeMatch;
+      if (MatchType === "exact") {
+        exactMatch = name === RegEx;
+      } else if (MatchType === "partial") {
+        partialMatchName = regexPattern.test(name);
+        partialMatchReadme = regexPattern.test(readme);
+      }
+
+      //debug
+      console.log("Matching item:", item);
+      console.log("Exact Match:", exactMatch, "Partial Name Match:", partialMatchName, "Partial README Match:", partialMatchReadme);
+
+      return exactMatch || partialMatchName || partialMatchReadme;
     });
 
     if (!filteredPackages || filteredPackages.length === 0) {
@@ -50,7 +60,6 @@ export const postPackageByRegEx = async (
         body: JSON.stringify("No package found under this regex."),
       };
     }
-
     const response: PackageMetadata[] = filteredPackages.map((pkg) => ({
       Version: pkg.Version || "",
       Name: pkg.Name || "",
