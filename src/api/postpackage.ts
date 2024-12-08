@@ -70,6 +70,7 @@ export async function postpackage(
 
         let zipContent: Buffer = Buffer.from('');
         let version: string = ""
+        let ratings: any = {};
 
         if (packageURL) {
             // TODO: Implement URL download logic
@@ -130,9 +131,8 @@ export async function postpackage(
                 const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
                 packageData['Content'] = Buffer.from(content).toString('base64');
-
-                const ratings = await invokeTargetLambda(packageURL, lambdaClient);
-                console.log(ratings);
+                ratings = await invokeTargetLambda(packageURL, lambdaClient);
+                
             }
             else{
                 let githubURL: string = packageURL;
@@ -188,6 +188,7 @@ export async function postpackage(
                     }
                     formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
                 }
+                ratings = await invokeTargetLambda(packageURL, lambdaClient);
             }
         } 
         else {
@@ -263,7 +264,8 @@ export async function postpackage(
             Version: version,
             Readme: readme || '',
             URL: packageURL || '',
-            Timestamp: new Date().toISOString()
+            Timestamp: new Date().toISOString(),
+            Ratings: ratings || {},
         }
         });
 
