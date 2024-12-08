@@ -1,6 +1,15 @@
 import { APIGatewayProxyEventQueryStringParameters, APIGatewayProxyResult } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
+/**
+ * GET /package/{id}/rating - Fetches the rating of a package from the database
+ * @param tableName - The name of the DynamoDB table
+ * @param id - The ID of the package
+ * @param dynamoClient - The DynamoDB client
+ * @returns The APIGatewayProxyResult
+ * @throws Error if ID is missing
+ **/
+
 export async function getpackagerating(
     tableName: string, 
     id: string,
