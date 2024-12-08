@@ -8,7 +8,6 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
 import { isValidName } from './helperfunctions/isvalidname.js';
 import { Octokit } from '@octokit/core';
-import { ReviewedCodeFraction } from '../metrics/src/Metrics/reviewedCodeFraction.js';
 // import {AdmZip} from 'adm-zip';
 // import { findReadme } from './readme';
 
