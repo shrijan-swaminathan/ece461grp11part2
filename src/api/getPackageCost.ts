@@ -1,57 +1,68 @@
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { PackageCost } from './types.js';
+import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { PackageCost } from "./types.js";
 
-const fetchMetadataFromS3 = async (
+const fetchMetadataFromDynamoDB = async (
   id: string,
-  s3Client: S3Client,
-  bucketName: string
+  tableName: string,
+  dynamoClient: DynamoDBDocumentClient
 ): Promise<any> => {
-  const metadataKey = `${id}/metadata.json`;
+  const command = new GetCommand({
+    TableName: tableName,
+    Key: { ID: id },
+  });
 
-  try {
-    const metadataObject = await s3Client.send(
-      new GetObjectCommand({
-        Bucket: bucketName,
-        Key: metadataKey,
-      })
-    );
+  const result = await dynamoClient.send(command);
 
-    const metadataBody = await metadataObject.Body?.transformToString();
-    return JSON.parse(metadataBody || "{}");
-  } catch (error) {
+  if (!result.Item) {
     throw new Error(`Package ID "${id}" not found.`);
   }
+
+  return result.Item;
 };
 
 const calculateCostRecursive = async (
   id: string,
-  s3Client: S3Client,
-  bucketName: string
+  tableName: string,
+  dynamoClient: DynamoDBDocumentClient
 ): Promise<number> => {
-  const metadata = await fetchMetadataFromS3(id, s3Client, bucketName);
+  // Fetch metadata for the current package
+  const metadata = await fetchMetadataFromDynamoDB(id, tableName, dynamoClient);
 
-  const standaloneCost = metadata.size || 25.0; 
+  // Validate package size
+  if (typeof metadata.size !== "number" || metadata.size <= 0) {
+    throw new Error(`Package "${id}" has an invalid or missing size.`);
+  }
+  const standaloneCost = metadata.size;
+
+  // Check for dependencies
   const dependencies = metadata.dependencies || [];
+  if (!Array.isArray(dependencies)) {
+    throw new Error(`Dependencies for package "${id}" are invalid.`);
+  }
 
   if (dependencies.length === 0) {
     return standaloneCost;
   }
 
-  // Recursive case: Sum costs of all dependencies
+  // the cost for all dependencies 
   const dependenciesCost = await Promise.all(
-    dependencies.map((dep: { id: string }) =>
-      calculateCostRecursive(dep.id, s3Client, bucketName)
-    )
+    dependencies.map(async (dep: { id: string }) => {
+      if (!dep.id) {
+        throw new Error(`Dependency in package "${id}" has a missing ID.`);
+      }
+      return calculateCostRecursive(dep.id, tableName, dynamoClient);
+    })
   );
 
+  // Sum costs
   return standaloneCost + dependenciesCost.reduce((sum, cost) => sum + cost, 0);
 };
 
 export const getPackageCost = async (
   id: string,
   dependency: boolean,
-  s3Client: S3Client,
-  bucketName: string
+  tableName: string,
+  dynamoClient: DynamoDBDocumentClient
 ): Promise<any> => {
   try {
     if (!id) {
@@ -61,7 +72,8 @@ export const getPackageCost = async (
       };
     }
 
-    const standaloneCost = await calculateCostRecursive(id, s3Client, bucketName);
+    // Calculate costs
+    const standaloneCost = await calculateCostRecursive(id, tableName, dynamoClient);
     const totalCost = dependency ? standaloneCost : standaloneCost;
 
     const costResponse: PackageCost = {

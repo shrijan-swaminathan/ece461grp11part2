@@ -67,9 +67,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   if (httpMethod === 'GET' && resourcePath === '/package/{id}/cost') {
     const id = pathParameters.id || '';
     const dependency = queryStringParameters?.dependency === 'true';
-    const response = await getPackageCost(id, dependency, s3Client, curr_bucket);
+  
+    const response = await getPackageCost(id, dependency, tableName, dynamoClient);
     return response;
   }
+  
 
   if (httpMethod === "POST" && resourcePath === "/package/byRegEx") {
     const resp = await postPackageByRegEx(dynamoClient, tableName, bodycontent);
