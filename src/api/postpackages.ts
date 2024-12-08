@@ -44,7 +44,7 @@ export async function postpackages(
             searchResults = allPackages.Items?.map(pkg => {
                 return {
                     Version: pkg.Version,
-                    Name: pkg.Name,
+                    Name: pkg.OriginalName,
                     ID: pkg.ID,
                 };
             }) || [];

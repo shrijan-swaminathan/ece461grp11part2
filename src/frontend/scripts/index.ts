@@ -63,7 +63,7 @@ async function uploadModule(): Promise<void> {
             requestBody = {
                 URL: urlInputElement.value,
                 debloat: debloatElement.checked,
-                Name: moduleNameElement.value,
+                Name: moduleNameElement.value || '',
             };
         }
 
