@@ -25,24 +25,21 @@ export const postPackageByRegEx = async (
       };
     }
 
-    const regexPattern = new RegExp(RegEx, "i"); 
+    const regexPattern = new RegExp(`^${RegEx}$`, "i"); 
 
-    // Query DynamoDB to fetch all items
-    const scanCommand = new ScanCommand({
-      TableName: tableName,
-    });
+    const normalizeString = (str: string) => str.trim().toLowerCase();
 
+    const scanCommand = new ScanCommand({ TableName: tableName });
     const scanResult = await dynamoClient.send(scanCommand);
 
     // Filter items
     const filteredPackages: PackageItem[] = (scanResult.Items as PackageItem[]).filter((item) => {
-      const name = item.Name || ""; 
-      const readme = item.README || ""; 
-      const nameMatch = regexPattern.test(name); 
+      const name = normalizeString(item.Name || "");
+      const readme = normalizeString(item.README || "");
+      const nameMatch = regexPattern.test(name);
       const readmeMatch = regexPattern.test(readme);
       return nameMatch || readmeMatch;
     });
-
 
     if (!filteredPackages || filteredPackages.length === 0) {
       return {
