@@ -8,7 +8,7 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
 import { isValidName } from './helperfunctions/isvalidname.js';
 import { Octokit } from '@octokit/core';
-import {AdmZip} from 'adm-zip';
+import AdmZip from 'adm-zip';
 // import { findReadme } from './readme';
 
 // add function to invoke lambda function to fetch metrics
@@ -214,7 +214,6 @@ export async function postpackage(
         } 
         else {
             // extract package.json from zipContent
-            var AdmZip = require("adm-zip");
             const zipBuffer = Buffer.from(packageContent || '', 'base64');
             const zip = new AdmZip(zipBuffer);
             const packageJsonEntry = zip.getEntry('package.json');
