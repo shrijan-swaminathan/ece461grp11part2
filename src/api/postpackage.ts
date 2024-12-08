@@ -92,10 +92,12 @@ export async function postpackage(
                     ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
                     License: license,
                     License_Latency: license_latency,
-                    ReviewedCodeFraction: reviewedCodeFraction,
-                    ReviewedCodeFraction_Latency: reviewedCodeFraction_latency
+                    ReviewedCode: reviewedCode,
+                    ReviewedCode_Latency: reviewedCode_latency,
+                    DependencyPinning: dependencyPinning,
+                    DependencyPinning_Latency: dependencyPinning_latency
             } = ratings;   
-            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5 || reviewedCodeFraction < 0.5) {
+            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5 || reviewedCode < 0.5 || dependencyPinning < 0.5) {
                 return {
                     statusCode: 424,
                     headers: {
