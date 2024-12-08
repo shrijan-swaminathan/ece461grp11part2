@@ -80,7 +80,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 
   if (httpMethod === "GET" && resourcePath === "/package/{id}/rate") {
-    const resp = await getpackagerating(tableName, queryStringParameters, dynamoClient);
+    const id = pathParameters.id || '';
+    const resp = await getpackagerating(tableName, id, dynamoClient);
     return resp;
   }
   

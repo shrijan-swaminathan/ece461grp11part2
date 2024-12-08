@@ -3,12 +3,12 @@ import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 
 export async function getpackagerating(
     tableName: string, 
-    queryStringParameters: APIGatewayProxyEventQueryStringParameters, 
+    id: string,
     dynamoClient: DynamoDBDocumentClient
 ): Promise<APIGatewayProxyResult> {
     try {
-        const id = queryStringParameters?.id;
-        if (!id) {
+        const pkgId = id;
+        if (!pkgId) {
             return {
                 statusCode: 400,
                 headers: {
@@ -21,7 +21,7 @@ export async function getpackagerating(
         const command = new GetCommand({
             TableName: tableName,
             Key: {
-                ID: id
+                ID: pkgId
             }
         });
         const response = await dynamoClient.send(command);
@@ -35,7 +35,7 @@ export async function getpackagerating(
                 body: JSON.stringify("Package does not exist")
             };
         }
-        const rating = response.Item.Ratings;
+        const rating = response?.Item.Ratings;
         // remove URL field from rating
         if (rating){
             delete rating.URL;
