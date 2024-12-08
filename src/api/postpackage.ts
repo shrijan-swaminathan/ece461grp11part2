@@ -8,6 +8,7 @@ import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
 import { isValidName } from './helperfunctions/isvalidname.js';
 import { Octokit } from '@octokit/core';
+import { ReviewedCodeFraction } from '../metrics/src/Metrics/reviewedCodeFraction.js';
 // import {AdmZip} from 'adm-zip';
 // import { findReadme } from './readme';
 
@@ -91,9 +92,11 @@ export async function postpackage(
                     ResponsiveMaintainer: responsiveMaintainer,
                     ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
                     License: license,
-                    License_Latency: license_latency
+                    License_Latency: license_latency,
+                    ReviewedCodeFraction: reviewedCodeFraction,
+                    ReviewedCodeFraction_Latency: reviewedCodeFraction_latency
             } = ratings;   
-            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5) {
+            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5 || reviewedCodeFraction < 0.5) {
                 return {
                     statusCode: 424,
                     headers: {

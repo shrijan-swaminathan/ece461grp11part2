@@ -332,7 +332,9 @@ async function getModuleRating(): Promise<void> {
             ResponsiveMaintainer: responsiveMaintainer,
             ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
             License: license,
-            License_Latency: license_latency
+            License_Latency: license_latency,
+            ReviewedCodeFraction: reviewedCodeFraction,
+            ReviewedCodeFraction_Latency: reviewedCodeFraction_latency
         } = rating;
         // Display rating results
         const ratingResultsElement: HTMLElement | null = document.getElementById('ratingResults');
@@ -373,6 +375,11 @@ async function getModuleRating(): Promise<void> {
                             <h4>License</h4>
                             <div class="score">${license.toFixed(2)}</div>
                             <small>Latency: ${license_latency}ms</small>
+                        </div>
+                        <div class="rating-item">
+                            <h4>Reviewed Code</h4>
+                            <div class="score">${reviewedCodeFraction.toFixed(2)}</div>
+                            <small>Latency: ${reviewedCodeFraction_latency}ms</small>
                         </div>
                     </div>
                 </div>
