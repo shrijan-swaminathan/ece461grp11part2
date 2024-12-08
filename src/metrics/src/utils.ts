@@ -2,12 +2,20 @@ import logger from './logger.js'
 export async function normalizeGitHubUrl(url: string): Promise<string> {
     try {
         // Match different GitHub URL formats using regex
-        const gitHubRegex = /^(?:git\+ssh|ssh|git|https?):\/\/(?:git@)?github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?$/;
+        const gitHubRegex = /^(?:git\+https|git\+ssh|ssh|git|https?):\/\/(?:git@)?github\.com[:\/]([^\/]+)\/([^\/]+?)(?:\.git)?$|^git@github\.com:([^\/]+)\/([^\/]+?)(?:\.git)?$/;
 
         const match = url.match(gitHubRegex);
         if (match) {
-            const owner = match[1]; // Extract owner (user or org)
-            const repo = match[2];  // Extract repository name
+            let owner = '';
+            let repo = '';
+            if (url.includes('git@')) {
+                owner = match[3]; // Extract owner (user or org)
+                repo = match[4];  // Extract repository name
+            }
+            else{
+                owner = match[1]; // Extract owner (user or org)
+                repo = match[2];  // Extract repository name
+            }
             return `https://github.com/${owner}/${repo}`;
         }
 
