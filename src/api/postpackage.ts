@@ -214,6 +214,7 @@ export async function postpackage(
         } 
         else {
             // extract package.json from zipContent
+            var AdmZip = require("adm-zip");
             const zipBuffer = Buffer.from(packageContent || '', 'base64');
             const zip = new AdmZip(zipBuffer);
             const packageJsonEntry = zip.getEntry('package.json');
