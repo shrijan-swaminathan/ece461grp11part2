@@ -98,7 +98,7 @@ export async function postpackage(
                     NetScore: netscore,
                     NetScoreLatency: netscore_latency
             } = ratings;   
-            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5 || reviewedCode < 0.5 || dependencyPinning < 0.5) {
+            if (netscore < 0.5) {
                 return {
                     statusCode: 424,
                     headers: {
