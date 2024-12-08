@@ -79,7 +79,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return resp;
   }
 
-  if (httpMethod === "POST" && resourcePath === "/package/{id}/rating") {
+  if (httpMethod === "GET" && resourcePath === "/package/{id}/rate") {
     const resp = await getpackagerating(tableName, queryStringParameters, dynamoClient);
     return resp;
   }
@@ -91,7 +91,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
     },
-    body: JSON.stringify("Not Found")
+    body: JSON.stringify("Not a valid endpoint.")
   };
 
 };
