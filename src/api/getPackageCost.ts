@@ -57,7 +57,7 @@ const calculateCostRecursive = async (
 };
 
 
-const getPackageCost = async (
+export const getPackageCost = async (
   id: string,
   dependency: boolean,
   tableName: string,
