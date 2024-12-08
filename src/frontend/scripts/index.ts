@@ -87,12 +87,19 @@ async function uploadModule(): Promise<void> {
             uploadResultElement.style.color = 'green';
             uploadResultElement.innerHTML = `Successfully uploaded module. ID: ${result.metadata.ID as string}`;
         }
+        setTimeout(() => {
+            uploadResultElement!.innerHTML = '';
+        }, 5000); // 5000ms = 5 seconds
     } catch (error: any) {
         // Show error message
         if (uploadResultElement) {
             uploadResultElement.style.color = 'red';
             uploadResultElement.innerHTML = error!.message || 'Upload failed. Please try again.';
         }
+
+        setTimeout(() => {
+            uploadResultElement!.innerHTML = '';
+        }, 5000); // 5000ms = 5 seconds
         console.error('Upload error:', error);
     } finally {
         // Hide loading spinner once the process is complete
@@ -111,17 +118,21 @@ function clearURLInput() {
 
 async function downloadPackage() {
     try {
+        const loadingSpinner: HTMLElement | null = document.getElementById('loadingSpinner2');
+        if (loadingSpinner) {
+            loadingSpinner.style.display = 'block';
+        }
         let name = (document.getElementById('downloadModuleName') as HTMLInputElement).value;
         let version = (document.getElementById('downloadModuleVersion') as HTMLInputElement).value;
-        // convert name to string
+        // Convert name and version to strings
         name = name.toString();
-        // convert version to string
-        version = version.toString();;
+        version = version.toString();
 
         const reqbody = [{
             Name: name,
             Version: version
         }];
+
         // Get package ID using POST /packages
         const searchResponse: Response = await fetch(`https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/packages`, {
             method: 'POST',
@@ -137,35 +148,73 @@ async function downloadPackage() {
         // Get package content using GET /package/{id}
         const packageId = packages[0].ID;
         const contentResponse = await fetch(`https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package/${packageId}`);
-        
         if (!contentResponse.ok) throw new Error('Failed to download package');
+        const resp = await contentResponse.json();
+        const content = resp.data.Content;
+        console.log(content);  // Debugging
 
-        const blob = await contentResponse.blob();
-        
+        // Decode the base64 string into a byte array
+        const byteCharacters = atob(content);  // atob decodes base64 into a binary string
+        const byteArray = new Uint8Array(byteCharacters.length);
+
+        // Convert the binary string into an array of bytes
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteArray[i] = byteCharacters.charCodeAt(i);
+        }
+
+        // Create a Blob from the byte array
+        const contentBlob = new Blob([byteArray], { type: 'application/zip' });
+
         // Create download link
-        const downloadUrl = window.URL.createObjectURL(blob);
+        const downloadUrl = window.URL.createObjectURL(contentBlob);
         const downloadLink = document.createElement('a');
         downloadLink.href = downloadUrl;
-        downloadLink.download = `${name}-${version}.zip`;
-        
-        // Trigger download
-        document.body.appendChild(downloadLink);
+        if (resp.data.URL && resp.data.URL.includes("npmjs.com")) {
+            downloadLink.download = `${name}-${version}.tgz`;
+        } else {
+            downloadLink.download = `${name}-${version}.zip`;
+        }
+
+        // Programmatically trigger the download (only once)
         downloadLink.click();
-        document.body.removeChild(downloadLink);
+
+        // Clean up
         window.URL.revokeObjectURL(downloadUrl);
 
+        // Display success message
         const downloadResult = document.getElementById('downloadResult');
         if (downloadResult) {
+            downloadResult.style.color = 'green';
             downloadResult.innerHTML = 'Package downloaded successfully!';
             downloadResult.className = 'success-message';
+
+            // Hide the message after 5 seconds
+            setTimeout(() => {
+                downloadResult.innerHTML = '';
+                downloadResult.className = '';
+            }, 5000); // 5000ms = 5 seconds
         }
+
     } catch (error: any) {
-        const downloadResult = document.getElementById('downloadResult');
-        if (downloadResult) {
-            downloadResult.innerHTML = `Download failed: ${error.message}`;
-            downloadResult.className = 'error-message';
+        const downloadfailResult = document.getElementById('downloadResult');
+        if (downloadfailResult) {
+            downloadfailResult.style.color = 'red';
+            downloadfailResult.innerHTML = `Download failed: ${error.message}`;
+            downloadfailResult.className = 'error-message';
         }
+
+        setTimeout(() => {
+            downloadfailResult!.innerHTML = '';
+            downloadfailResult!.className = '';
+        }, 5000); // 5000ms = 5 seconds
         console.error('Download error:', error);
+    }
+    finally {
+        // Hide loading spinner once the process is complete
+        const loadingSpinner: HTMLElement | null = document.getElementById('loadingSpinner2');
+        if (loadingSpinner) {
+            loadingSpinner.style.display = 'none';
+        }
     }
 }
 
