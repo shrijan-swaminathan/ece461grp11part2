@@ -50,6 +50,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log("Body: ", JSON.parse(bodycontent));
     console.log("Query: ", queryStringParameters);
     const resp = await postpackages(tableName, queryStringParameters, bodycontent, dynamoClient);
+    console.log("Response: ", resp);
     return resp;
   }
   
@@ -59,12 +60,14 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log("POST /package invoked!");
     console.log("Body: ", JSON.parse(bodycontent));
     const resp = await postpackage(tableName, bodycontent, curr_bucket, s3Client, dynamoClient, ssmClient, lambdaClient);
+    console.log("Response: ", resp);
     return resp;
   }
 
   if (httpMethod === "DELETE" && resourcePath === "/reset") {
     console.log("DELETE /reset invoked!");
     const resp  = await deleteAllObjects(tableName, curr_bucket, s3Client, dynamoClient);
+    console.log("Response: ", resp);
     return resp;
   }
 
@@ -72,6 +75,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log("GET /package/{id} invoked!");
     console.log("ID: ", pathParameters.id);
     const resp = await getPackage(tableName, pathParameters.id, curr_bucket, s3Client, dynamoClient);
+    console.log("Response: ", resp);
     return resp;
   }
 
@@ -80,6 +84,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log("ID: ", pathParameters.id);
     console.log("Body: ", JSON.parse(bodycontent));
     const resp = await updatepackage(tableName, pathParameters.id||'', bodycontent, curr_bucket, s3Client, dynamoClient, ssmClient, lambdaClient);
+    console.log("Response: ", resp);
     return resp;
   }
 
@@ -102,6 +107,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log("ID: ", pathParameters.id);
     const id = pathParameters.id || '';
     const resp = await getpackagerating(tableName, id, dynamoClient);
+    console.log("Response: ", resp);
     return resp;
   }
   

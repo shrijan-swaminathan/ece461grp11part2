@@ -1,3 +1,4 @@
+/* This toggles the upload method between file and URL */
 function toggleUploadMethod(): void {
     const uploadMethod: string = (document.querySelector('input[name="uploadMethod"]:checked') as HTMLInputElement).value;
     const fileInputSection: HTMLElement = document.getElementById('fileInputSection') as HTMLElement;
@@ -17,7 +18,7 @@ function toggleUploadMethod(): void {
     }
 }
 
-
+/* This function uploads a module to the server using POST /package */
 async function uploadModule(): Promise<void> {
     const uploadMethod: string = (document.querySelector('input[name="uploadMethod"]:checked') as HTMLInputElement).value;
     const formData: FormData = new FormData();
@@ -104,6 +105,7 @@ async function uploadModule(): Promise<void> {
     }
 }
 
+/* This function downloads a module from the server using GET /package/{id} */
 async function downloadPackage() {
     try {
         const loadingSpinner: HTMLElement | null = document.getElementById('loadingSpinner2');
@@ -206,7 +208,7 @@ async function downloadPackage() {
     }
 }
 
-
+/* This function searches for a module using POST /packages */
 async function searchModules(): Promise<void> {
     try {
         const loadingSpinner = document.getElementById('loadingSpinner4');
