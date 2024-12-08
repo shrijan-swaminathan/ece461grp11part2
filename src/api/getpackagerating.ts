@@ -35,7 +35,7 @@ export async function getpackagerating(
                 body: JSON.stringify("Package does not exist")
             };
         }
-        const rating = response.Item.Rating;
+        const rating = response.Item.Ratings;
         // remove URL field from rating
         if (rating){
             delete rating.URL;
