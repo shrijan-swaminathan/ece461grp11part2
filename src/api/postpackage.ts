@@ -74,7 +74,7 @@ export async function postpackage(
         let ratings: any = {};
 
         if (packageURL) {
-            // TODO: Implement URL download logic
+            // Implement URL download logic
 
             // First, take URL, plug into metrics evaluation, and check to see if all metrics > 0.5
             // const metrics = await evaluateMetrics(packageURL);
@@ -217,6 +217,8 @@ export async function postpackage(
             const zipBuffer = Buffer.from(packageContent || '', 'base64');
             const zip = new AdmZip(zipBuffer);
             const packageJsonEntry = zip.getEntry('package.json');
+            console.log("Zip Buffer:", zipBuffer);
+            console.log("Zip: ", zip);
             console.log("Package json entry:", packageJsonEntry);
             if (!packageJsonEntry) {
                 console.log("package.json NOT FOUND");
