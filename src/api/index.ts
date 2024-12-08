@@ -13,6 +13,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient} from "@aws-sdk/lib-dynamodb";
 import { postPackageByRegEx } from './postPackageByRegEx.js';
 import { getPackageCost } from './getPackageCost.js';
+import { getpackagerating } from './getpackagerating.js';
 
 const s3Client = new S3Client({ region: "us-east-2" });
 const client = new DynamoDBClient({ region: "us-east-2" });
@@ -75,6 +76,11 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
   if (httpMethod === "POST" && resourcePath === "/package/byRegEx") {
     const resp = await postPackageByRegEx(dynamoClient, tableName, bodycontent);
+    return resp;
+  }
+
+  if (httpMethod === "POST" && resourcePath === "/package/{id}/rating") {
+    const resp = await getpackagerating(tableName, queryStringParameters, dynamoClient);
     return resp;
   }
   

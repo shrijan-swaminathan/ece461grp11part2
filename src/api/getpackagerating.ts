@@ -9,7 +9,14 @@ export async function getpackagerating(
     try {
         const id = queryStringParameters?.id;
         if (!id) {
-            throw new Error("Package ID is required");
+            return {
+                statusCode: 400,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                },
+                body: JSON.stringify("ID is required")
+            }
         }
         const command = new GetCommand({
             TableName: tableName,
@@ -25,17 +32,21 @@ export async function getpackagerating(
                     'Access-Control-Allow-Origin': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
-                body: JSON.stringify({ message: 'Package not found' })
+                body: JSON.stringify("Package does not exist")
             };
         }
         const rating = response.Item.Rating;
+        // remove URL field from rating
+        if (rating){
+            delete rating.URL;
+        }
         return {
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
-            body: JSON.stringify({ rating })
+            body: JSON.stringify(rating)
         };
     } catch (error: any) {
         return {
@@ -44,7 +55,7 @@ export async function getpackagerating(
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
-            body: JSON.stringify({ message: error.message })
+            body: JSON.stringify(error.message)
         };
     }
 }
