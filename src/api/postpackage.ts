@@ -218,7 +218,6 @@ export async function postpackage(
             const zip = new AdmZip(zipBuffer);
             const entries = zip.getEntries();
             const packageJsonEntry = entries.find(entry =>  entry.entryName.endsWith('package.json') && !entry.entryName.includes('node_modules'));
-            console.log("Zip Buffer:", zipBuffer);
             console.log("Zip: ", zip);
             console.log("Package json entry:", packageJsonEntry);
             if (!packageJsonEntry) {
@@ -226,14 +225,40 @@ export async function postpackage(
                 throw new Error('package.json not found in the ZIP file.');
             }
             const packageJsonData = JSON.parse(packageJsonEntry.getData().toString('utf-8'));
-            const contentURL = packageJsonData.repository.url;
+            let contentURL = packageJsonData.repository.url;
             console.log(contentURL);
+            const pkgName = packageJsonData.name;
+            const pkgVersion = packageJsonData.version || 'latest';
             if(!contentURL){
                 console.log('repository url is empty');
-                throw new Error('package.json url not found');
+                // go to npm url after finding name
+                if (!pkgName)
+                {
+                    console.log('Name is invalid');
+                }
+                else
+                {
+                    console.log(`Npm name is ${pkgName} and ${pkgVersion}`);
+                    //check if npm url is valid
+                    const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${pkgVersion}`);
+                    if (!resp.ok) {
+                        console.log("package NOT found on npm");
+                    }
+                    else
+                    {
+                        console.log("content is valid");
+                        contentURL = `https://npmjs.com/package/${pkgName}/v/${pkgVersion}`
+                    }
+                }
             }
-            version = "1.0.0";
-            ratings = await invokeTargetLambda(contentURL, lambdaClient);
+            if(version === 'latest'){
+                version = '1.0.0'
+            }else{
+                version = pkgVersion;
+            }
+            if (!contentURL){
+                ratings = await invokeTargetLambda(contentURL, lambdaClient);
+            }
         }
         
         // Extract README from zip content
