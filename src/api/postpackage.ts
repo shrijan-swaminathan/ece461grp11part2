@@ -78,7 +78,21 @@ export async function postpackage(
             // First, take URL, plug into metrics evaluation, and check to see if all metrics > 0.5
             // const metrics = await evaluateMetrics(packageURL);
             ratings = await invokeTargetLambda(packageURL, lambdaClient);
-            if (ratings.some((metric: number) => metric < 0.5)) {
+            
+            const { NetScore: netscore, 
+                    NetScore_Latency: netscore_latency,
+                    RampUp: rampup,
+                    RampUp_Latency: rampup_latency,
+                    Correctness: correctness,
+                    Correctness_Latency: correctness_latency,
+                    BusFactor: busfactor,
+                    BusFactor_Latency: busfactor_latency,
+                    ResponsiveMaintainer: responsiveMaintainer,
+                    ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
+                    License: license,
+                    License_Latency: license_latency
+            } = ratings;   
+            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5) {
                 return {
                     statusCode: 424,
                     headers: {
