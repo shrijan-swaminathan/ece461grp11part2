@@ -7,6 +7,7 @@ import BusFactor from './Metrics/busFactor.js'
 import License from './Metrics/license.js'
 import { RampUpTime } from './Metrics/RampUp.js'
 import { Responsiveness } from './Metrics/responsiveness.js'
+import { ReviewedCodeFraction } from './Metrics/reviewedCodeFraction.js';
 import { measureExecutionTime } from './utils.js'
 
 interface MetricResult {
@@ -23,6 +24,8 @@ interface MetricResult {
     ResponsiveMaintainer_Latency: number
     License: number
     License_Latency: number
+    ReviewedCodeFraction: number
+    ReviewedCodeFraction_Latency: number
 }
 interface LambdaPayload {
     URL: string
@@ -54,6 +57,7 @@ export const handler = async (event: LambdaPayload) => {
         const rampUpCalculator = new RampUpTime(api)
         const responsivenessCalculator = new Responsiveness(api)
         const licenseCalculator = new License(api)
+        const reviewedCodeCalculator = new ReviewedCodeFraction(api)
         console.log("TESTING1", api.owner, api.repo);
         // Measure execution time of each metric calculation
         const [
@@ -62,12 +66,14 @@ export const handler = async (event: LambdaPayload) => {
             resRampUp,
             resResponsiveness,
             resLicense,
+            resReviewedCode
         ] = await Promise.all([
             measureExecutionTime(() => correctnessCalculator.computeCorrectness()),
             measureExecutionTime(() => busFactorCalculator.calcBusFactor(api.owner, api.repo)),
             measureExecutionTime(() => rampUpCalculator.computeRampUpTime()),
             measureExecutionTime(() => responsivenessCalculator.ComputeResponsiveness()),
             measureExecutionTime(() => licenseCalculator.checkLicenseAPI()),
+            measureExecutionTime(() => reviewedCodeCalculator.computeReviewedCodeFraction())
         ])
         console.log("TESTING2");
         // Get scores and times
@@ -76,12 +82,15 @@ export const handler = async (event: LambdaPayload) => {
         const RampUpScore = resRampUp.result || 0
         const ResponsivenessScore = resResponsiveness.result || 0
         const LicenseScore = resLicense.result
+        const reviewedCodeScore = resReviewedCode.result || 0
     
         const CorrectnessTime = resCorrectness.time || 0
         const BusFactorTime = resBusFactor.time || 0
         const RampUpTimeVal = resRampUp.time || 0
         const ResponsivenessTime = resResponsiveness.time || 0
         const LicenseTime = resLicense.time || 0
+        const reviewedCodeTime = resReviewedCode.time || 0
+
         let NetScore: number
         // Calculate NetScore
         if (LicenseScore == false) {
@@ -91,7 +100,8 @@ export const handler = async (event: LambdaPayload) => {
             NetScore = ((CorrectnessScore +
                         BusFactorScore +
                         RampUpScore +
-                        ResponsivenessScore) / 4)
+                        ResponsivenessScore +
+                        reviewedCodeScore) / 5)
         }
         const NetScore_Latency = parseFloat(
             (
@@ -99,7 +109,8 @@ export const handler = async (event: LambdaPayload) => {
                 BusFactorTime +
                 RampUpTimeVal +
                 ResponsivenessTime +
-                LicenseTime
+                LicenseTime + 
+                reviewedCodeTime
             ).toFixed(3)
         )
         console.log("TESTING3");
@@ -122,6 +133,8 @@ export const handler = async (event: LambdaPayload) => {
             ),
             License: parseFloat(LicenseScore == false ? "0" : "1"),
             License_Latency: parseFloat(LicenseTime.toFixed(3)),
+            ReviewedCodeFraction: parseFloat(reviewedCodeScore.toFixed(2)),
+            ReviewedCodeFraction_Latency: parseFloat(reviewedCodeTime.toFixed(3))
         }
         console.log("Result: ", result);
         results.push(result);
