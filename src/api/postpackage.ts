@@ -77,15 +77,17 @@ export async function postpackage(
 
             // First, take URL, plug into metrics evaluation, and check to see if all metrics > 0.5
             // const metrics = await evaluateMetrics(packageURL);
-            // if (metrics.some(metric => metric < 0.5)) {
-            //     return {
-            //         statusCode: 424,
-            //         headers: {
-            //             'Access-Control-Allow-Origin': '*',
-            //             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
-            //         },
-            //         body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
-            //  };
+            ratings = await invokeTargetLambda(packageURL, lambdaClient);
+            if (ratings.some((metric: number) => metric < 0.5)) {
+                return {
+                    statusCode: 424,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                    },
+                    body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
+                };
+            }
             // Download zip file from URL
             if (packageURL.includes('npmjs.com')) {
                 // Remove trailing slash
@@ -131,7 +133,6 @@ export async function postpackage(
                 const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
                 packageData['Content'] = Buffer.from(content).toString('base64');
-                ratings = await invokeTargetLambda(packageURL, lambdaClient);
                 
             }
             else{
@@ -188,7 +189,6 @@ export async function postpackage(
                     }
                     formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
                 }
-                ratings = await invokeTargetLambda(packageURL, lambdaClient);
             }
         } 
         else {
