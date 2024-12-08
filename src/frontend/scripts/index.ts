@@ -277,6 +277,7 @@ async function searchModules(): Promise<void> {
 
 async function getModuleRating(): Promise<void> {
     try {
+        // Display loading spinner
         const loadingSpinner: HTMLElement | null = document.getElementById('loadingSpinner3');
         if (loadingSpinner) {
             loadingSpinner.style.display = 'block';
