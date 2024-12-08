@@ -25,19 +25,22 @@ export const postPackageByRegEx = async (
       };
     }
 
-    const regexPattern = new RegExp(`^${RegEx}$`, "i"); 
-
-    const normalizeString = (str: string) => str.trim().toLowerCase();
+    const normalizeString = (str: string) => str.trim().toLowerCase().replace(/\s+/g, " ");
+    const normalizedRegex = normalizeString(RegEx);
+    const regexPattern = new RegExp(normalizedRegex, "i");
 
     const scanCommand = new ScanCommand({ TableName: tableName });
     const scanResult = await dynamoClient.send(scanCommand);
 
-    // Filter items
     const filteredPackages: PackageItem[] = (scanResult.Items as PackageItem[]).filter((item) => {
       const name = normalizeString(item.Name || "");
       const readme = normalizeString(item.README || "");
       const nameMatch = regexPattern.test(name);
       const readmeMatch = regexPattern.test(readme);
+
+      console.log("Testing Name:", name, "against RegEx:", normalizedRegex, "=>", nameMatch);
+      console.log("Testing README:", readme, "against RegEx:", normalizedRegex, "=>", readmeMatch);
+
       return nameMatch || readmeMatch;
     });
 
