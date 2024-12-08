@@ -235,6 +235,8 @@ async function searchModules(): Promise<void> {
             const packages = await searchResponse.json();
             allPackages = [...allPackages, ...packages];
         }
+        // limit the number of packages to display to 30
+        allPackages = allPackages.slice(0, 30);
 
         // Display results
         const resultsDiv = document.getElementById('searchResults');
