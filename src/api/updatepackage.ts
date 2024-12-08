@@ -10,6 +10,8 @@ import { extractownerrepo } from "./helperfunctions/extractownerrepo.js";
 import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import AdmZip from 'adm-zip';   
 
+/* This function invokes the target Lambda function to get the ratings for the package */
+
 async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Promise<any> {
     const command = new InvokeCommand({
       FunctionName: 'arn:aws:lambda:us-east-2:872515249498:function:metricsFunction',

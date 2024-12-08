@@ -23,7 +23,11 @@ const lambdaClient = new LambdaClient({ region: 'us-east-2' });
 
 let curr_bucket = 'ece461gp11-root-bucket';
 let tableName = 'PackageMetaData';
-  
+
+/*
+  * This is the main handler for the API Gateway endpoint.
+  * It will be invoked whenever the endpoint is called.
+*/
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const httpMethod = event.httpMethod || 'GET';
   const headers = event.headers || {};

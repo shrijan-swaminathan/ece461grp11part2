@@ -11,7 +11,7 @@ import { Octokit } from '@octokit/core';
 import AdmZip from 'adm-zip';
 // import { findReadme } from './readme';
 
-// add function to invoke lambda function to fetch metrics
+/* This function invokes the target Lambda function to get the ratings for the package */
 async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Promise<any> {
     const command = new InvokeCommand({
       FunctionName: 'arn:aws:lambda:us-east-2:872515249498:function:metricsFunction',
@@ -32,6 +32,22 @@ async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Prom
       throw error;
     }
 }
+
+/**
+ * Handles the posting of a package to the system. This function validates the package data,
+ * fetches the package content from the provided URL or content, evaluates the package metrics,
+ * and stores the package in S3 and DynamoDB.
+ *
+ * @param tableName - The name of the DynamoDB table to store package metadata.
+ * @param bodycontent - The body content of the package, which includes the package name, content, URL, etc.
+ * @param curr_bucket - The name of the S3 bucket to store the package content.
+ * @param s3Client - The S3 client used to interact with the S3 bucket.
+ * @param dynamoClient - The DynamoDB client used to interact with the DynamoDB table.
+ * @param ssmClient - The SSM client used to fetch parameters from AWS Systems Manager Parameter Store.
+ * @param lambdaClient - The Lambda client used to invoke other Lambda functions.
+ * @returns An APIGatewayProxyResult containing the status code, headers, and body of the response.
+ * @throws Will throw an error if the package data is invalid or if there are issues with fetching or storing the package.
+ */
 
 export async function postpackage(
   tableName: string, 
