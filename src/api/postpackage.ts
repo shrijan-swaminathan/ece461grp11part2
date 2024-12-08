@@ -256,7 +256,9 @@ export async function postpackage(
                 }
             }
             version = '1.0.0'
-            ratings = await invokeTargetLambda(contentURL, lambdaClient);
+            if (contentURL){
+                ratings = await invokeTargetLambda(contentURL, lambdaClient);
+            }
         }
         
         // Extract README from zip content

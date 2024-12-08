@@ -149,7 +149,7 @@ export async function updatepackage(
                 newURL = newURL.replace(/\/$/, '');
                 
                 // Update regex to handle full NPM URLs
-                const match = newURL.match(/^([https?://]*(?:www.)?npmjs.com/package/([\w-]+)(?:/v/(\d+.\d+.\d+))?)$/);
+                const match = newURL.match(/^([https?:\/\/]*(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
                 if (!match) {
                     throw new Error("Invalid NPM URL");
                 }
