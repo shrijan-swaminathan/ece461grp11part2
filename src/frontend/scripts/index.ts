@@ -255,7 +255,7 @@ async function searchModules(): Promise<void> {
                         <div class="package-grid">
                             ${allPackages.map((pkg: any) => `
                                 <div class="package-item2">
-                                    <h4>${pkg.Name}</h4>
+                                    <h4>${pkg.Name.charAt(0).toUpperCase() + pkg.Name.slice(1).toLowerCase()}</h4>
                                     <div class="version">${pkg.Version}</div>
                                     <div class="package-id">ID: ${pkg.ID}</div>
                                 </div>
@@ -348,7 +348,7 @@ async function getModuleRating(): Promise<void> {
             ratingResultsElement.innerHTML = `
                 <div class="metric-card">
                     <div class = "card-header">
-                        <h3>Package Rating Results</h3>
+                        <h3>Package Rating Results for ${packages[0].Name.charAt(0).toUpperCase() + packages[0].Name.slice(1).toLowerCase()}</h3>
                         <button class="close-btn" onclick="closeMetricsCard()">&times;</button>
                     </div>
                     <div class="rating-grid">
