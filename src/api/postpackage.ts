@@ -225,7 +225,10 @@ export async function postpackage(
                 throw new Error('package.json not found in the ZIP file.');
             }
             const packageJsonData = JSON.parse(packageJsonEntry.getData().toString('utf-8'));
-            let contentURL = packageJsonData.repository.url;
+            let contentURL = null;
+            if (packageJsonData.repository && packageJsonData.repository.url) {
+                let contentURL = packageJsonData.repository.url;
+            }
             console.log(contentURL);
             const pkgName = packageJsonData.name;
             const pkgVersion = packageJsonData.version || 'latest';
@@ -256,7 +259,7 @@ export async function postpackage(
             }else{
                 version = pkgVersion;
             }
-            if (!contentURL){
+            if (contentURL){
                 ratings = await invokeTargetLambda(contentURL, lambdaClient);
             }
         }
