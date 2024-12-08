@@ -322,22 +322,23 @@ async function getModuleRating(): Promise<void> {
         console.log(rating);  // Debugging
         if (!rating) throw new Error('Rating not found');
         // destructure rating object
-        const { NetScore: netscore, 
-            NetScore_Latency: netscore_latency,
-            RampUp: rampup,
-            RampUp_Latency: rampup_latency,
-            Correctness: correctness,
-            Correctness_Latency: correctness_latency,
+        const { 
             BusFactor: busfactor,
-            BusFactor_Latency: busfactor_latency,
+            BusFactorLatency: busfactor_latency,
+            Correctness: correctness,
+            CorrectnessLatency: correctness_latency,
+            RampUp: rampup,
+            RampUpLatency: rampup_latency,
             ResponsiveMaintainer: responsiveMaintainer,
-            ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
-            License: license,
-            License_Latency: license_latency,
-            ReviewedCode: reviewedCode,
-            ReviewedCode_Latency: reviewedCode_latency,
-            DependencyPinning: dependencyPinning,
-            DependencyPinning_Latency: dependencyPinning_latency
+            ResponsiveMaintainerLatency: responsiveMaintainer_latency,
+            LicenseScore: license,
+            LicenseScoreLatency: license_latency,
+            GoodPinningPractice: dependencyPinning,
+            GoodPinningPracticeLatency: dependencyPinning_latency,
+            PullRequest: reviewedCode,
+            PullRequestLatency: reviewedCode_latency,
+            NetScore: netscore,
+            NetScoreLatency: netscore_latency
         } = rating;
         // Display rating results
         const ratingResultsElement: HTMLElement | null = document.getElementById('ratingResults');

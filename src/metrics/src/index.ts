@@ -12,24 +12,25 @@ import { measureExecutionTime } from './utils.js'
 import { DependencyPinning } from './Metrics/dependencyPinning.js';
 
 interface MetricResult {
-    URL: string
-    NetScore: number
-    NetScore_Latency: number
-    RampUp: number
-    RampUp_Latency: number
-    Correctness: number
-    Correctness_Latency: number
-    BusFactor: number
-    BusFactor_Latency: number
-    ResponsiveMaintainer: number
-    ResponsiveMaintainer_Latency: number
-    License: number
-    License_Latency: number
-    ReviewedCode: number
-    ReviewedCode_Latency: number
-    DependencyPinning: number
-    DependencyPinning_Latency: number
+    BusFactor: number,
+    BusFactorLatency: number,
+    Correctness: number,
+    CorrectnessLatency: number,
+    RampUp: number,
+    RampUpLatency: number,
+    ResponsiveMaintainer: number,
+    ResponsiveMaintainerLatency: number,
+    LicenseScore: number,
+    LicenseScoreLatency: number,
+    GoodPinningPractice: number,
+    GoodPinningPracticeLatency: number,
+    PullRequest: number,
+    PullRequestLatency: number,
+    NetScore: number,
+    NetScoreLatency: number
 }
+
+
 interface LambdaPayload {
     URL: string
 }
@@ -126,27 +127,22 @@ export const handler = async (event: LambdaPayload) => {
         console.log("TESTING3");
         // Collect results
         const result: MetricResult = {
-            URL: api.url,
-            NetScore: parseFloat(NetScore.toFixed(2)),
-            NetScore_Latency: NetScore_Latency,
-            RampUp: parseFloat(RampUpScore.toFixed(2)),
-            RampUp_Latency: parseFloat(RampUpTimeTime.toFixed(3)),
-            Correctness: parseFloat(CorrectnessScore.toFixed(2)),
-            Correctness_Latency: parseFloat(CorrectnessTime.toFixed(3)),
             BusFactor: parseFloat(BusFactorScore.toFixed(2)),
-            BusFactor_Latency: parseFloat(BusFactorTime.toFixed(3)),
-            ResponsiveMaintainer: parseFloat(
-                ResponsivenessScore.toFixed(2)
-            ),
-            ResponsiveMaintainer_Latency: parseFloat(
-                ResponsivenessTime.toFixed(3)
-            ),
-            License: parseFloat(LicenseScore == false ? "0" : "1"),
-            License_Latency: parseFloat(LicenseTime.toFixed(3)),
-            ReviewedCode: parseFloat(ReviewedCodeScore.toFixed(2)),
-            ReviewedCode_Latency: parseFloat(ReviewedCodeTime.toFixed(3)),
-            DependencyPinning: parseFloat(DependencyPinningScore.toFixed(2)),
-            DependencyPinning_Latency: parseFloat(DependencyPinningTime.toFixed(3))
+            BusFactorLatency: parseFloat(BusFactorTime.toFixed(3)),
+            Correctness: parseFloat(CorrectnessScore.toFixed(2)),
+            CorrectnessLatency: parseFloat(CorrectnessTime.toFixed(3)),
+            RampUp: parseFloat(RampUpScore.toFixed(2)),
+            RampUpLatency: parseFloat(RampUpTimeTime.toFixed(3)),
+            ResponsiveMaintainer: parseFloat(ResponsivenessScore.toFixed(2)),
+            ResponsiveMaintainerLatency: parseFloat(ResponsivenessTime.toFixed(3)),
+            LicenseScore: parseFloat(LicenseScore == false ? "0" : "1"),
+            LicenseScoreLatency: parseFloat(LicenseTime.toFixed(3)),
+            GoodPinningPractice: parseFloat(DependencyPinningScore.toFixed(2)),
+            GoodPinningPracticeLatency: parseFloat(DependencyPinningTime.toFixed(3)),
+            PullRequest: parseFloat(ReviewedCodeScore.toFixed(2)),
+            PullRequestLatency: parseFloat(ReviewedCodeTime.toFixed(3)),
+            NetScore: parseFloat(NetScore.toFixed(2)),
+            NetScoreLatency: parseFloat(NetScore_Latency.toFixed(3))
         }
         console.log("Result: ", result);
         results.push(result);

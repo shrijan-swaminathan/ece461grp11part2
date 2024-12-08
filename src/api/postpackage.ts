@@ -80,22 +80,23 @@ export async function postpackage(
             // const metrics = await evaluateMetrics(packageURL);
             ratings = await invokeTargetLambda(packageURL, lambdaClient);
             
-            const { NetScore: netscore, 
-                    NetScore_Latency: netscore_latency,
-                    RampUp: rampup,
-                    RampUp_Latency: rampup_latency,
-                    Correctness: correctness,
-                    Correctness_Latency: correctness_latency,
+            const { 
                     BusFactor: busfactor,
-                    BusFactor_Latency: busfactor_latency,
+                    BusFactorLatency: busfactor_latency,
+                    Correctness: correctness,
+                    CorrectnessLatency: correctness_latency,
+                    RampUp: rampup,
+                    RampUpLatency: rampup_latency,
                     ResponsiveMaintainer: responsiveMaintainer,
-                    ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
-                    License: license,
-                    License_Latency: license_latency,
-                    ReviewedCode: reviewedCode,
-                    ReviewedCode_Latency: reviewedCode_latency,
-                    DependencyPinning: dependencyPinning,
-                    DependencyPinning_Latency: dependencyPinning_latency
+                    ResponsiveMaintainerLatency: responsiveMaintainer_latency,
+                    LicenseScore: license,
+                    LicenseScoreLatency: license_latency,
+                    GoodPinningPractice: dependencyPinning,
+                    GoodPinningPracticeLatency: dependencyPinning_latency,
+                    PullRequest: reviewedCode,
+                    PullRequestLatency: reviewedCode_latency,
+                    NetScore: netscore,
+                    NetScoreLatency: netscore_latency
             } = ratings;   
             if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5 || reviewedCode < 0.5 || dependencyPinning < 0.5) {
                 return {
