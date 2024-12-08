@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group 11 Module Registry</title>
-    <link rel="stylesheet" href="../css/styles.css">
-    <script src="../scripts/index.js"></script>
+    <link rel="stylesheet" href="../css/styles.css?v=<?php echo time(); ?>">
+    <script src="../scripts/index.js?v=<?php echo time(); ?>"></script>
 </head>
 <body>
     <header>
@@ -30,23 +30,33 @@
                     <label for="uploadURL">Provide NPM Package URL/GitHub URL</label>
                 </div>
                 <div id="fileInputSection" class="form-group">
-                    <label for="moduleFile">Module File (Must be a .zip file):</label>
+                    <label for="moduleFile">Module File (Must be a .zip or a .tgz file):</label>
                     <div class="file-input-container">
                         <input type="file" id="moduleFile" name="moduleFile" accept=".zip">
-                        <button type="button" class="btn btn-remove" onclick="removeFile()">Remove File</button>
+                        <button type="button" class="btn btn-remove" onclick="removeFile()">Remove</button>
                     </div>
                 </div>
 
                 <!-- URL input for NPM package -->
+                
                 <div id="urlInputSection" class="form-group hidden">
-                    <label for="npmPackageURL">NPM Package URL/GitHub URL:</label>
-                    <input type="url" id="npmPackageURL" name="npmPackageURL" placeholder="Enter public NPM package URL">
+                    <label for="npmPackageURL">Package URL:</label>
+                    <div class="url-input-container">
+                        <input type="url" id="npmPackageURL" name="npmPackageURL" class="url-input" 
+                               placeholder="NPM package URL or GitHub repository URL">
+                        <button type="button" class="clear-btn" aria-label="Clear URL input" onclick="clearURLInput()">×</button>
+                    </div>
+                    <small class="help-text">
+                        Examples:<br>
+                        NPM: https://www.npmjs.com/package/express/v/4.18.2<br>
+                        GitHub: https://github.com/owner/repo/tree/branch
+                    </small>
                 </div>
 
                 <div class="form-group">
                     <label for="debloat">
                         <input type="checkbox" id="debloat" name="debloat">
-                        Enable Debloat
+                        Enable Debloat (Nonfunctional at the moment)
                     </label>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="uploadModule()">Upload</button>
@@ -58,47 +68,75 @@
             <!-- Upload Result -->
             <div id="uploadResult"></div>
         </section>
+
+        <section id="download">
+            <h2>Download Package</h2>
+            <form id="downloadForm" class="form-container">
+                <div class="form-group">
+                    <label for="downloadModuleName">Module Name:</label>
+                    <input type="text" id="downloadModuleName" name="downloadModuleName" required placeholder="Enter module name">
+                </div>
+                <div class="form-group">
+                    <label for="downloadModuleVersion">Module Version:</label>
+                    <input type="text" id="downloadModuleVersion" name="downloadModuleVersion" required placeholder="e.g., 1.0.0">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="downloadPackage()">Download Package</button>
+            </form>
+            <div id="loadingSpinner2"></div>
+            <div id="downloadResult" class="results-container"></div>
+        </section>
         
 
         <section id="search">
             <h2>Search Modules</h2>
             <form id="searchForm" class="form-container">
                 <div class="form-group">
-                    <label for="searchTerm">Enter Module Name or Keyword:</label>
-                    <input 
-                        type="text" 
-                        id="searchTerm" 
-                        name="searchTerm" 
-                        placeholder="e.g., express, lodash" 
-                        required 
-                        aria-label="Search Term">
+                    <label for="searchName">Module Name:</label>
+                    <input type="text" id="searchName" name="searchName" placeholder="Package name (use * for all)">
+                </div>
+                <div class="form-group">
+                    <label for="searchVersion">Version Requirement:</label>
+                    <input type="text" id="searchVersion" name="searchVersion" placeholder="e.g., ^1.0.0, 2.1.0 - 3.0.0">
+                    <small class="help-text">
+                        Supports: exact (1.0.0), caret (^1.0.0), range (1.0.0 - 2.0.0)
+                    </small>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="searchModules()">Search</button>
             </form>
-            <div id="results" class="results-container">
-                <h3>Search Results</h3>
-                <p>No results found. Please refine your search.</p> <!-- Placeholder text -->
-            </div>
+            <div id="searchResults" class="results-container"></div>
         </section>
         
         <section id="rate">
-            <h2>Fetch Ratings for a Module</h2>
+            <h2>Module Ratings</h2>
             <form id="rateForm" class="form-container">
                 <div class="form-group">
-                    <label for="rateModuleName">Enter Module Name:</label>
-                    <input 
-                        type="text" 
-                        id="rateModuleName" 
-                        name="rateModuleName" 
-                        placeholder="e.g., react, axios" 
-                        required 
-                        aria-label="Module Name for Rating">
+                    <label for="rateModuleName">Module Name:</label>
+                    <input type="text" id="rateModuleName" name="rateModuleName" required placeholder="Enter module name">
+                </div>
+                <div class="form-group">
+                    <label for="rateModuleVersion">Module Version:</label>
+                    <input type="text" id="rateModuleVersion" name="rateModuleVersion" required placeholder="e.g., 1.0.0">
                 </div>
                 <button type="button" class="btn btn-primary" onclick="getModuleRating()">Get Rating</button>
             </form>
-            <div id="ratingResults" class="results-container">
-                <h3>Module Rating</h3>
-                <p>No rating available yet. Please check back after reviewing.</p>
+            <div id="loadingSpinner3"></div>
+            <div id="ratingResults" class="results-container"></div>
+        </section>  
+        
+        <section id="cost">
+            <h2>Package Cost Analysis</h2>
+            <form id="costForm" class="form-container">
+                <div class="form-group">
+                    <label for="costModuleName">Module Name:</label>
+                    <input type="text" id="costModuleName" name="costModuleName" required placeholder="Enter module name">
+                </div>
+                <div class="form-group">
+                    <label for="costModuleVersion">Module Version:</label>
+                    <input type="text" id="costModuleVersion" name="costModuleVersion" required placeholder="e.g., 1.0.0">
+                </div>
+                <button type="button" class="btn btn-primary" onclick="getModuleCost()">Get Cost Analysis</button>
+            </form>
+            <div id="costResults" class="results-container">
             </div>
         </section>
     </main>        

@@ -2,7 +2,6 @@
 
 import axios from 'axios';
 import GitHubApiCalls from '../API/GitHubApiCalls.js';
-import NpmApiCalls from '../API/NpmApiCalls.js';
 import ApiCalls from '../API/api.js';
 import { Metrics } from './Metrics.js';
 import logger from '../logger.js'; // Import the logger
@@ -19,7 +18,7 @@ export class Correctness extends Metrics {
         documentationPresence: 0.10,
         lintersPresence: 0.10,
     };
-    constructor(apiCall: GitHubApiCalls | NpmApiCalls) {
+    constructor(apiCall: GitHubApiCalls) {
         super(apiCall);
         this.metricCode = 1;
     }
@@ -50,10 +49,6 @@ export class Correctness extends Metrics {
         return this.apiCall instanceof GitHubApiCalls;
     }
 
-    private isNpmApiCall(): boolean {
-        return this.apiCall instanceof NpmApiCalls;
-    }
-
     // Function to get headers for GitHub API requests
     private getGithubHeaders(): { [key: string]: string } {
         const headers: { [key: string]: string } = {
@@ -67,12 +62,7 @@ export class Correctness extends Metrics {
 
     private async testPresence(): Promise<number> {
         logger.info('Checking for test presence.');
-        if (this.isNpmApiCall()) {
-            const packageJson = await this.getNpmPackageJson();
-            const hasTestScript = packageJson?.scripts && packageJson.scripts['test'];
-            logger.debug(`NPM package has test script: ${hasTestScript}`);
-            return hasTestScript ? 1.0 : 0.0;
-        } else if (this.isGithubApiCall()) {
+        if (this.isGithubApiCall()) {
             const hasTestDirectory =
                 (await this.hasGithubDirectory('test')) || (await this.hasGithubDirectory('tests'));
             logger.debug(`GitHub repo has test directory: ${hasTestDirectory}`);
@@ -114,8 +104,6 @@ export class Correctness extends Metrics {
             const owner = this.apiCall.owner;
             const repo = this.apiCall.repo;
             lastCommitDate = await this.getGithubLastCommitDate(owner, repo);
-        } else if (this.isNpmApiCall()) {
-            lastCommitDate = await this.getNpmLastPublishDate();
         } else {
             logger.warn('Recency score calculation is not applicable.');
             return 0.0;
@@ -163,10 +151,6 @@ export class Correctness extends Metrics {
                 (await this.hasGithubFile('README.md')) || (await this.hasGithubFile('README'));
             logger.debug(`GitHub repo has README: ${hasReadme}`);
             return hasReadme ? 1.0 : 0.0;
-        } else if (this.isNpmApiCall()) {
-            const readme = await this.getNpmReadme();
-            logger.debug(`NPM package has README: ${!!readme}`);
-            return readme ? 1.0 : 0.0;
         } else {
             logger.warn('Documentation presence check is not applicable.');
             return 0.0;
@@ -182,12 +166,6 @@ export class Correctness extends Metrics {
             const hasLinter = linterFilesExist.includes(true);
             logger.debug(`Linters presence in GitHub repo: ${hasLinter}`);
             return hasLinter ? 1.0 : 0.0;
-        } else if (this.isNpmApiCall()) {
-            const packageJson = await this.getNpmPackageJson();
-            const devDependencies = packageJson?.devDependencies || {};
-            const hasLinterPackage = devDependencies['eslint'] || devDependencies['tslint'];
-            logger.debug(`Linters presence in NPM package: ${!!hasLinterPackage}`);
-            return hasLinterPackage ? 1.0 : 0.0;
         } else {
             logger.warn('Linters presence check is not applicable.');
             return 0.0;
@@ -261,74 +239,4 @@ export class Correctness extends Metrics {
         // In GitHub API, files and directories are both 'contents'
         return this.hasGithubFile(path);
     }
-
-    // Helper functions for NPM
-
-    private async getNpmPackageJson(): Promise<any> {
-        const packageName = this.apiCall.repo; // Assuming 'repo' contains the package name
-        if (!packageName) {
-            logger.warn('Package name is not available.');
-            return null;
-        }
-        try {
-            const response = await axios.get(`https://registry.npmjs.org/${packageName}`);
-            const latestVersion = response.data['dist-tags'].latest;
-            const packageJson = response.data.versions[latestVersion];
-            logger.debug(`Fetched package.json for version ${latestVersion}`);
-            return packageJson;
-        } catch (error) {
-            logger.error('Error fetching package.json:', error);
-            return null;
-        }
-    }
-
-    private async getNpmLastPublishDate(): Promise<Date | null> {
-        const packageName = this.apiCall.repo; // Assuming 'repo' contains the package name
-        if (!packageName) {
-            logger.warn('Package name is not available.');
-            return null;
-        }
-        try {
-            const response = await axios.get(`https://registry.npmjs.org/${packageName}`);
-            const time = response.data.time;
-            const latestVersion = response.data['dist-tags'].latest;
-            const lastPublishDate = time[latestVersion];
-            logger.debug(`Fetched last publish date: ${lastPublishDate}`);
-            return lastPublishDate ? new Date(lastPublishDate) : null;
-        } catch (error) {
-            logger.error('Error fetching last publish date:', error);
-            return null;
-        }
-    }
-
-    private async getNpmReadme(): Promise<string | null> {
-        const packageName = this.apiCall.repo; // Assuming 'repo' contains the package name
-        if (!packageName) {
-            logger.warn('Package name is not available.');
-            return null;
-        }
-        try {
-            const response = await axios.get(`https://registry.npmjs.org/${packageName}`);
-            const readme = response.data.readme;
-            logger.debug('Fetched README from NPM package.');
-            return readme || null;
-        } catch (error) {
-            logger.error('Error fetching README:', error);
-            return null;
-        }
-    }
-
 }
-
-// Test code at the end of the file
-/* (async () => {
-    const apiInstance = new ApiCalls(["https://github.com/nullivex/nodist"]);
-    const gitHubApiObj = await apiInstance.callAPI();
-    if (gitHubApiObj instanceof NpmApiCalls || gitHubApiObj instanceof GitHubApiCalls) {
-        const correctnessCalculator = new Correctness(gitHubApiObj);
-        const score = await correctnessCalculator.computeCorrectness();
-        console.log('Correctness score:', score); // Explicit output to stdout
-    } else {
-        logger.error('Failed to create API object for correctness calculation.');
-    }
-})(); */

@@ -1,6 +1,7 @@
 import { APIGatewayProxyResult, APIGatewayProxyEventQueryStringParameters } from 'aws-lambda';
 import { PackageQuery, PackageMetadata } from './types.js';
 import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { isValidName } from './helperfunctions/isvalidname.js';
 import * as semver from "semver";
 
 /**
@@ -12,6 +13,7 @@ import * as semver from "semver";
  * @returns The APIGatewayProxyResult
  * @throws Error if missing fields in PackageQuery, or it is formatted incorrectly, or is invalid
 **/
+
 export async function postpackages(
     tableName: string, 
     queryStringParameters: APIGatewayProxyEventQueryStringParameters,
@@ -22,7 +24,11 @@ export async function postpackages(
         if (!bodycontent) {
             throw new Error("Package data is required");
         }
-        const queries: PackageQuery[] = JSON.parse(bodycontent);
+        let queries: PackageQuery[] = JSON.parse(bodycontent);
+        if (!Array.isArray(queries)) {
+            // turn single query into array
+            queries = [queries];
+        }
         const itemsperpage = 10;
         // get offset value from queryStringParameters
         const offset = queryStringParameters?.offset && !isNaN(parseInt(queryStringParameters.offset)) ? 
@@ -30,15 +36,15 @@ export async function postpackages(
         const startIndex = offset ? parseInt(offset) - 1 : 0;
         let searchResults: PackageMetadata[] = [];
         // Handle wildcard query
-        if (queries[0].Name === '*') {
+        if (queries.some(query => query.Name === '*')) {
             const command = new ScanCommand({
                 TableName: tableName
             });
             const allPackages = await dynamoClient.send(command);
             searchResults = allPackages.Items?.map(pkg => {
                 return {
-                    Name: pkg.Name,
                     Version: pkg.Version,
+                    Name: pkg.Name,
                     ID: pkg.ID,
                 };
             }) || [];
@@ -47,6 +53,7 @@ export async function postpackages(
                     statusCode: 200,
                     headers: {
                         'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': '*',
                         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                     },
                     body: JSON.stringify(searchResults)
@@ -63,8 +70,9 @@ export async function postpackages(
                 statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                    'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage).toString() : ''
+                    'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage + 1).toString() : ''
                 },
                 body: JSON.stringify(paginatedResults)
             };
@@ -76,12 +84,22 @@ export async function postpackages(
             // check if version name is a bounded range
             if (versionRange && versionRange.includes('-')) {
                 const [minVersion, maxVersion] = versionRange.split('-').map(v => v.trim());
-                // remake string such that it handles bounded ranges (e.g. both "1.0.0-2.0.0" and "1.0.0 - 2.0.0" are valid)
-                versionRange = `>=${minVersion} <=${maxVersion}`
+                
+                if (semver.valid(minVersion) && semver.valid(maxVersion)) {
+                    // Use semver range syntax that is guaranteed to be valid
+                    versionRange = `>=${minVersion} <${maxVersion}`;
+                }
+            }
+            if (versionRange && !semver.validRange(versionRange)) {
+                continue;
             }
             
             if (!name) {
-                throw new Error('Name is required');
+                continue;
+            }
+
+            if (!isValidName(name)) {
+                continue;
             }
 
             const command = new ScanCommand({
@@ -99,19 +117,29 @@ export async function postpackages(
             
             if (matchingPackages.Items && matchingPackages.Items.length > 0) {
                 // Filter by version if specified
-                const filteredPackages = matchingPackages.Items.filter(pkg => {
-                    if (!versionRange) return true;
-                    return semver.satisfies(pkg.Version, versionRange);
-                })
-                .map(pkg => {
-                    return {
-                        Name: pkg.Name,
-                        Version: pkg.Version,
-                        ID: pkg.ID,
-                    };
-                });
-                
-                searchResults.push(...filteredPackages as PackageMetadata[]);
+                if (versionRange) {
+                    const filteredPackages = matchingPackages.Items.filter(pkg => {
+                        return semver.satisfies(pkg.Version, versionRange, { includePrerelease: true });
+                    })
+                    .map(pkg => {
+                        return {
+                            Version: pkg.Version,
+                            Name: pkg.Name,
+                            ID: pkg.ID,
+                        };
+                    });
+                    
+                    searchResults.push(...filteredPackages as PackageMetadata[]);
+                }
+                else {
+                    searchResults.push(...matchingPackages.Items.map(pkg => {
+                        return {
+                            Version: pkg.Version,
+                            Name: pkg.Name,
+                            ID: pkg.ID,
+                        };
+                    }));
+                }
             }
         }
 
@@ -120,11 +148,19 @@ export async function postpackages(
                 statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                    'Access-Control-Allow-Headers': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'offset': ''
                 },
                 body: JSON.stringify(searchResults)
             };
         }
+        // Remove duplicates
+        searchResults = searchResults.filter((pkg, index, self) =>
+            index === self.findIndex(p => (
+                p.Name === pkg.Name && p.Version === pkg.Version
+            ))
+        );
 
         // sort searchResults by name and then by version
         searchResults.sort((a, b) => {
@@ -133,12 +169,16 @@ export async function postpackages(
             return semver.compare(a.Version, b.Version);
         });
         // get paginated results
+        if (startIndex >= searchResults.length || startIndex < 0) {
+            throw new Error('Invalid offset value');
+        }
         const paginatedResults = searchResults.slice(startIndex, startIndex + itemsperpage);
 
         return {
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage).toString() : ''
             },
@@ -150,6 +190,7 @@ export async function postpackages(
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(error.message)

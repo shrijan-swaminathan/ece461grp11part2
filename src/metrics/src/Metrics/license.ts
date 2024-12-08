@@ -10,46 +10,24 @@ import {
 } from '../utils.js'
 
 import Metrics from './Metrics.js'
-import NpmApiCalls from '../API/NpmApiCalls.js'
 import GitHubApiCalls from '../API/GitHubApiCalls.js'
 import ApiCalls from '../API/api.js'
 
 export default class License extends Metrics {
     async getLicense(): Promise<string> {
-        if (this.apiCall instanceof NpmApiCalls) {
-            const response = await this.apiCall.handleAPI()
-            const { owner, repo } = await extractInfoFromSSH(response.repository.url)
-            let gitInstance = new GitHubApiCalls(owner, repo)
-            const githubResponse = await gitInstance.handleAPI()
+        const githubResponse = await this.apiCall.handleAPI()
 
-            // Ensure license is present in GitHub API response
-            if (githubResponse && githubResponse.license) {
-                return githubResponse.license.key
-            } else {
-                logger.info('No license found in GitHub API response')
-                return 'nothing'
-            }
+        // Ensure license is present in GitHub API response
+        if (githubResponse && githubResponse.license) {
+            return githubResponse.license.key
         } else {
-            const githubResponse = await this.apiCall.handleAPI()
-
-            // Ensure license is present in GitHub API response
-            if (githubResponse && githubResponse.license) {
-                return githubResponse.license.key
-            } else {
-                logger.info('License not found in GitHub API response')
-                return 'nothing'
-            }
+            logger.info('License not found in GitHub API response')
+            return 'nothing'
         }
     }
 
     async getUrl(): Promise<string> {
-        if (this.apiCall instanceof NpmApiCalls) {
-            const response = await this.apiCall.handleAPI()
-            const { owner, repo } = await extractInfoFromSSH(response.repository.url)
-            return `https://github.com/${owner}/${repo}`
-        } else {
-            return this.apiCall.url
-        }
+        return this.apiCall.url
     }
 
     async checkLicenseFile(dir: string, compatibleLicenses: string[]): Promise<boolean> {

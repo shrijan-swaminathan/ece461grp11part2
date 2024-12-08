@@ -1,12 +1,37 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
+import { LambdaClient, InvokeCommand } from "@aws-sdk/client-lambda";
 import { randomUUID } from 'crypto';
 import { PackageData, PackageMetadata, Package } from './types.js';
 import { PutCommand, DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
 import { extractownerrepo } from './helperfunctions/extractownerrepo.js';
+import { isValidName } from './helperfunctions/isvalidname.js';
+import { Octokit } from '@octokit/core';
+// import {AdmZip} from 'adm-zip';
 // import { findReadme } from './readme';
 
+// add function to invoke lambda function to fetch metrics
+async function invokeTargetLambda(url: string, lambdaClient: LambdaClient): Promise<any> {
+    const command = new InvokeCommand({
+      FunctionName: 'arn:aws:lambda:us-east-2:872515249498:function:metricsFunction',
+      InvocationType: 'RequestResponse',
+      Payload: Buffer.from(JSON.stringify({ URL: url }), 'utf-8')
+    });
+  
+    try {
+      const response = await lambdaClient.send(command);
+      
+      if (response.Payload) {
+        const result = JSON.parse(Buffer.from(response.Payload).toString());
+        console.log('Target Lambda function output:', result);
+        return result.body;
+      }
+    } catch (error) {
+      console.error('Error invoking target Lambda function:', error);
+      throw error;
+    }
+}
 
 export async function postpackage(
   tableName: string, 
@@ -14,7 +39,8 @@ export async function postpackage(
   curr_bucket: string, 
   s3Client: any, 
   dynamoClient: DynamoDBDocumentClient,
-  ssmClient: SSMClient
+  ssmClient: SSMClient,
+  lambdaClient: LambdaClient
 ): Promise<APIGatewayProxyResult> {
     try {
         if (!bodycontent) {
@@ -25,6 +51,9 @@ export async function postpackage(
         const bucketName = curr_bucket;
         let formattedName = "";
         if (packageName){
+            if (!isValidName(packageName)) {
+                throw new Error("Invalid package name");
+            }
             formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
         }
 
@@ -42,21 +71,39 @@ export async function postpackage(
 
         let zipContent: Buffer = Buffer.from('');
         let version: string = ""
+        let ratings: any = {};
 
         if (packageURL) {
             // TODO: Implement URL download logic
 
             // First, take URL, plug into metrics evaluation, and check to see if all metrics > 0.5
             // const metrics = await evaluateMetrics(packageURL);
-            // if (metrics.some(metric => metric < 0.5)) {
-            //     return {
-            //         statusCode: 424,
-            //         headers: {
-            //             'Access-Control-Allow-Origin': '*',
-            //             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
-            //         },
-            //         body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
-            //  };
+            ratings = await invokeTargetLambda(packageURL, lambdaClient);
+            
+            const { NetScore: netscore, 
+                    NetScore_Latency: netscore_latency,
+                    RampUp: rampup,
+                    RampUp_Latency: rampup_latency,
+                    Correctness: correctness,
+                    Correctness_Latency: correctness_latency,
+                    BusFactor: busfactor,
+                    BusFactor_Latency: busfactor_latency,
+                    ResponsiveMaintainer: responsiveMaintainer,
+                    ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
+                    License: license,
+                    License_Latency: license_latency
+            } = ratings;   
+            if (netscore < 0.5 || rampup < 0.5 || correctness < 0.5 || busfactor < 0.5 || responsiveMaintainer < 0.5 || license < 0.5) {
+                return {
+                    statusCode: 424,
+                    headers: {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
+                    },
+                    body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
+                };
+            }
             // Download zip file from URL
             if (packageURL.includes('npmjs.com')) {
                 // Remove trailing slash
@@ -102,9 +149,9 @@ export async function postpackage(
                 const content = await tarballResp.arrayBuffer();
                 zipContent = Buffer.from(content);
                 packageData['Content'] = Buffer.from(content).toString('base64');
+                
             }
             else{
-                const { Octokit } = await import('@octokit/core');
                 let githubURL: string = packageURL;
                 if (githubURL && githubURL.startsWith("git+https://")) {
                     githubURL = githubURL.replace(/^git\+/, "").replace(/\.git$/, "");
@@ -135,8 +182,9 @@ export async function postpackage(
                         repo: repo,
                         ref: branch
                     }
-                ) as {data: Buffer};
-                zipContent = Buffer.from(zipballdata.toString('base64'), 'base64');
+                ) as {data: ArrayBuffer};
+                zipContent = Buffer.from(zipballdata);
+                packageData['Content'] = zipContent.toString('base64');
                 // now fetch version from package.json
                 const { data: packageJson } = await octokit.request(
                     'GET /repos/{owner}/{repo}/contents/package.json',
@@ -148,11 +196,20 @@ export async function postpackage(
                 );
                 const packageJsonContent = Buffer.from(packageJson.content, 'base64').toString('utf-8');
                 const packageJsonData = JSON.parse(packageJsonContent);
-                version = packageJsonData.version;
+                version = packageJsonData?.version;
+                if (!packageName){
+                    formattedName = packageJsonData?.name;
+                    if (!formattedName){
+                        // use repo name as package name
+                        formattedName = repo;
+                    }
+                    formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1).toLowerCase();
+                }
             }
         } 
         else {
             zipContent = Buffer.from(packageContent || '', 'base64');
+            // extract package.json from zipContent
             version = "1.0.0";
         }
         
@@ -180,6 +237,7 @@ export async function postpackage(
                 statusCode: 409,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
                 body: JSON.stringify("Package already exists")
@@ -187,7 +245,7 @@ export async function postpackage(
         }
         
         // Store in S3
-        if (!packageURL) {
+        if (!packageURL || packageURL.includes('github.com')) {
             const s3key = `packages/${formattedName}/${packageID}/package.zip`;
             await s3Client.send(new PutObjectCommand({
                 Bucket: bucketName,
@@ -224,7 +282,8 @@ export async function postpackage(
             Version: version,
             Readme: readme || '',
             URL: packageURL || '',
-            Timestamp: new Date().toISOString()
+            Timestamp: new Date().toISOString(),
+            Ratings: ratings || {},
         }
         });
 
@@ -240,6 +299,7 @@ export async function postpackage(
             statusCode: 201,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(Packageresponse)
@@ -250,6 +310,7 @@ export async function postpackage(
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(error.message)

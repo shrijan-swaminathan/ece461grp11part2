@@ -1,5 +1,54 @@
 import logger from './logger.js'
+export async function normalizeGitHubUrl(url: string): Promise<string> {
+    try {
+        // Match different GitHub URL formats using regex
+        const gitHubRegex = /^(?:git\+https|git\+ssh|ssh|git|https?):\/\/(?:git@)?github\.com[:\/]([^\/]+)\/([^\/]+?)(?:\.git)?$|^git@github\.com:([^\/]+)\/([^\/]+?)(?:\.git)?$/;
 
+        const match = url.match(gitHubRegex);
+        if (match) {
+            let owner = '';
+            let repo = '';
+            if (url.includes('git@')) {
+                owner = match[3]; // Extract owner (user or org)
+                repo = match[4];  // Extract repository name
+            }
+            else{
+                owner = match[1]; // Extract owner (user or org)
+                repo = match[2];  // Extract repository name
+            }
+            return `https://github.com/${owner}/${repo}`;
+        }
+
+        // If no valid GitHub URL is detected, log and return the original URL
+        logger.warn(`Invalid or unsupported URL format: ${url}`);
+        return url;
+    } catch (error) {
+        logger.error('Error normalizing GitHub URL:', error);
+        throw error;
+    }
+}
+
+export async function getGitHubURLfromNPM(url: string): Promise<string> {
+    let packageURL = url;
+    packageURL = packageURL.replace(/\/$/, '');
+    const match = packageURL.match(/^(https?:\/\/(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
+    if (!match) {
+        throw new Error("Invalid NPM URL");
+    }
+    const pkgName = match[2];
+    const npmversion = match[3] || 'latest';
+    
+    console.log(`Fetching package ${pkgName} version ${npmversion}`);
+    // Fetch package metadata from registry
+    const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
+    if (!resp.ok) {
+        throw new Error("Package not found in NPM registry");
+    }
+    
+    const metadata = await resp.json();
+    const githubURL = metadata.repository.url;
+    return githubURL;
+}
 export async function extractInfo(
     url: string
 ): Promise<{ type: string; owner: string; repo: string }> {

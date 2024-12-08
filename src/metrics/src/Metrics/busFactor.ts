@@ -1,5 +1,4 @@
 import GitHubApiCalls from '../API/GitHubApiCalls.js';
-import NpmApiCalls from '../API/NpmApiCalls.js';
 import Metrics from '../Metrics/Metrics.js'
 import logger from '../logger.js';
 
@@ -7,7 +6,7 @@ import logger from '../logger.js';
 class BusFactor extends Metrics {
     metricCode: number;
 
-    constructor(apiCall: GitHubApiCalls | NpmApiCalls) {
+    constructor(apiCall: GitHubApiCalls) {
         super(apiCall);
         this.metricCode = 0;
     }
@@ -18,7 +17,7 @@ class BusFactor extends Metrics {
                 throw new Error('Owner and repo are required for GitHub API calls.');
             }
 
-            // fetch contributors using method in either GitHub or NPM API calls
+            // fetch contributors using method in Github API calls
             const contributors = await this.apiCall.fetchContributors(owner, repo);
 
             if (contributors.length === 0) {
@@ -50,6 +49,7 @@ class BusFactor extends Metrics {
             const busFactorPercentage = 1 - (keyContributors / contributors.length);
             this.metricCode = busFactorPercentage;
             logger.info(`Bus Factor Calculated: ${this.metricCode}%`);
+            return this.metricCode;
         } catch (error) {
             logger.error('Error while calculating bus factor:', error);
         }

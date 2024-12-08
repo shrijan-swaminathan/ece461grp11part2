@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Log file for capturing output
-LOG_FILE="myLog.log"
+LOG_FILE="app.log"
 
 # Save original stdout to file descriptor 3
 exec 3>&1
@@ -11,7 +11,8 @@ SCRIPT_DIR=$(dirname "$0") # The directory where this script is located (src/met
 BASE_DIR="$SCRIPT_DIR/../.." # Navigate two levels up to reach the root directory
 SRC_DIR="$SCRIPT_DIR/src" # src directory inside metrics
 DIST_DIR="$BASE_DIR/dist" # Compiled JavaScript files directory
-METRICS_DIR="$DIST_DIR/metrics/src/Metrics" # Metrics folder inside dist
+UTILS_DIR="$DIST_DIR/metrics/src/" # src folder inside dist
+METRICS_DIR="$UTILS_DIR/Metrics" # Metrics folder inside dist
 
 # Function to clean the log file
 clean_log() {
@@ -57,44 +58,18 @@ process_url_file() {
   if [[ -f "$INPUT_PATH" ]]; then
     echo "File found at path: $INPUT_PATH" >&3
     echo "File found at path: $INPUT_PATH" >> "$LOG_FILE"
-    
+    # Run application code
+    npx tsc
+    if [ $? -ne 0 ]; then
+      echo "TypeScript compilation failed." >&3
+      exit 1
+    fi
     # Read URLs from the input file
     echo "Reading URLs from $INPUT_PATH..." >&3
     echo "Reading URLs from $INPUT_PATH..." >> "$LOG_FILE"
-    URLS=$(cat "$INPUT_PATH")
-
-    # Run metrics for each URL
-    for URL in $URLS; do
-      echo "Processing URL: $URL" >&3
-      echo "Processing URL: $URL" >> "$LOG_FILE"
-
-      # Example: Run each metric function with Node.js (compiled JS files)
-      echo "Running RampUp metric..." >&3
-      echo "Running RampUp metric..." >> "$LOG_FILE"
-      node "$METRICS_DIR/RampUp.js" "$URL" >> "$LOG_FILE" 2>&1
-
-      echo "Running BusFactor metric..." >&3
-      echo "Running BusFactor metric..." >> "$LOG_FILE"
-      node "$METRICS_DIR/busFactor.js" "$URL" >> "$LOG_FILE" 2>&1
-
-      echo "Running Correctness metric..." >&3
-      echo "Running Correctness metric..." >> "$LOG_FILE"
-      node "$METRICS_DIR/correctness.js" "$URL" >> "$LOG_FILE" 2>&1
-
-      echo "Running License metric..." >&3
-      echo "Running License metric..." >> "$LOG_FILE"
-      node "$METRICS_DIR/license.js" "$URL" >> "$LOG_FILE" 2>&1
-
-      echo "Running Responsiveness metric..." >&3
-      echo "Running Responsiveness metric..." >> "$LOG_FILE"
-      node "$METRICS_DIR/responsiveness.js" "$URL" >> "$LOG_FILE" 2>&1
-
-    done
-
-    echo "All metrics processed successfully!" >&3
-    echo "All metrics processed successfully!" >> "$LOG_FILE"
-    exit 0
-
+    node $UTILS_DIR/cliClass.js "$INPUT_PATH"
+    APP_EXIT_STATUS=$?
+    exit $APP_EXIT_STATUS
   else
     echo "File not found at the provided path: $INPUT_PATH" >&3
     echo "File not found at the provided path: $INPUT_PATH" >> "$LOG_FILE"

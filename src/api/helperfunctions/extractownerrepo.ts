@@ -1,3 +1,10 @@
+/**
+ * Extracts owner and repository information from a GitHub URL.
+ * @param packageURL - The GitHub repository URL
+ * @returns An object containing owner, repo, and optional branch names
+ * @throws Error if the URL is not a valid GitHub repository URL
+ */
+
 export function extractownerrepo(packageURL: string): { owner: string, repo: string, branch?: string } {
     // Given a GitHub URL, extract the owner, repo, and optionally the branch
     let owner = '';

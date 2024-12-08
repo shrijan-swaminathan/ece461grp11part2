@@ -63,6 +63,11 @@ export const postPackageByRegEx = async (
     console.error("Error processing /package/byRegEx request:", error);
     return {
       statusCode: 500,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      },
       body: JSON.stringify("An internal server error occurred."),
     };
   }

@@ -1,15 +1,14 @@
 import GitHubApiCalls from '../API/GitHubApiCalls.js';
-import NpmApiCalls from '../API/NpmApiCalls.js';
 import ApiCalls from '../API/api.js';
 import { measureExecutionTime } from '../utils.js'
 
 
 export default class Metrics {
-    protected apiCall: GitHubApiCalls | NpmApiCalls;
+    protected apiCall: GitHubApiCalls;
     protected token: string | undefined;
     private netScore: number
 
-    constructor(apiCall: GitHubApiCalls | NpmApiCalls) {
+    constructor(apiCall: GitHubApiCalls) {
         this.token = process.env.GITHUB_TOKEN;
         this.apiCall = apiCall;
         this.netScore = 0;

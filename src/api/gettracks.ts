@@ -1,6 +1,12 @@
 import { APIGatewayProxyResult } from 'aws-lambda';
 import { Track, TrackSelection} from './types.js';
 
+/**
+ * GET /tracks - Fetches the tracks available for the student
+ * @returns The APIGatewayProxyResult containing the student's track information
+ * @throws Error if there's an error fetching the data
+ */
+
 export function gettracks(): APIGatewayProxyResult {
     try {
         const tracks: Track[] = [
@@ -16,6 +22,7 @@ export function gettracks(): APIGatewayProxyResult {
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(response)
@@ -25,6 +32,7 @@ export function gettracks(): APIGatewayProxyResult {
             statusCode: 500,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify("The system encountered an error while retrieving the student's track information.")

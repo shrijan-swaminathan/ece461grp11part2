@@ -1,0 +1,85 @@
+File found at path: SampleFile1Test.txt
+Reading URLs from SampleFile1Test.txt...
+[
+  GitHubApiCalls {
+    url: 'https://github.com/lodash/lodash',
+    callReturnCode: 200,
+    owner: 'lodash',
+    repo: 'lodash',
+    octokit: Octokit {
+      request: [Function],
+      graphql: [Function],
+      log: [Object],
+      hook: [Function],
+      auth: [AsyncFunction]
+    }
+  }
+]
+current API: GitHubApiCalls {
+  url: 'https://github.com/lodash/lodash',
+  callReturnCode: 200,
+  owner: 'lodash',
+  repo: 'lodash',
+  octokit: Octokit {
+    request: [Function: newApi] {
+      endpoint: [Function],
+      defaults: [Function: bound withDefaults]
+    },
+    graphql: [Function: newApi] {
+      defaults: [Function: bound withDefaults],
+      endpoint: [Function]
+    },
+    log: {
+      debug: [Function: noop],
+      info: [Function: noop],
+      warn: [Function: bound warn],
+      error: [Function: bound error]
+    },
+    hook: [Function: bound register] {
+      api: [Object],
+      remove: [Function: bound removeHook],
+      before: [Function: bound addHook],
+      error: [Function: bound addHook],
+      after: [Function: bound addHook],
+      wrap: [Function: bound addHook]
+    },
+    auth: [Function: bound auth] AsyncFunction {
+      hook: [Function: bound hook] AsyncFunction
+    }
+  }
+}
+TESTING2
+TESTING3
+{
+  URL: 'https://github.com/lodash/lodash',
+  NetScore: 0.43,
+  NetScore_Latency: 9.236,
+  RampUp: 0.77,
+  RampUp_Latency: 0.397,
+  Correctness: 0.7,
+  Correctness_Latency: 1.571,
+  BusFactor: 0,
+  BusFactor_Latency: 0.276,
+  ResponsiveMaintainer: 0.26,
+  ResponsiveMaintainer_Latency: 6.696,
+  License: 1,
+  License_Latency: 0.296
+}
+Results: [
+  {
+    URL: 'https://github.com/lodash/lodash',
+    NetScore: 0.43,
+    NetScore_Latency: 9.236,
+    RampUp: 0.77,
+    RampUp_Latency: 0.397,
+    Correctness: 0.7,
+    Correctness_Latency: 1.571,
+    BusFactor: 0,
+    BusFactor_Latency: 0.276,
+    ResponsiveMaintainer: 0.26,
+    ResponsiveMaintainer_Latency: 6.696,
+    License: 1,
+    License_Latency: 0.296
+  }
+]
+Results written to results.json

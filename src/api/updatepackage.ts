@@ -3,18 +3,39 @@ import { DynamoDBDocumentClient, GetCommand, ScanCommand, PutCommand } from "@aw
 import { APIGatewayProxyResult } from "aws-lambda";
 import { randomUUID } from 'crypto';
 import { PutObjectCommand} from "@aws-sdk/client-s3";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { Octokit } from "@octokit/core";
+import { isValidName } from "./helperfunctions/isvalidname.js";
+import { extractownerrepo } from "./helperfunctions/extractownerrepo.js";
+
+/**
+ * POST /package/{id} - Updates a package by creating a new version with either new content or URL
+ * @param tableName - The name of the DynamoDB table
+ * @param ID - The ID of the existing package to update
+ * @param bodycontent - JSON containing metadata and package data
+ * @param curr_bucket - The name of the S3 bucket
+ * @param s3Client - The S3 client
+ * @param dynamoClient - The DynamoDB client
+ * @param ssmClient - The SSM client for accessing GitHub token
+ * @returns APIGatewayProxyResult with success/error message
+ * @throws Error if invalid version, mismatched IDs, invalid content/URL combination
+ */
 
 export async function updatepackage(
     tableName: string, 
-    ID: any, 
+    ID: string, 
     bodycontent: any, 
     curr_bucket: string, 
     s3Client: any, 
-    dynamoClient: DynamoDBDocumentClient): Promise<APIGatewayProxyResult>
+    dynamoClient: DynamoDBDocumentClient,
+    ssmClient: SSMClient): Promise<APIGatewayProxyResult>
 {
     try{
         if (!bodycontent) {
             throw new Error("Package data is required");
+        }
+        if (!ID) {
+            throw new Error("ID is required");
         }
         const command = new GetCommand({
             TableName: tableName,
@@ -32,6 +53,7 @@ export async function updatepackage(
                 statusCode: 404,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
                 body: JSON.stringify("Package does not exist.")
@@ -57,11 +79,28 @@ export async function updatepackage(
         }
 
 
-        const {inputmetadata, data} = JSON.parse(bodycontent);
-        const {Name, newVersion, metaID} = inputmetadata;
-        const {PackageName, newContent, newURL, newdebloat, JSProgram} = data;
-
-        const formattedName = PackageName.charAt(0).toUpperCase() + PackageName.slice(1).toLowerCase();
+        const {metadata, data} = JSON.parse(bodycontent);
+        const {Name: Name, Version: newVersion, ID: metaID} = metadata;
+        let {Name: PackageName, Content: newContent, URL: newURL, debloat: newdebloat, JSProgram: JSProgram} = data;
+        let formattedName = "";
+        if (!isValidName(PackageName) || !isValidName(Name)){
+            throw new Error("Invalid package name");
+        }
+        if (PackageName){
+            formattedName = PackageName.charAt(0).toUpperCase() + PackageName.slice(1).toLowerCase();
+        }
+        else if (Name){
+            formattedName = Name.charAt(0).toUpperCase() + Name.slice(1).toLowerCase();
+        }
+        else if (packageName){
+            formattedName = packageName.charAt(0).toUpperCase() + packageName.slice(1).toLowerCase();
+        }
+        else{
+            throw new Error("Package name is required");
+        }
+        if (!newVersion || !metaID){
+            throw new Error("Version and ID are required");
+        }
         if (metaID !== ID){
             throw new Error("ID does not match");
         }
@@ -105,7 +144,78 @@ export async function updatepackage(
         // Upload the new package
         let zipContent: Buffer = Buffer.from('');
         if (newURL) {
-            // TODO: Implement URL download logic
+            if (newURL.includes('npmjs.com')) {
+                // Remove trailing slash
+                newURL = newURL.replace(/\/$/, '');
+                
+                // Update regex to handle full NPM URLs
+                const match = newURL.match(/^(https?:\/\/(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
+                if (!match) {
+                    throw new Error("Invalid NPM URL");
+                }
+            
+                const pkgName = match[2];
+                const npmversion = match[3] || 'latest';
+                
+                console.log(`Fetching package ${pkgName} version ${npmversion}`);
+                // Fetch package metadata from registry
+                const resp = await fetch(`https://registry.npmjs.org/${pkgName}/${npmversion}`);
+                if (!resp.ok) {
+                    throw new Error("Package not found in NPM registry");
+                }
+                
+                const metadata = await resp.json();
+                
+                // Get tarball URL and download
+                const tarball = metadata?.dist?.tarball;
+
+                console.log("Downloading tarball from", tarball);
+
+                if (!tarball) {
+                    throw new Error("Package tarball not found");
+                }
+                const tarballResp = await fetch(tarball);
+                if (!tarballResp.ok) {
+                    throw new Error("Failed to download package");
+                }
+                
+                const content = await tarballResp.arrayBuffer();
+                zipContent = Buffer.from(content);
+            }
+            else{
+                let githubURL: string = newURL;
+                if (githubURL && githubURL.startsWith("git+https://")) {
+                    githubURL = githubURL.replace(/^git\+/, "").replace(/\.git$/, "");
+                }
+                const parameterName = "github-token";
+                const command = new GetParameterCommand({
+                    Name: parameterName,
+                    WithDecryption: true,
+                });
+                const response = await ssmClient.send(command);
+                const githubToken = response.Parameter?.Value || '';
+                const octokit = new Octokit({ auth: githubToken });
+                let { owner, repo, branch } = extractownerrepo(githubURL);
+                if (!branch){
+                    const {data: defaultBranch} = await octokit.request(
+                        'GET /repos/{owner}/{repo}',
+                        {
+                            owner: owner,
+                            repo: repo
+                        }
+                    );
+                    branch = defaultBranch.default_branch;
+                }
+                const {data: zipballdata} = await octokit.request(
+                    'GET /repos/{owner}/{repo}/zipball/{ref}',
+                    {
+                        owner: owner,
+                        repo: repo,
+                        ref: branch
+                    }
+                ) as {data: ArrayBuffer};
+                zipContent = Buffer.from(zipballdata);
+            }
         } else {
             zipContent = Buffer.from(newContent || '', 'base64');
         }
@@ -140,6 +250,7 @@ export async function updatepackage(
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify("Version is updated")
@@ -147,14 +258,15 @@ export async function updatepackage(
 
         
     }
-    catch (error) {
+    catch (error: any) {
         return {
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
-            body: JSON.stringify(error)
+            body: JSON.stringify(error.message)
         }
     }
 }

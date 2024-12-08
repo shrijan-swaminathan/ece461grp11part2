@@ -22,6 +22,7 @@ jobs:
         run: |
           npm install
           npm install --prefix lambda_deploy
+          npm install --prefix lambda_deploy_metrics
 
       - name: Transpile Frontend .ts to .js
         run: tsc src/frontend/scripts/index.ts
@@ -30,11 +31,20 @@ jobs:
         run: |
           tsc --project tsconfig.api.json
           mv lambda_deploy/node_modules/ dist/
+          mv lambda_deploy/package.json dist/
+      - name: Compile TypeScript for metrics
+        run: |
+          tsc --project tsconfig.metrics.json
+          mv lambda_deploy_metrics/node_modules/ dist_metrics/
+          mv lambda_deploy_metrics/package.json dist_metrics/
       
       - name: Create deployment package
         run: |
           cd dist
           zip -r ../function.zip .
+          cd ..
+          cd dist_metrics
+          zip -r ../function_metrics.zip .
           cd ..
 
       - name: Deploy to AWS Lambda
@@ -46,6 +56,9 @@ jobs:
           aws lambda update-function-code \
             --function-name RestHandler \
             --zip-file fileb://function.zip
+          aws lambda update-function-code \
+            --function-name metricsFunction \
+            --zip-file fileb://function_metrics.zip
       
       - name: Set up SSH
         run: |
