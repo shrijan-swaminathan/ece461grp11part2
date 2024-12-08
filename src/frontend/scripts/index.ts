@@ -385,7 +385,7 @@ async function getModuleRating(): Promise<void> {
                             <small>Latency: ${reviewedCode_latency}ms</small>
                         </div>
                         <div class="rating-item">
-                            <h4>Reviewed Code</h4>
+                            <h4>Dependency Pinning</h4>
                             <div class="score">${dependencyPinning.toFixed(2)}</div>
                             <small>Latency: ${dependencyPinning_latency}ms</small>
                         </div>
