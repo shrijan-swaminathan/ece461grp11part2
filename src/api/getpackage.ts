@@ -64,7 +64,7 @@ export async function getPackage(
         const content = await packageData.Body.transformToString('base64');
 
         const metadata = {
-            Name: packagemetaData.Item?.Name,
+            Name: packagemetaData.Item?.OriginalName || packageName,
             Version: packagemetaData.Item?.Version,
             ID: ID
         };

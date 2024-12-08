@@ -124,7 +124,7 @@ export async function postpackages(
                     .map(pkg => {
                         return {
                             Version: pkg.Version,
-                            Name: name,
+                            Name: pkg.OriginalName,
                             ID: pkg.ID,
                         };
                     });
@@ -135,7 +135,7 @@ export async function postpackages(
                     searchResults.push(...matchingPackages.Items.map(pkg => {
                         return {
                             Version: pkg.Version,
-                            Name: name,
+                            Name: pkg.OriginalName,
                             ID: pkg.ID,
                         };
                     }));

@@ -331,7 +331,7 @@ export async function postpackage(
         
         // Store metadata
         const metadata: PackageMetadata = {
-            Name: formattedName,
+            Name: packageName || formattedName,
             Version: version,
             ID: packageID
         };
@@ -343,6 +343,7 @@ export async function postpackage(
         Item: {
             ID: packageID,
             Name: formattedName,
+            OriginalName: packageName || '',
             Version: version,
             Readme: readme || '',
             URL: packageURL || '',

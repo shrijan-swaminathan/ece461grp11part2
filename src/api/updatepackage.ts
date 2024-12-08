@@ -352,6 +352,7 @@ export async function updatepackage(
             Item: {
               ID: newID,
               Name: formattedName,
+              OriginalName: Name || PackageName || '',
               Version: newVersion,
               Readme: readme || '',
               URL: newURL || '',
