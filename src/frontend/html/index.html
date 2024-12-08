@@ -56,7 +56,7 @@
                 <div class="form-group">
                     <label for="debloat">
                         <input type="checkbox" id="debloat" name="debloat">
-                        Enable Debloat
+                        Enable Debloat (Nonfunctional at the moment)
                     </label>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="uploadModule()">Upload</button>
@@ -119,8 +119,8 @@
                 </div>
                 <button type="button" class="btn btn-primary" onclick="getModuleRating()">Get Rating</button>
             </form>
-            <div id="ratingResults" class="results-container">
-            </div>
+            <div id="loadingSpinner3"></div>
+            <div id="ratingResults" class="results-container"></div>
         </section>  
         
         <section id="cost">
