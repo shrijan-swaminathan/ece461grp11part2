@@ -255,7 +255,7 @@ export async function postpackage(
                     }
                 }
             }
-            version = '1.0.0'
+            version = '1.0.0';
             if (contentURL){
                 ratings = await invokeTargetLambda(contentURL, lambdaClient);
             }
