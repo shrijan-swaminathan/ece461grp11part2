@@ -216,7 +216,8 @@ export async function postpackage(
             // extract package.json from zipContent
             const zipBuffer = Buffer.from(packageContent || '', 'base64');
             const zip = new AdmZip(zipBuffer);
-            const packageJsonEntry = zip.getEntry('package.json');
+            const entries = zip.getEntries();
+            const packageJsonEntry = entries.find(entry =>  entry.entryName.endsWith('package.json') && !entry.entryName.includes('node_modules'));
             console.log("Zip Buffer:", zipBuffer);
             console.log("Zip: ", zip);
             console.log("Package json entry:", packageJsonEntry);
