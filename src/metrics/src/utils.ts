@@ -2,7 +2,8 @@ import logger from './logger.js'
 export async function normalizeGitHubUrl(url: string): Promise<string> {
     try {
         // Match different GitHub URL formats using regex
-        const gitHubRegex = /^(?:git\+https|git\+ssh|ssh|git|https?):\/\/(?:[^@\/]+@)?github\.com[:\/]([^\/]+)\/([^\/]+?)(?:\.git)?$|^git@github\.com:([^\/]+)\/([^\/]+?)(?:\.git)?$/;
+        const gitHubRegex = /^(?:(?:git\+https|git\+ssh|ssh|git|https?):\/\/)?(?:(?:www\.|[^@\/]+\@)?github\.com|git@github\.com)[:\/]([^\/]+)\/([^\/]+?)(?:\.git)?$/;
+
 
         const match = url.match(gitHubRegex);
         if (match) {

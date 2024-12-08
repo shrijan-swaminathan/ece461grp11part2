@@ -237,6 +237,7 @@ export async function postpackage(
                 // go to npm url after finding name
                 if (!pkgName)
                 {
+                    //since contentUrl is also null
                     console.log('Name is invalid');
                 }
                 else
