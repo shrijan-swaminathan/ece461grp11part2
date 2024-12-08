@@ -10,7 +10,7 @@
 <body>
     <header>
         <h1>Welcome to the ACME Module Registry</h1>
-        <h3>This is the site where you can upload, search, and get the ratings of Node.js modules.</h3>
+        <i><h3 style = "color: white">The site where you can upload, search, and get the ratings of Node.js modules</h3></i>
     </header>
 
     <main>
@@ -18,7 +18,7 @@
             <h2>Upload/Ingest a Module</h2>
             <form id="uploadForm" class="form-container">
                 <div class="form-group">
-                    <label for="moduleName">Module Name:</label>
+                    <label for="moduleName" id="modulenametitle">Module Name <span class="required">(Required)</span>:</label>
                     <input type="text" id="moduleName" name="moduleName" required placeholder="Enter module name">
                 </div>
                 
@@ -98,11 +98,12 @@
                     <label for="searchVersion">Version Requirement:</label>
                     <input type="text" id="searchVersion" name="searchVersion" placeholder="e.g., ^1.0.0, 2.1.0 - 3.0.0">
                     <small class="help-text">
-                        Supports: exact (1.0.0), caret (^1.0.0), range (1.0.0 - 2.0.0)
+                        Supports: exact (1.0.0), caret (^1.0.0), tilde (~1.2.0), range (1.0.0 - 2.0.0)
                     </small>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="searchModules()">Search</button>
             </form>
+            <div id="loadingSpinner4"></div>
             <div id="searchResults" class="results-container"></div>
         </section>
         

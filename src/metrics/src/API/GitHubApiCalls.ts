@@ -35,7 +35,51 @@ export default class GitHubApiCalls extends ApiCalls {
             auth: githubToken,
         });
     }
+    async fetchMergedPullRequests(): Promise<any[]> {
+        try {
+            const response = await this.octokit?.request('GET /repos/{owner}/{repo}/pulls', {
+                owner: this.owner,
+                repo: this.repo,
+                state: 'closed',
+                per_page: 100,
+            });
 
+            const pullRequests = response?.data || [];
+            logger.info(`Fetched ${pullRequests.length} closed pull requests.`);
+
+            // Filter only merged PRs
+            return pullRequests.filter((pr: any) => pr.merged_at);
+        } catch (error) {
+            logger.error('Error fetching merged pull requests:', error);
+            return [];
+        }
+    }
+    async fetchReviewedPullRequests(prNumbers: number[]): Promise<number> {
+        let reviewedCount = 0;
+
+        await Promise.all(
+            prNumbers.map(async (prNumber) => {
+                try {
+                    const response = await this.octokit?.request(
+                        'GET /repos/{owner}/{repo}/pulls/{pull_number}/reviews',
+                        {
+                            owner: this.owner,
+                            repo: this.repo,
+                            pull_number: prNumber,
+                        }
+                    );
+
+                    if ((response?.data || []).length > 0) {
+                        reviewedCount++;
+                    }
+                } catch (error) {
+                    logger.error(`Error fetching reviews for PR #${prNumber}:`, error);
+                }
+            })
+        );
+
+        return reviewedCount;
+    }
     async fetchContributors(owner: string, repo: string): Promise<any[]> {
         try {
             const response = await this.octokit?.request(
