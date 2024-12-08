@@ -1,20 +1,25 @@
 import logger from './logger.js'
 export async function normalizeGitHubUrl(url: string): Promise<string> {
-    if (url.startsWith('git+ssh://git@github.com/')) {
-        return url.replace('git+ssh://git@github.com/', 'https://github.com/').replace('.git', '');
+    try {
+        // Match different GitHub URL formats using regex
+        const gitHubRegex = /^(?:git\+ssh|ssh|git|https?):\/\/(?:git@)?github\.com[:/]([^/]+)\/([^/]+?)(?:\.git)?$/;
+
+        const match = url.match(gitHubRegex);
+        if (match) {
+            const owner = match[1]; // Extract owner (user or org)
+            const repo = match[2];  // Extract repository name
+            return `https://github.com/${owner}/${repo}`;
+        }
+
+        // If no valid GitHub URL is detected, log and return the original URL
+        logger.warn(`Invalid or unsupported URL format: ${url}`);
+        return url;
+    } catch (error) {
+        logger.error('Error normalizing GitHub URL:', error);
+        throw error;
     }
-    if (url.startsWith('ssh://git@github.com/')) {
-        return url.replace('ssh://git@github.com/', 'https://github.com/').replace('.git', '');
-    }
-    if (url.startsWith('git+https://')) {
-        return url.replace('git+', '').replace('.git', '');
-    }
-    if (url.startsWith('https://github.com/')) {
-        return url.replace('.git', '');
-    }
-    // If no valid format is detected, return the original URL
-    return url;
 }
+
 export async function getGitHubURLfromNPM(url: string): Promise<string> {
     let packageURL = url;
     packageURL = packageURL.replace(/\/$/, '');
