@@ -124,7 +124,7 @@ export async function postpackages(
                     .map(pkg => {
                         return {
                             Version: pkg.Version,
-                            Name: pkg.Name,
+                            Name: name,
                             ID: pkg.ID,
                         };
                     });
