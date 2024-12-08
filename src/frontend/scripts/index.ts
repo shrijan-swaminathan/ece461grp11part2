@@ -6,6 +6,7 @@ function toggleUploadMethod(): void {
     if (uploadMethod === 'file') {
         fileInputSection.classList.remove('hidden');
         urlInputSection.classList.add('hidden');
+        clearURLInput();
     } else {
         fileInputSection.classList.add('hidden');
         urlInputSection.classList.remove('hidden');
@@ -104,8 +105,68 @@ async function uploadModule(): Promise<void> {
 
 
 function clearURLInput() {
-    const searchTermElement: HTMLInputElement | null = document.getElementById('npmPackageUrl') as HTMLInputElement;
+    const searchTermElement: HTMLInputElement | null = document.getElementById('npmPackageURL') as HTMLInputElement;
     searchTermElement.value = '';
+}
+
+async function downloadPackage() {
+    try {
+        let name = (document.getElementById('downloadModuleName') as HTMLInputElement).value;
+        let version = (document.getElementById('downloadModuleVersion') as HTMLInputElement).value;
+        // convert name to string
+        name = name.toString();
+        // convert version to string
+        version = version.toString();;
+
+        const reqbody = [{
+            Name: name,
+            Version: version
+        }];
+        // Get package ID using POST /packages
+        const searchResponse: Response = await fetch(`https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/packages`, {
+            method: 'POST',
+            body: JSON.stringify(reqbody)
+        });
+
+        if (!searchResponse.ok) throw new Error('Package not found');
+
+        const packages = await searchResponse.json();
+        console.log(packages);  // Debugging
+        if (!packages.length) throw new Error('Package not found');
+
+        // Get package content using GET /package/{id}
+        const packageId = packages[0].ID;
+        const contentResponse = await fetch(`https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/package/${packageId}`);
+        
+        if (!contentResponse.ok) throw new Error('Failed to download package');
+
+        const blob = await contentResponse.blob();
+        
+        // Create download link
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = downloadUrl;
+        downloadLink.download = `${name}-${version}.zip`;
+        
+        // Trigger download
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        const downloadResult = document.getElementById('downloadResult');
+        if (downloadResult) {
+            downloadResult.innerHTML = 'Package downloaded successfully!';
+            downloadResult.className = 'success-message';
+        }
+    } catch (error: any) {
+        const downloadResult = document.getElementById('downloadResult');
+        if (downloadResult) {
+            downloadResult.innerHTML = `Download failed: ${error.message}`;
+            downloadResult.className = 'error-message';
+        }
+        console.error('Download error:', error);
+    }
 }
 
 function readFileAsBase64(file: File): Promise<string> {

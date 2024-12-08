@@ -53,6 +53,7 @@ export async function updatepackage(
                 statusCode: 404,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
                 body: JSON.stringify("Package does not exist.")
@@ -249,6 +250,7 @@ export async function updatepackage(
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify("Version is updated")
@@ -261,6 +263,7 @@ export async function updatepackage(
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(error.message)

@@ -53,6 +53,7 @@ export async function postpackages(
                     statusCode: 200,
                     headers: {
                         'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': '*',
                         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                     },
                     body: JSON.stringify(searchResults)
@@ -69,6 +70,7 @@ export async function postpackages(
                 statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                     'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage + 1).toString() : ''
                 },
@@ -146,6 +148,7 @@ export async function postpackages(
                 statusCode: 200,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                     'offset': ''
                 },
@@ -175,6 +178,7 @@ export async function postpackages(
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
                 'offset': startIndex + itemsperpage < searchResults.length ? (startIndex + itemsperpage).toString() : ''
             },
@@ -186,6 +190,7 @@ export async function postpackages(
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(error.message)

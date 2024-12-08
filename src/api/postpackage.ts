@@ -98,6 +98,7 @@ export async function postpackage(
                     statusCode: 424,
                     headers: {
                         'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Headers': '*',
                         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                     },
                     body: JSON.stringify("Package is not uploaded due to the disqualified rating.")
@@ -236,6 +237,7 @@ export async function postpackage(
                 statusCode: 409,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
                 body: JSON.stringify("Package already exists")
@@ -297,6 +299,7 @@ export async function postpackage(
             statusCode: 201,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(Packageresponse)
@@ -307,6 +310,7 @@ export async function postpackage(
             statusCode: 400,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(error.message)

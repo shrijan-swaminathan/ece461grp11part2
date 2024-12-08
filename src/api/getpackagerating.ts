@@ -22,6 +22,7 @@ export async function getpackagerating(
                 statusCode: 400,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
                 body: JSON.stringify("ID is required")
@@ -39,6 +40,7 @@ export async function getpackagerating(
                 statusCode: 404,
                 headers: {
                     'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Headers': '*',
                     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
                 },
                 body: JSON.stringify("Package does not exist")
@@ -53,6 +55,7 @@ export async function getpackagerating(
             statusCode: 200,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(rating)
@@ -62,6 +65,7 @@ export async function getpackagerating(
             statusCode: 500,
             headers: {
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
             },
             body: JSON.stringify(error.message)
