@@ -35,6 +35,44 @@ export default class GitHubApiCalls extends ApiCalls {
             auth: githubToken,
         });
     }
+    async fetchPackageJson():Promise<{ pinned: number, total: number }> {
+        try {
+            const response = await this.octokit?.request(
+                'GET /repos/{owner}/{repo}/contents/package.json',
+                {
+                    owner: this.owner,
+                    repo: this.repo,
+                }
+            );
+            if (!response?.data) {
+                logger.warn('No package.json found in repository.');
+                return { pinned: 0, total: 0 };
+            }
+            // Decode base64 content
+            const content = Buffer.from(response.data.content, 'base64').toString('utf-8');
+            const packageJson = JSON.parse(content);
+            // Combine dependencies and devDependencies
+            const dependencies = {
+                ...packageJson.dependencies || {},
+                ...packageJson.devDependencies || {}
+            };
+            // calculate total Dependencies
+            const totalDeps = Object.keys(dependencies).length;
+            if (totalDeps === 0) {
+                return { pinned: 0, total: 0 };
+            }
+            // count pinned dependencies using regex
+            const pinnedDeps = Object.values(dependencies as Record<string, string>).filter((version: string) => {
+                const regex = /^\d+\.\d+\.\d+$/;
+                return regex.test(version);
+            }).length;
+        
+            return { pinned: pinnedDeps, total: totalDeps };
+        } catch (error) {
+            logger.error('Error fetching package.json:', error);
+            return { pinned: 0, total: 0 };
+        }
+    }
     async fetchMergedPullRequests(): Promise<any[]> {
         try {
             const response = await this.octokit?.request('GET /repos/{owner}/{repo}/pulls', {

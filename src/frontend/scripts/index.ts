@@ -334,8 +334,10 @@ async function getModuleRating(): Promise<void> {
             ResponsiveMaintainer_Latency: responsiveMaintainer_latency,
             License: license,
             License_Latency: license_latency,
-            ReviewedCodeFraction: reviewedCodeFraction,
-            ReviewedCodeFraction_Latency: reviewedCodeFraction_latency
+            ReviewedCode: reviewedCode,
+            ReviewedCode_Latency: reviewedCode_latency,
+            DependencyPinning: dependencyPinning,
+            DependencyPinning_Latency: dependencyPinning_latency
         } = rating;
         // Display rating results
         const ratingResultsElement: HTMLElement | null = document.getElementById('ratingResults');
@@ -379,8 +381,13 @@ async function getModuleRating(): Promise<void> {
                         </div>
                         <div class="rating-item">
                             <h4>Reviewed Code</h4>
-                            <div class="score">${reviewedCodeFraction.toFixed(2)}</div>
-                            <small>Latency: ${reviewedCodeFraction_latency}ms</small>
+                            <div class="score">${reviewedCode.toFixed(2)}</div>
+                            <small>Latency: ${reviewedCode_latency}ms</small>
+                        </div>
+                        <div class="rating-item">
+                            <h4>Reviewed Code</h4>
+                            <div class="score">${dependencyPinning.toFixed(2)}</div>
+                            <small>Latency: ${dependencyPinning_latency}ms</small>
                         </div>
                     </div>
                 </div>
