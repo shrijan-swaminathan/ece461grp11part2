@@ -2,24 +2,18 @@ function toggleUploadMethod(): void {
     const uploadMethod: string = (document.querySelector('input[name="uploadMethod"]:checked') as HTMLInputElement).value;
     const fileInputSection: HTMLElement = document.getElementById('fileInputSection') as HTMLElement;
     const urlInputSection: HTMLElement = document.getElementById('urlInputSection') as HTMLElement;
+    const moduleNameTitle: HTMLElement = document.getElementById('modulenametitle') as HTMLElement;
 
     if (uploadMethod === 'file') {
         fileInputSection.classList.remove('hidden');
         urlInputSection.classList.add('hidden');
+        moduleNameTitle.textContent = 'Module Name (Required)';
         clearURLInput();
     } else {
         fileInputSection.classList.add('hidden');
         urlInputSection.classList.remove('hidden');
+        moduleNameTitle.textContent = 'Module Name (Optional)';
         removeFile();
-    }
-}
-
-function removeFile(): void {
-    const fileInput: HTMLInputElement = document.getElementById('moduleFile') as HTMLInputElement;
-    fileInput.value = '';
-    const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
-    if (uploadResultElement) {
-        uploadResultElement.innerHTML = '';
     }
 }
 
@@ -108,12 +102,6 @@ async function uploadModule(): Promise<void> {
             loadingSpinner.style.display = 'none';
         }
     }
-}
-
-
-function clearURLInput() {
-    const searchTermElement: HTMLInputElement | null = document.getElementById('npmPackageURL') as HTMLInputElement;
-    searchTermElement.value = '';
 }
 
 async function downloadPackage() {
@@ -218,49 +206,70 @@ async function downloadPackage() {
     }
 }
 
-function readFileAsBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (typeof reader.result === 'string') {
-                const base64String = reader.result.split(',')[1];
-                resolve(base64String);
-            } else {
-                reject(new Error('Failed to read file as base64 string'));
-            }
-        };
-        reader.onerror = () => reject(new Error('Error reading file'));
-        reader.readAsDataURL(file);
-    });
-}
-
 
 async function searchModules(): Promise<void> {
-    const searchTermElement: HTMLInputElement | null = document.getElementById('searchTerm') as HTMLInputElement;
-    const searchTerm: string = searchTermElement.value;
     try {
-        const response: Response = await fetch(`/api/search?query=${encodeURIComponent(searchTerm)}`);
-        const data: Array<{ moduleName: string; description: string }> = await response.json();
+        const loadingSpinner = document.getElementById('loadingSpinner4');
+        if (loadingSpinner) loadingSpinner.style.display = 'block';
+
+        const moduleName = (document.getElementById('searchName') as HTMLInputElement).value.toString();
+        const moduleRange = (document.getElementById('searchVersion') as HTMLInputElement).value.toString();
         
-        const resultsDiv: HTMLElement | null = document.getElementById('results');
+        let allPackages: any[] = [];
+        let offset: string | null = '1';
+        const endpoint = `https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage/packages?offset=${offset}`;
+        // Fetch all pages
+        while (offset !== null) {
+            const searchResponse = await fetch(endpoint, {
+                method: 'POST',
+                body: JSON.stringify([{
+                    Name: moduleName,
+                    Version: moduleRange
+                }])
+            });
+
+            if (!searchResponse.ok) throw new Error('Package not found');
+            
+            // Get offset from response headers
+            offset = searchResponse.headers.get('offset');
+            const packages = await searchResponse.json();
+            allPackages = [...allPackages, ...packages];
+        }
+
+        // Display results
+        const resultsDiv = document.getElementById('searchResults');
         if (resultsDiv) {
-            if (data.length > 0) {
-                resultsDiv.innerHTML = data.map(item => `
-                    <div>
-                        <h3>${item.moduleName}</h3>
-                        <p>${item.description}</p>
-                    </div>
-                `).join('');
+            if (!allPackages.length) {
+                resultsDiv.innerHTML = '<div class="metric-card">No packages found</div>';
             } else {
-                resultsDiv.innerHTML = '<p>No modules found.</p>';
+                resultsDiv.innerHTML = `
+                    <div class="metric-card">
+                        <div class="card-header">
+                            <h3>Search Results</h3>
+                            <button class="close-btn" onclick="closeSearchResults()">&times;</button>
+                        </div>
+                        <div class="package-grid">
+                            ${allPackages.map((pkg: any) => `
+                                <div class="package-item2">
+                                    <h4>${pkg.Name}</h4>
+                                    <div class="version">${pkg.Version}</div>
+                                    <div class="package-id">ID: ${pkg.ID}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
             }
         }
     } catch (error) {
-        const resultsDiv: HTMLElement | null = document.getElementById('results');
+        const resultsDiv = document.getElementById('results');
         if (resultsDiv) {
             resultsDiv.innerHTML = 'Search failed. Please try again.';
         }
         console.error('Search error:', error);
+    } finally {
+        const loadingSpinner = document.getElementById('loadingSpinner4');
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
     }
 }
 
@@ -282,6 +291,9 @@ async function getModuleRating(): Promise<void> {
         moduleVersion = moduleVersion.toString();
         moduleName = moduleName.toString();
 
+        if (!moduleName || !moduleVersion) {
+            throw new Error('Module name and version are required');
+        }
         const reqbody = [{
             Name: moduleName,
             Version: moduleVersion
@@ -366,11 +378,11 @@ async function getModuleRating(): Promise<void> {
         }
 
         
-    } catch (error) {
+    } catch (error: any) {
         const ratingResultsElement: HTMLElement | null = document.getElementById('ratingResults');
         if (ratingResultsElement) {
             ratingResultsElement.style.color = 'red';
-            ratingResultsElement.innerHTML = 'Failed to retrieve rating. Please try again.';
+            ratingResultsElement.innerHTML = error.message;
         }
         console.error('Rating error:', error);
     }
@@ -383,9 +395,46 @@ async function getModuleRating(): Promise<void> {
     }
 }
 
+function clearURLInput() {
+    const searchTermElement: HTMLInputElement | null = document.getElementById('npmPackageURL') as HTMLInputElement;
+    searchTermElement.value = '';
+}
+
 function closeMetricsCard() {
     const ratingResults = document.getElementById('ratingResults');
     if (ratingResults) {
         ratingResults.innerHTML = '';
     }
+}
+
+function closeSearchResults() {
+    const searchResults = document.getElementById('searchResults');
+    if (searchResults) {
+        searchResults.innerHTML = '';
+    }
+}
+
+function removeFile(): void {
+    const fileInput: HTMLInputElement = document.getElementById('moduleFile') as HTMLInputElement;
+    fileInput.value = '';
+    const uploadResultElement: HTMLElement | null = document.getElementById('uploadResult');
+    if (uploadResultElement) {
+        uploadResultElement.innerHTML = '';
+    }
+}
+
+function readFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === 'string') {
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            } else {
+                reject(new Error('Failed to read file as base64 string'));
+            }
+        };
+        reader.onerror = () => reject(new Error('Error reading file'));
+        reader.readAsDataURL(file);
+    });
 }
