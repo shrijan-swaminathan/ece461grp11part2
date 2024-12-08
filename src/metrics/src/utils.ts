@@ -32,7 +32,7 @@ export async function normalizeGitHubUrl(url: string): Promise<string> {
 export async function getGitHubURLfromNPM(url: string): Promise<string> {
     let packageURL = url;
     packageURL = packageURL.replace(/\/$/, '');
-    const match = packageURL.match(/^(https?:\/\/(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
+    const match = packageURL.match(/^([https?:\/\/]*(?:www\.)?npmjs\.com\/package\/([\w-]+)(?:\/v\/(\d+\.\d+\.\d+))?)$/);
     if (!match) {
         throw new Error("Invalid NPM URL");
     }
