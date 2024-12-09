@@ -36,6 +36,40 @@ A web-based Node.js package registry system with modern UI and comprehensive pac
 - Shrijan Swaminathan
 - Aarav Patel
 
+### How to Use the Repository
+
+## REST API
+- All REST API code is contained inside of src/api
+    - index.ts: This is the main handler for the API Gateway endpoint.
+    - All other .ts files are for each endpoint
+- To compile to .js, run:
+  ```bash
+    tsc --project tsconfig.api.json
+- This will deposit it inside of ./dist in the root directory
+- Run "npm i ... --save" or "npm i ... --save-dev" in the lambda_deploy directory to ensure that all dependencies are pushed to Lambda
+- Adjust deploy_lambda.yaml to include the Lambda Function for your REST API files
+
+## Metrics Function
+- The metrics functions are all contained inside of src/metrics/src
+    - index.ts: This is the main handler to fetch URL's and return metrics
+- To compile to .js, run:
+  ```bash
+    tsc --project tsconfig.metrics.json
+- This will deposit it inside of ./dist_metrics in the root directory
+- Run "npm i ... --save" or "npm i ... --save-dev" in the lambda_deploy_metrics directory to ensure that all dependencies are pushed to Lambda
+- Adjust deploy_lambda.yaml to include the Lambda Function for your Metric files
+
+## Frontend
+- All frontend code is contained inside of src/frontend
+    - css:
+        - Houses styles.css for styling
+    - html:
+        - Houses index.html for html
+    - scripts
+        - Houses index.ts (compiled to index.js during CD) for functions
+    - testing
+        - Houses testfrontend.py, which uses Selenium to test frontend
+
 ## Endpoints
 - Web Interface: http://3.140.252.124/
 - API URL: https://dofogoenof.execute-api.us-east-2.amazonaws.com/MainStage
