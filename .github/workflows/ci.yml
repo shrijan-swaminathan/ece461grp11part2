@@ -17,10 +17,10 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '22.x'  # Specify your Node.js version
-
     - name: Install dependencies
       run: npm install
-
+    - name: Format Check
+      run: npx prettier --check .
     - name: Run tests
       run: npm test
-      working-directory: ./MPN-main
+      working-directory: ./test
