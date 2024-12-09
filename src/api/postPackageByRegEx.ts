@@ -4,7 +4,7 @@ import { DynamoDBDocumentClient, ScanCommand, PutCommand } from "@aws-sdk/lib-dy
 export const postPackageByRegEx = async (
   dynamoClient: DynamoDBDocumentClient,
   tableName: string,
-  bodyContent: string,
+  bodyContent: any,
 ): Promise<APIGatewayProxyResult> => {
   try{
     if (!bodyContent) {
@@ -19,7 +19,7 @@ export const postPackageByRegEx = async (
       };
     }
     const body = JSON.parse(bodyContent);
-    const { regex } = body;
+    const { RegEx: regex } = body;
     if (!regex) {
       throw new Error("Missing regex in request body");
     }
