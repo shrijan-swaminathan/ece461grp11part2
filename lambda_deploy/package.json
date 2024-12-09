@@ -15,8 +15,10 @@
     "@types/adm-zip": "^0.5.7",
     "@types/node": "^22.10.1",
     "@types/semver": "^7.5.8",
+    "@types/unzipper": "^0.10.10",
     "adm-zip": "^0.5.16",
-    "semver": "^7.6.3"
+    "semver": "^7.6.3",
+    "unzipper": "^0.12.3"
   },
   "dependencies": {
     "@octokit/core": "^6.1.2",
