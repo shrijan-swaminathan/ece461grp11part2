@@ -1,7 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { DynamoDBDocumentClient, ScanCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
-import axios from "axios";
-import { PackageMetadata, PackageItem } from "./types.js";
 
 export const postPackageByRegEx = async (
   dynamoClient: DynamoDBDocumentClient,
