@@ -98,8 +98,8 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   
 
   if (httpMethod === "POST" && resourcePath === "/package/byRegEx") {
-    const resp = await postPackageByRegEx(dynamoClient, tableName, bodycontent);
-    return resp;
+    // const resp = await postPackageByRegEx(dynamoClient, tableName, bodycontent);
+    // return resp;
   }
 
   if (httpMethod === "GET" && resourcePath === "/package/{id}/rate") {
