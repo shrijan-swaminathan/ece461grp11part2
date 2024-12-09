@@ -60,26 +60,26 @@ export const postPackageByRegEx = async (
         }
 
         // Fetch README from zipped package content in S3
-        if (!readme) {
-          try {
-            const s3Params = {
-              Bucket: bucketName,
-              Key: `packages/${item.Name}/${item.ID}/package.zip`,
-            };
-            const s3Object = await s3Client.send(new GetObjectCommand(s3Params));
-            const stream = s3Object.Body.pipe(unzipper.Parse({ forceStream: true }));
-            for await (const entry of stream) {
-              const fileName = entry.path;
-              if (fileName.toLowerCase() === "readme.md") {
-                readme = await entry.buffer().then((buf: Buffer) => buf.toString());
-                break;
-              }
-              entry.autodrain();
-            }
-          } catch (error) {
-            console.error(`Failed to fetch README from S3 for package: ${item.Name}`, error);
-          }
-        }
+        // if (!readme) {
+        //   try {
+        //     const s3Params = {
+        //       Bucket: bucketName,
+        //       Key: `packages/${item.Name}/${item.ID}/package.zip`,
+        //     };
+        //     const s3Object = await s3Client.send(new GetObjectCommand(s3Params));
+        //     const stream = s3Object.Body.pipe(unzipper.Parse({ forceStream: true }));
+        //     for await (const entry of stream) {
+        //       const fileName = entry.path;
+        //       if (fileName.toLowerCase() === "readme.md") {
+        //         readme = await entry.buffer().then((buf: Buffer) => buf.toString());
+        //         break;
+        //       }
+        //       entry.autodrain();
+        //     }
+        //   } catch (error) {
+        //     console.error(`Failed to fetch README from S3 for package: ${item.Name}`, error);
+        //   }
+        // }
 
         // Update DynamoDB if README is found
         if (readme) {
