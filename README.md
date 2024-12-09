@@ -26,7 +26,7 @@ A web-based Node.js package registry system with modern UI and comprehensive pac
 ## UI Features
 - Responsive design with mobile support
 - Modern typography using Google Fonts (Roboto, Poppins)
-- Clean color scheme (#3498db, #2c3e50)
+- Clean color scheme
 - Interactive loading states
 - Clear error handling
 - Intuitive form layouts
@@ -38,7 +38,7 @@ A web-based Node.js package registry system with modern UI and comprehensive pac
 
 ## How to Use the Repository
 
-### REST API
+### REST API (Uses AWS API Gateway)
 - All REST API code is contained inside of src/api
     - index.ts: This is the main handler for the API Gateway endpoint.
     - All other .ts files are for each endpoint
