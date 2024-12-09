@@ -30,10 +30,34 @@ def test_url_input():
     submit_button.click()
 
     # Wait for result or validation message
-    time.sleep(20)
+    time.sleep(40)
 
     # Check if URL was processed
     upload_result = driver.find_element(By.ID, 'uploadResult')
     print(upload_result.text)
 
+def test_download_package():
+    # Locate the download section elements
+    module_name_input = driver.find_element(By.ID, 'downloadModuleName')
+    module_version_input = driver.find_element(By.ID, 'downloadModuleVersion')
+
+    # Enter module name and version
+    module_name_input.send_keys('karma')
+    module_version_input.send_keys('6.3.17')
+
+    # Click the Download button
+    download_button = driver.find_element(By.XPATH, '//button[text()="Download Package"]')
+    download_button.click()
+
+    # Wait for result or validation message
+    time.sleep(20)
+
+    # Check if the download result is displayed
+    download_result = driver.find_element(By.ID, 'downloadResult')
+    print(download_result.text)
+
+
 test_url_input()
+test_download_package()
+
+driver.quit()

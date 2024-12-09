@@ -343,7 +343,7 @@ export async function postpackage(
         Item: {
             ID: packageID,
             Name: formattedName,
-            OriginalName: packageName || '',
+            OriginalName: packageName || formattedName,
             Version: version,
             Readme: readme || '',
             URL: packageURL || '',
