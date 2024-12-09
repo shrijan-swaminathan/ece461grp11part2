@@ -38,4 +38,5 @@ export interface PackageItem {
   README?: string;
   Version?: string;
   ID?: string;
+  URL?: string;
 }

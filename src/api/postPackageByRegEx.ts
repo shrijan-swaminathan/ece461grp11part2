@@ -1,6 +1,7 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { DynamoDBDocumentClient, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { PackageMetadata, PackageItem } from './types.js';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { DynamoDBDocumentClient, ScanCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import axios from "axios";
+import { PackageMetadata, PackageItem } from "./types.js";
 
 export const postPackageByRegEx = async (
   dynamoClient: DynamoDBDocumentClient,
@@ -16,7 +17,7 @@ export const postPackageByRegEx = async (
     }
 
     const parsedBody = JSON.parse(bodyContent);
-    const { RegEx, MatchType = "partial" } = parsedBody;
+    const { RegEx } = parsedBody;
 
     if (!RegEx) {
       return {
@@ -24,43 +25,52 @@ export const postPackageByRegEx = async (
         body: JSON.stringify("RegEx field is missing or invalid."),
       };
     }
+
     const regexPattern = new RegExp(RegEx, "i");
+    const normalizeString = (str: string) => str.trim().toLowerCase();
 
     const scanCommand = new ScanCommand({ TableName: tableName });
     const scanResult = await dynamoClient.send(scanCommand);
 
-    const normalizeString = (str: string) => str.trim().toLowerCase();
+    const filteredPackages: (PackageItem | null)[] = await Promise.all(
+      (scanResult.Items as PackageItem[]).map(async (item) => {
 
-    // Filter items
-    const filteredPackages: PackageItem[] = (scanResult.Items as PackageItem[]).filter((item) => {
-      const name = normalizeString(item.Name || "");
-      const readme = normalizeString(item.README || "");
+        let readme = item.README || "";
+        if (!readme && item.URL) {
+          try {
+            const response = await axios.get(item.URL);
+            readme = response.data;
 
-      let exactMatch = false;
-      let partialMatchName = false;
-      let partialMatchReadme = false;
+            const updateCommand = new PutCommand({
+              TableName: tableName,
+              Item: { ...item, README: readme },
+            });
+            await dynamoClient.send(updateCommand);
+          } catch (error) {
+            console.error(`Failed to fetch README for URL: ${item.URL}`, error);
+          }
+        }
+        const name = normalizeString(item.Name || "");
+        const normalizedReadme = normalizeString(readme || "");
+        const nameMatch = regexPattern.test(name);
+        const readmeMatch = regexPattern.test(normalizedReadme);
 
-      if (MatchType === "exact") {
-        exactMatch = name === RegEx;
-      } else if (MatchType === "partial") {
-        partialMatchName = regexPattern.test(name);
-        partialMatchReadme = regexPattern.test(readme);
-      }
+        console.log("Testing Name:", name, "against RegEx:", RegEx, "=>", nameMatch);
+        console.log("Testing README:", normalizedReadme, "against RegEx:", RegEx, "=>", readmeMatch);
 
-      //debug
-      console.log("Matching item:", item);
-      console.log("Exact Match:", exactMatch, "Partial Name Match:", partialMatchName, "Partial README Match:", partialMatchReadme);
+        return nameMatch || readmeMatch ? item : null;
+      })
+    );
+    const validPackages = filteredPackages.filter((pkg): pkg is PackageItem => pkg !== null);
 
-      return exactMatch || partialMatchName || partialMatchReadme;
-    });
-
-    if (!filteredPackages || filteredPackages.length === 0) {
+    if (validPackages.length === 0) {
       return {
         statusCode: 404,
         body: JSON.stringify("No package found under this regex."),
       };
     }
-    const response: PackageMetadata[] = filteredPackages.map((pkg) => ({
+
+    const response: PackageMetadata[] = validPackages.map((pkg) => ({
       Version: pkg.Version || "",
       Name: pkg.Name || "",
       ID: pkg.ID || "",

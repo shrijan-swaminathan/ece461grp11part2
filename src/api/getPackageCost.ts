@@ -14,48 +14,49 @@ const fetchMetadataFromDynamoDB = async (
   const result = await dynamoClient.send(command);
 
   if (!result.Item) {
-    throw new Error(`Package ID "${id}" not found.`);
+    throw new Error('Package ID "${id}" not found.');
   }
 
   return result.Item;
 };
-
-const visitedPackages = new Set<string>();
-const validateDependencies = (dependencies: any, id: string) => {
-  if (!Array.isArray(dependencies)) {
-    throw new Error(`Dependencies for package "${id}" are invalid.`);
-  }
-  dependencies.forEach((dep) => {
-    if (!dep.id || typeof dep.id !== "string") {
-      throw new Error(`Dependency in package "${id}" has a missing or invalid ID.`);
-    }
-  });
-};
-
 
 const calculateCostRecursive = async (
   id: string,
   tableName: string,
   dynamoClient: DynamoDBDocumentClient
 ): Promise<number> => {
-  if (visitedPackages.has(id)) {
-    throw new Error(`Circular dependency detected for package "${id}".`);
-  }
-  visitedPackages.add(id);
-
+  // Fetch metadata for the current package
   const metadata = await fetchMetadataFromDynamoDB(id, tableName, dynamoClient);
 
-  const standaloneCost = metadata.size || 0; 
-  const dependencies = metadata.dependencies || [];
-  validateDependencies(dependencies, id);
+  // Validate package size
+  if (typeof metadata.size !== "number" || metadata.size <= 0) {
+    throw new Error('Package "${id}" has an invalid or missing size.');
+  }
+  const standaloneCost = metadata.size;
 
+  // Check for dependencies
+  const dependencies = metadata.dependencies || [];
+  if (!Array.isArray(dependencies)) {
+    throw new Error('Dependencies for package "${id}" are invalid.');
+  }
+
+  if (dependencies.length === 0) {
+    return standaloneCost;
+  }
+
+  // the cost for all dependencies 
   const dependenciesCost = await Promise.all(
-    dependencies.map(async (dep: { id: string }) => calculateCostRecursive(dep.id, tableName, dynamoClient))
+    dependencies.map(async (dep: { id: string }) => {
+      if (!dep.id) {
+        throw new Error('Dependency in package "${id}" has a missing ID.');
+      }
+      return calculateCostRecursive(dep.id, tableName, dynamoClient);
+    })
   );
 
+  // Sum costs
   return standaloneCost + dependenciesCost.reduce((sum, cost) => sum + cost, 0);
 };
-
 
 export const getPackageCost = async (
   id: string,
@@ -71,13 +72,9 @@ export const getPackageCost = async (
       };
     }
 
-    // Calculate standalone cost
+    // Calculate costs
     const standaloneCost = await calculateCostRecursive(id, tableName, dynamoClient);
-
-    // Calculate total cost based on dependency flag
-    const totalCost = dependency
-      ? await calculateCostRecursive(id, tableName, dynamoClient) 
-      : standaloneCost; 
+    const totalCost = dependency ? standaloneCost : standaloneCost;
 
     const costResponse: PackageCost = {
       standaloneCost,
@@ -96,4 +93,3 @@ export const getPackageCost = async (
     };
   }
 };
-
