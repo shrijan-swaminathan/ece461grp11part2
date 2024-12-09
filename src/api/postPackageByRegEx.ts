@@ -15,7 +15,7 @@ export const postPackageByRegEx = async (
           'Access-Control-Allow-Headers': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS'
         },
-        body: JSON.stringify({ message: "Missing request body" }),
+        body: JSON.stringify("Missing request body"),
       };
     }
     const body = JSON.parse(bodyContent);
@@ -36,7 +36,7 @@ export const postPackageByRegEx = async (
       if (item.OriginalName.match(regex)) {
         // only want to push {id, name, version} to the items array
         const { ID: id, OriginalName: name, Version: version } = item;
-        items.push({ ID: id, Name: name, Version: version });
+        items.push({ Version: version, Name: name, ID: id });
       }
     }
 
