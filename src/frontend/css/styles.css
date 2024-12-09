@@ -118,7 +118,6 @@ button {
     background-color: #c0392b;
 }
 
-/* Results Sections */
 #results, #ratingResults {
     margin-top: 20px;
     background-color: #ffffff;
@@ -194,7 +193,6 @@ footer {
     100% { transform: rotate(360deg); }
 }
 
-/* Optional: Style for the result messages */
 #uploadResult,
 #analyzeResult,
 #ratingResults,
@@ -208,12 +206,12 @@ footer {
 
 .search-input-container {
     position: relative;
-    width: 100%; /* Ensure the container takes up the full width */
+    width: 100%;
 }
 
 #searchTerm {
-    width: 100%; /* Ensure the input box fills the container */
-    padding-right: 40px; /* Add padding for the clear button */
+    width: 100%;
+    padding-right: 40px;
     padding-left: 10px;
     font-size: 16px;
     line-height: 1.5;
@@ -233,19 +231,16 @@ footer {
     transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-/* Optional: Add hover effect */
 .url-input:hover {
     border-color: black;
 }
 
-/* Ensure the container has a flexbox layout */
 .url-input-container {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-/* Style the input to take up more space */
 .url-input-container .url-input {
     flex: 1;
     padding: 8px;
@@ -266,7 +261,7 @@ footer {
 }
 
 .clear-btn:hover {
-    color: #000; /* Darker color on hover (optional) */
+    color: #000;
 }
 
 #costResults {

@@ -277,6 +277,8 @@ async function searchModules(): Promise<void> {
     }
 }
 
+/* This function retrieves the rating of a module through fetching the ID from POST /packages and 
+then calling GET /package/{id}/rate */
 async function getModuleRating(): Promise<void> {
     try {
         // Display loading spinner
@@ -415,11 +417,13 @@ async function getModuleRating(): Promise<void> {
     }
 }
 
+/* This function clears the URL input field */
 function clearURLInput() {
     const searchTermElement: HTMLInputElement | null = document.getElementById('npmPackageURL') as HTMLInputElement;
     searchTermElement.value = '';
 }
 
+/* This function clears the metrics output */
 function closeMetricsCard() {
     const ratingResults = document.getElementById('ratingResults');
     if (ratingResults) {
@@ -427,6 +431,7 @@ function closeMetricsCard() {
     }
 }
 
+/* This function closes the search results */
 function closeSearchResults() {
     const searchResults = document.getElementById('searchResults');
     if (searchResults) {
@@ -434,6 +439,7 @@ function closeSearchResults() {
     }
 }
 
+/* This function clears the file input field */
 function removeFile(): void {
     const fileInput: HTMLInputElement = document.getElementById('moduleFile') as HTMLInputElement;
     fileInput.value = '';
@@ -443,6 +449,7 @@ function removeFile(): void {
     }
 }
 
+/* This function reads a file as a base64 string */
 function readFileAsBase64(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
